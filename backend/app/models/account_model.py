@@ -1,5 +1,5 @@
 import uuid
-from ..extensions import db
+from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID
 
 class Account(db.Model):
@@ -11,4 +11,3 @@ class Account(db.Model):
     role_type = db.Column(db.String(50), nullable=False)
 
     student = db.relationship('Student', back_populates='account', uselist=False, cascade="all, delete-orphan")
-    

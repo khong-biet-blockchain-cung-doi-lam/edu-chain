@@ -1,6 +1,15 @@
 import hashlib
 import json
-from .web3_client import get_smart_contract
+# Support both relative and absolute imports to avoid "relative import beyond top-level package"
+try:
+    from .web3_client import get_smart_contract
+except (ImportError, ValueError):
+    # Try absolute import based on package name; adjust 'app.services' if your package root differs.
+    try:
+        from app.services.web3_client import get_smart_contract
+    except ImportError:
+        # Fallback to top-level module (useful for running module directly during development)
+        from web3_client import get_smart_contract
 
 class BlockchainService:
 
