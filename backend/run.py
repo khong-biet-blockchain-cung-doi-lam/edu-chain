@@ -1,11 +1,15 @@
 import sys, os
+from dotenv import load_dotenv
+
+load_dotenv() # Load environment variables from .env file
+
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from flask import Flask
+from flask import Flask, jsonify
 from app import create_app
 from app.extensions import db
-from app.models.user_model import User
 from app.models.account_model import Account
+from flask import request
 
 app = create_app()
 

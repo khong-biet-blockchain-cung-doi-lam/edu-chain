@@ -1,45 +1,72 @@
-# app/utils/excel_parser.py
 import pandas as pd
+import io
 
-REQUIRED_COLUMNS = ["student_id", "citizen_id"]
-
-def read_excel(file_path_or_fileobj):
+def read_excel(file):
     """
-    Đọc file Excel trả về DataFrame.
-    file_path_or_fileobj: đường dẫn hoặc file-like object (werkzeug FileStorage).
+    Read Excel file from uploaded file object
+    Args:
+        file: FileStorage object from Flask request.files
+    Returns:
+        pandas DataFrame
     """
-    df = pd.read_excel(file_path_or_fileobj, dtype=str)  # đọc string để giữ số CCCD
-    df = df.fillna("")  # tránh NaN
-    # chuẩn hóa tên cột: chuyển về lowercase và loại khoảng trắng
-    df.columns = [c.strip().lower() for c in df.columns]
+    # Reset file pointer to the beginning
+    file.seek(0)
+    # Force read as string to preserve leading zeros
+    df = pd.read_excel(file, dtype=str)
     return df
 
 def validate_dataframe(df):
     """
-    Kiểm tra các dòng, trả về (valid_rows, errors)
-    valid_rows: list of dict {student_id, citizen_id}
-    errors: list of dict {row_index, msg}
+    Validate the DataFrame has the required columns and data
+    Args:
+        df: pandas DataFrame
+    Returns:
+        tuple: (valid_rows, errors)
+            valid_rows: list of dict with valid data
+            errors: list of error messages
     """
     errors = []
-    valid = []
-    # kiểm cột cần thiết
-    cols = [c.strip().lower() for c in df.columns]
-    for col in REQUIRED_COLUMNS:
-        if col not in cols:
-            return [], [{"row": None, "msg": f"Thiếu cột bắt buộc '{col}'"}]
-
+    valid_rows = []
+    
+    # Check required columns
+    required_columns = ['student_id', 'citizen_id']
+    missing_columns = [col for col in required_columns if col not in df.columns]
+    
+    if missing_columns:
+        errors.append({
+            "row": None, 
+            "msg": f"Thiếu các cột bắt buộc: {', '.join(missing_columns)}"
+        })
+        return valid_rows, errors
+    
+    # Validate each row
     for idx, row in df.iterrows():
-        sid = str(row.get("student_id", "")).strip()
-        cid = str(row.get("citizen_id", "")).strip()
-        if not sid:
-            errors.append({"row": idx + 2, "msg": "student_id trống"})  # +2: tiêu đề + 0-index
+        row_num = idx + 2  # Excel row number (1-indexed + header)
+        
+        # Get values
+        student_id = str(row['student_id']).strip() if pd.notna(row['student_id']) else ""
+        citizen_id = str(row['citizen_id']).strip() if pd.notna(row['citizen_id']) else ""
+        
+        # Validate student_id
+        if not student_id or student_id == 'nan':
+            errors.append({
+                "row": row_num,
+                "msg": f"Dòng {row_num}: Mã sinh viên không được để trống"
+            })
             continue
-        if not cid:
-            errors.append({"row": idx + 2, "msg": "citizen_id trống"})
+        
+        # Validate citizen_id
+        if not citizen_id or citizen_id == 'nan':
+            errors.append({
+                "row": row_num,
+                "msg": f"Dòng {row_num}: CCCD không được để trống"
+            })
             continue
-        # basic validation: chỉ số và độ dài (tùy chỉnh)
-        if not cid.isdigit():
-            errors.append({"row": idx + 2, "msg": "citizen_id không hợp lệ (phải là số)."})
-            continue
-        valid.append({"student_id": sid, "citizen_id": cid})
-    return valid, errors
+        
+        # Add to valid rows
+        valid_rows.append({
+            "student_id": student_id,
+            "citizen_id": citizen_id
+        })
+    
+    return valid_rows, errors
