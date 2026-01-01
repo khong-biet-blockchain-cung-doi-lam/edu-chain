@@ -5,6 +5,10 @@ from app.models.student_models import Student
 from app.models.supabase_models import StudentPersonalInfo, StudentContact, StudentEnrollment, Major, Cohort
 import uuid
 from datetime import date
+from dotenv import load_dotenv
+
+# Load params form .env
+load_dotenv()
 
 app = create_app()
 
@@ -47,7 +51,7 @@ with app.app_context():
             gender="Nam",
             national_id_number="001099123456",
             class_name="SE1501",
-            academic_status="Studying"
+            academic_status="Còn học"
         )
         db.session.add(p_info)
         print("Created Personal Info")
