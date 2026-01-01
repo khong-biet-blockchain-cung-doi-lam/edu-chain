@@ -24,10 +24,10 @@ def test_full_flow():
             print(resp.json())
             
             if resp.status_code != 200:
-                print("❌ Upload failed. Stopping.")
+                print("[FAIL] Upload failed. Stopping.")
                 return
         except Exception as e:
-            print(f"❌ Connection error: {e}")
+            print(f"[ERROR] Connection error: {e}")
             return
 
     # 2. Login
@@ -45,12 +45,12 @@ def test_full_flow():
         print(resp.json())
 
         if resp.status_code == 200:
-            print("✅ Login SUCCESS! Access Token received.")
+            print("[OK] Login SUCCESS! Access Token received.")
         else:
-            print("❌ Login FAILED.")
+            print("[FAIL] Login FAILED.")
             
     except Exception as e:
-        print(f"❌ Connection error: {e}")
+        print(f"[ERROR] Connection error: {e}")
 
 if __name__ == "__main__":
     test_full_flow()

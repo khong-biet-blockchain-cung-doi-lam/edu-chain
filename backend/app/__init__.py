@@ -20,11 +20,13 @@ def create_app(config_object=None):
     
     # Import routes AFTER models are imported
     from app.routes.auth_routes import bp_auth
-    from app.routes.student_routes import bp_student
+    from app.routes.student_routes import bp_student, bp_student_portal
     from app.routes.home_routes import bp_home
+    from app.routes.upload_routes import bp_upload
 
     app.register_blueprint(bp_home)
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_student)
+    app.register_blueprint(bp_student_portal)
     app.register_blueprint(bp_upload)
     return app
