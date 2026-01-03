@@ -4,7 +4,7 @@ from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID
 
 class Account(db.Model):
-    __tablename__ = 'accounts' # Plural (Original)
+    __tablename__ = 'account' # Plural (Original)
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username = db.Column(db.String(50), unique=True, nullable=False)
