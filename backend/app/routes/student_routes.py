@@ -1,26 +1,15 @@
-# app/routes/student_routes.py
-import io
 from flask import Blueprint, request, jsonify, current_app
-from app.extensions import db
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.account_model import Account
-from app.models.user_model import User
-from passlib.hash import bcrypt
-from app.utils.excel_parser import read_excel, validate_dataframe
-from sqlalchemy.exc import IntegrityError
+from app.models.student_model import Student
+# Import models for checks if needed, or just rely on relationships
+from app.services.excel_upload_service import process_excel_and_upload
 
 bp_student = Blueprint("student", __name__, url_prefix="/api/staff")
-# helper để check staff role - đơn giản, bạn sẽ thay bằng auth decorator thực sự
-def is_staff_user(user_id):
-    # TODO: implement proper role check
-    return True
+bp_student_portal = Blueprint("student_portal", __name__, url_prefix="/api/student")
 
 @bp_student.route("/upload-students", methods=["POST"])
 def upload_students():
-    """
-    multipart/form-data: field 'file' chứa file excel
-    Yêu cầu: staff auth (ở đây tạm thời không bắt)
-    """
-    # TODO: kiểm tra auth staff -> hiện tạm bỏ
     if 'file' not in request.files:
         return jsonify({"msg": "Không tìm thấy file trong request"}), 400
     file = request.files['file']
@@ -28,40 +17,57 @@ def upload_students():
         return jsonify({"msg": "Tên file rỗng"}), 400
 
     try:
-        df = read_excel(file)
-        valid_rows, errors = validate_dataframe(df)
+        results = process_excel_and_upload(file)
+        if "errors" in results and "created" not in results:
+             return jsonify(results), 400
+        return jsonify(results), 200
     except Exception as e:
-        current_app.logger.exception("Lỗi đọc excel")
-        return jsonify({"msg": "Lỗi khi đọc file excel", "error": str(e)}), 500
+        current_app.logger.exception("Lỗi upload students")
+        return jsonify({"msg": "Lỗi hệ thống", "error": str(e)}), 500
 
-    results = {"total": len(df), "created": 0, "skipped": 0, "errors": errors.copy()}
-    # xử lý bản ghi hợp lệ
-    for rec in valid_rows:
-        username = rec["student_id"]
-        citizen = rec["citizen_id"]
-        # chính sách: nếu username đã tồn tại -> skip và báo
-        existing = User.query.filter_by(username=username).first()
-        if existing:
-            results["skipped"] += 1
-            results["errors"].append({"row": None, "msg": f"{username} đã tồn tại, đã skip"})
-            continue
-        # tạo user mới, password_hash từ citizen (bcrypt)
-        pwd_hash = bcrypt.hash(citizen)
-        new_user = User(username=username, password_hash=pwd_hash, role="student")
-        db.session.add(new_user)
-        try:
-            db.session.flush()  # để phát hiện lỗi unique sớm
-            results["created"] += 1
-        except IntegrityError:
-            db.session.rollback()
-            results["skipped"] += 1
-            results["errors"].append({"row": None, "msg": f"Lỗi tạo {username}, duplicate?"})
-    # commit cuối cùng
-    try:
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.exception("Lỗi commit DB")
-        return jsonify({"msg": "Lỗi lưu vào DB", "error": str(e)}), 500
+@bp_student_portal.route("/profile", methods=["GET"])
+@jwt_required()
+def get_student_profile():
+    current_account_id = get_jwt_identity()
+    
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Không tìm thấy thông tin sinh viên"}), 404
 
-    return jsonify(results), 200
+    student = account.student
+    
+    # Access relationships from new student_model.py
+    p_info = student.personal_info
+    contact = student.contact
+    enrollment = student.enrollment
+    
+    response_data = {
+        "student_id": student.student_id,
+        "email": account.username, 
+        
+        "personal_info": {
+            "first_name": p_info.first_name if p_info else "",
+            "last_name": p_info.last_name if p_info else "",
+            "date_of_birth": p_info.date_of_birth.strftime('%Y-%m-%d') if p_info and p_info.date_of_birth else None,
+            "gender": p_info.gender if p_info else "",
+            "national_id": p_info.national_id_number if p_info else "",
+            "class_name": p_info.class_name if p_info else "",
+            "academic_status": p_info.academic_status if p_info else "",
+        },
+        
+        "contact_info": {
+            "phone": contact.phone if contact else "",
+            "email_personal": contact.personal_email if contact else "",
+            "email_edu": contact.edu_email if contact else "",
+            "address": contact.contact_address if contact else ""
+        },
+        
+        "enrollment_info": {
+            "major": enrollment.major.name if (enrollment and enrollment.major) else "",
+            "major_code": enrollment.major.code if (enrollment and enrollment.major) else "",
+            "cohort": enrollment.cohort.name if (enrollment and enrollment.cohort) else "",
+            "curriculum": enrollment.curriculum.name if (enrollment and enrollment.curriculum) else ""
+        }
+    }
+
+    return jsonify(response_data), 200

@@ -1,22 +1,21 @@
-from typing import Optional
-from uuid import UUID
-from datetime import datetime
-from pydantic import EmailStr, field_validator
+from app.extensions import db
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
-from app.models.base import CustomBaseModel
-
-class StudentContact(CustomBaseModel):
-    id: UUID
-    country: str = 'Việt Nam'
-    province: Optional[str] = None
-    district: Optional[str] = None
-    ward: Optional[str] = None
-    permanent_address: Optional[str] = None
-    contact_address: Optional[str] = None
-    phone: str
-    personal_email: EmailStr
-    edu_email: Optional[EmailStr] = None
-    created_at: Optional[datetime] = None
+class StudentContact(db.Model):
+    __tablename__ = 'student_contact'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    country = db.Column(db.Text)
+    province = db.Column(db.Text)
+    district = db.Column(db.Text)
+    ward = db.Column(db.Text)
+    permanent_address = db.Column(db.Text)
+    contact_address = db.Column(db.Text)
+    phone = db.Column(db.Text)
+    personal_email = db.Column(db.Text)
+    edu_email = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     @field_validator('phone')
     @classmethod

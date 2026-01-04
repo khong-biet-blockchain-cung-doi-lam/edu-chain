@@ -1,11 +1,21 @@
-from uuid import UUID
-from typing import Optional
-from datetime import datetime
+from app.extensions import db
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
-from app.models.base import CustomBaseModel
+class Student(db.Model):
+    __tablename__ = 'students'
 
-class Student(CustomBaseModel):
-    id: Optional[UUID] = None
-    student_code: str
-    account_id: UUID #FK đến account.id
-    created_at: Optional[datetime] = None
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    student_id = db.Column(db.String(20), unique=True, nullable=False)
+    account_id = db.Column(UUID(as_uuid=True), db.ForeignKey('accounts.id'), unique=True, nullable=False)
+
+    account = db.relationship('Account', back_populates='student')
+
+    # Relationships to Modular Models
+    # Giả định mapping 1-1 qua ID
+    personal_info = db.relationship('StudentPersonalInfo', foreign_keys=[id], primaryjoin="Student.id==StudentPersonalInfo.id", uselist=False, viewonly=True)
+    contact = db.relationship('StudentContact', foreign_keys=[id], primaryjoin="Student.id==StudentContact.id", uselist=False, viewonly=True)
+    enrollment = db.relationship('StudentEnrollment', backref='student', uselist=False)
+
+    def __repr__(self):
+        return f'<Student {self.student_id}>'

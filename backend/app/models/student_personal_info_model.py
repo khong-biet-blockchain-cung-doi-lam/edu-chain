@@ -1,19 +1,18 @@
-from typing import Optional
-from uuid import UUID
-from datetime import datetime, date
+from app.extensions import db
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 
-from app.models.base import CustomBaseModel
-from app.models.enums import GenderEnum, AcademicStatus
-
-class StudentPersonalInfo(CustomBaseModel):
-    id: UUID
-    first_name: str
-    last_name: str
-    date_of_birth: Optional[date] = None
-    national_id_number: str
-    ethnicity: Optional[str] = None
-    religion: Optional[str] = None
-    class_name: Optional[str] = None
-    academic_status: AcademicStatus
-    gender: GenderEnum
-    created_at: Optional[datetime] = None
+class StudentPersonalInfo(db.Model):
+    __tablename__ = 'student_personal_info'
+    
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    first_name = db.Column(db.Text)
+    last_name = db.Column(db.Text)
+    date_of_birth = db.Column(db.Date)
+    gender = db.Column(db.String(3)) 
+    national_id_number = db.Column(db.Text)
+    ethnicity = db.Column(db.Text)
+    religion = db.Column(db.Text)
+    class_name = db.Column(db.Text)
+    academic_status = db.Column(db.String(13))
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
