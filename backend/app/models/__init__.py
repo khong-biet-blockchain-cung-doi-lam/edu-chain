@@ -1,4 +1,7 @@
-# app/models/__init__.py
-from app.models.account_model import Account
-from app.models.user_model import User
-from app.models.student_models import Student
+from .account_model import Account
+from .student_model import Student
+from .student_personal_info_model import StudentPersonalInfo
+from .student_contact_model import StudentContact
+from .student_enrollment_model import StudentEnrollment
+from .academic_models import Major, Cohort, Curriculum
+from .enums import AcademicStatus
