@@ -18,3 +18,4 @@ werkzeug
 cryptography
 bcrypt
 flask_sqlalchemy
+web3

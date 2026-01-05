@@ -11,8 +11,3 @@ build/
 backend/.env
 
 .DS_Store
-
-package-lock.json
-package.json
-
-frontend/login-form/package-lock.json

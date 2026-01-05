@@ -6,7 +6,6 @@ from app.routes.student_routes import bp_student, bp_student_portal
 # from app.routes.home_routes import bp_home
 
 def create_app(config_object=None):
-def create_app(config_object=None):
     app = Flask(__name__)
     app.config.from_object(config_object or "config.Config")
 
