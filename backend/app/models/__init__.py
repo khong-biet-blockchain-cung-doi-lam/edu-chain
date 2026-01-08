@@ -5,3 +5,5 @@ from .student_contact_model import StudentContact
 from .student_enrollment_model import StudentEnrollment
 from .academic_models import Major, Cohort, Curriculum
 from .enums import AcademicStatus
+from .course_models import Subject, Semester, CourseClass, Grade
+from .staff_models import Lecturer, Staff, LecturerSubject
