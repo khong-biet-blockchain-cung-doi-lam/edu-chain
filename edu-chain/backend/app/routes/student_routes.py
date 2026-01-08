@@ -2,7 +2,6 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.account_model import Account
 from app.models.student_model import Student
-from app.models.course_models import Grade
 # Import models for checks if needed, or just rely on relationships
 from app.services.excel_upload_service import process_excel_and_upload
 
@@ -71,67 +70,4 @@ def get_student_profile():
         }
     }
 
-
     return jsonify(response_data), 200
-
-@bp_student_portal.route("/grades", methods=["GET"])
-@jwt_required()
-def get_student_grades():
-    current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
-    if not account or not account.student:
-        return jsonify({"msg": "Student profile not found"}), 404
-
-    student = account.student
-    
-    # Use backref 'grades' from Grade model
-    student_grades = student.grades
-    
-    results = []
-    for g in student_grades:
-        course_class = g.course_class
-        subject = course_class.subject if course_class else None
-        
-        results.append({
-            "class_id": course_class.id if course_class else None,
-            "class_code": course_class.class_code if course_class else "N/A",
-            "class_name": course_class.name if course_class else "N/A",
-            "subject_name": subject.name if subject else "N/A",
-            "credits": subject.credits if subject else 0,
-            "scores": {
-                "regular": g.regular_score,
-                "midterm": g.midterm_score,
-                "final": g.final_score,
-                "total": g.total_score
-            },
-            "status": g.status,
-            "onchain_hash": g.onchain_hash
-        })
-        
-    return jsonify(results), 200
-
-@bp_student_portal.route("/grades/<grade_id>/review", methods=["POST"])
-@jwt_required()
-def request_grade_review(grade_id):
-    current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
-    if not account or not account.student:
-        return jsonify({"msg": "Unauthorized"}), 401
-    
-    # Verify grade belongs to student
-    grade = Grade.query.get(grade_id)
-    if not grade:
-        return jsonify({"msg": "Grade not found"}), 404
-        
-    if grade.student_id != account.student.id:
-        return jsonify({"msg": "Access denied"}), 403
-        
-    data = request.get_json() or {}
-    
-    # Update status
-    grade.status = "REVIEW_REQUESTED" 
-    
-    from app.extensions import db
-    db.session.commit()
-    
-    return jsonify({"msg": "Review requested successfully", "status": grade.status}), 200
