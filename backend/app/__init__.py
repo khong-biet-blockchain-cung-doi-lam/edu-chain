@@ -21,7 +21,8 @@ def create_app(config_object=None):
     # Import models AFTER db is initialized
     from app.models import account_model, student_model
     
-    # app.register_blueprint(bp_home)
+    from app.routes.home_routes import bp_home 
+    app.register_blueprint(bp_home)
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_student)
     app.register_blueprint(bp_student_portal)
