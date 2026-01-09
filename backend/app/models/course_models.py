@@ -52,7 +52,7 @@ class Grade(db.Model):
     status = db.Column(db.Text) # e.g. 'PASSED', 'FAILED'
     onchain_hash = db.Column(db.Text)
     
-    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('students.id'))
+    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'))
     course_class_id = db.Column(UUID(as_uuid=True), db.ForeignKey('course_classes.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
