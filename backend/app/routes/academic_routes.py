@@ -1,14 +1,16 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.course_models import Subject, Semester, CourseClass
 from app.models.staff_models import Lecturer
-from flask_jwt_extended import jwt_required
+from app.models.account_model import Account
+from app.models.student_model import Student, StudentPersonalInfo
+from app.decorators import staff_required
+import bcrypt
 
 bp_academic = Blueprint("academic", __name__, url_prefix="/api/academic")
 
-# 1. Add Subject
 @bp_academic.route("/subjects", methods=["POST"])
-# @jwt_required() # Uncomment when auth is fully set up
+@staff_required(required_role_code='ACADEMIC_MANAGER')
 def add_subject():
     data = request.get_json()
     code = data.get("subject_code")
@@ -28,8 +30,8 @@ def add_subject():
     
     return jsonify({"msg": "Subject created", "id": new_subject.id}), 201
 
-# 2. Add Semester
 @bp_academic.route("/semesters", methods=["POST"])
+@staff_required(required_role_code='ACADEMIC_MANAGER')
 def add_semester():
     data = request.get_json()
     code = data.get("code")
@@ -44,8 +46,8 @@ def add_semester():
     
     return jsonify({"msg": "Semester created", "id": new_sem.id}), 201
 
-# 3. Add Course Class + Schedule (Basic)
 @bp_academic.route("/classes", methods=["POST"])
+@staff_required(required_role_code='ACADEMIC_MANAGER')
 def add_course_class():
     data = request.get_json()
     class_code = data.get("class_code")
@@ -56,7 +58,6 @@ def add_course_class():
     if not class_code or not name or not subject_id or not semester_id:
         return jsonify({"msg": "Missing required fields"}), 400
         
-    # Check FKs
     if not Subject.query.get(subject_id):
         return jsonify({"msg": "Subject not found"}), 404
     if not Semester.query.get(semester_id):
@@ -73,8 +74,8 @@ def add_course_class():
     
     return jsonify({"msg": "Class created", "id": new_class.id}), 201
 
-# 4. Assign Lecturer to Class
 @bp_academic.route("/classes/<class_id>/assign", methods=["POST"])
+@staff_required(required_role_code='ACADEMIC_MANAGER')
 def assign_lecturer(class_id):
     data = request.get_json()
     lecturer_id = data.get("lecturer_id")
@@ -91,3 +92,47 @@ def assign_lecturer(class_id):
     db.session.commit()
     
     return jsonify({"msg": "Lecturer assigned successfully"}), 200
+
+@bp_academic.route('/students', methods=['POST'])
+@staff_required(required_role_code='ACADEMIC_MANAGER')
+def create_student():
+    data = request.get_json()
+    student_code = data.get('student_code')
+    full_name = data.get('full_name')
+    password = data.get('password', '123456')
+
+    if Account.query.filter_by(login_id=student_code).first():
+        return jsonify({"msg": "Student code already exists"}), 400
+
+    try:
+        hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        new_acc = Account(login_id=student_code, password_hash=hashed, role_type='student')
+        db.session.add(new_acc)
+        db.session.flush()
+
+        new_stu = Student(student_code=student_code, account_id=new_acc.id)
+        db.session.add(new_stu)
+        db.session.flush()
+        
+        if full_name:
+            parts = full_name.strip().split()
+            first_name = parts[-1] if parts else ""
+            last_name = " ".join(parts[:-1]) if len(parts) > 1 else ""
+            
+            info = StudentPersonalInfo(
+                id=new_stu.id,
+                first_name=first_name,
+                last_name=last_name,
+                gender='OTHER',
+                national_id_number=f"CCCD_{student_code}",
+                academic_status='ENROLLED'
+            )
+            db.session.add(info)
+        
+        db.session.commit()
+        return jsonify({"msg": "Student created successfully", "id": new_stu.id}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": str(e)}), 500
