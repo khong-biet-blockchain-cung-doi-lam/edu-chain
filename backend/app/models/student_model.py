@@ -5,10 +5,10 @@ import uuid
 class Student(db.Model):
     __tablename__ = 'student'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
     # Map 'student_id' python attribute to 'student_code' database column
     student_id = db.Column('student_code', db.String(20), unique=True, nullable=False)
-    account_id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), unique=True, nullable=False)
+    # account_id removed
 
     account = db.relationship('Account', back_populates='student')
 
