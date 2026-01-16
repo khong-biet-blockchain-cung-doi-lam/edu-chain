@@ -47,25 +47,30 @@ class TestEduChainFlow(unittest.TestCase):
                     # 2. Delete dependents based on role assumption or just try deleting from all profile tables
                     # Student dependents
                     # Need student_id from student table to delete enrollment/grades?
-                    stu_res = db.session.execute(text("SELECT id FROM student WHERE account_id = :aid"), {"aid": acc_id}).fetchone()
+                    # Student dependents
+                    # Need student_id from student table to delete enrollment/grades?
+                    stu_res = db.session.execute(text("SELECT id FROM student WHERE id = :aid"), {"aid": acc_id}).fetchone()
                     if stu_res:
                         stu_id = stu_res[0]
                         db.session.execute(text("DELETE FROM grades WHERE student_id = :sid"), {"sid": stu_id})
                         db.session.execute(text("DELETE FROM student_enrollment WHERE student_id = :sid"), {"sid": stu_id})
+                        db.session.execute(text("DELETE FROM student_emergency_contact WHERE id = :sid"), {"sid": stu_id})
                         db.session.execute(text("DELETE FROM student_contact WHERE id = :sid"), {"sid": stu_id})
                         db.session.execute(text("DELETE FROM student_personal_info WHERE id = :sid"), {"sid": stu_id})
                         db.session.execute(text("DELETE FROM student WHERE id = :sid"), {"sid": stu_id})
 
                     # Lecturer/Staff dependents
                     # Need to clear course classes first
-                    lect_res = db.session.execute(text("SELECT id FROM lecturer WHERE account_id = :aid"), {"aid": acc_id}).fetchone()
+                    # Lecturer ID is same as Account ID
+                    lect_res = db.session.execute(text("SELECT id FROM lecturer WHERE id = :aid"), {"aid": acc_id}).fetchone()
                     if lect_res:
                          lect_id = lect_res[0]
                          db.session.execute(text("DELETE FROM grades WHERE course_class_id IN (SELECT id FROM course_classes WHERE lecturer_id = :lid)"), {"lid": lect_id})
                          db.session.execute(text("DELETE FROM course_classes WHERE lecturer_id = :lid"), {"lid": lect_id})
                          db.session.execute(text("DELETE FROM lecturer WHERE id = :lid"), {"lid": lect_id})
 
-                    db.session.execute(text("DELETE FROM staffs WHERE account_id = :aid"), {"aid": acc_id})
+                    db.session.execute(text("DELETE FROM staffs WHERE id = :aid"), {"aid": acc_id})
+                    db.session.execute(text("DELETE FROM verifiers WHERE id = :aid"), {"aid": acc_id})
                     
                     # 3. Delete Account
                     db.session.execute(text("DELETE FROM account WHERE id = :aid"), {"aid": acc_id})
@@ -89,7 +94,7 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(staff)
         db.session.commit()
             
-        staff_profile = Staff(account_id=staff.id, full_name="Test Staff")
+        staff_profile = Staff(id=staff.id, full_name="Test Staff")
         db.session.add(staff_profile)
         db.session.commit()
         self.staff_id = staff.id
@@ -101,7 +106,7 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(lect)
         db.session.commit()
                  
-        lect_profile = Lecturer(account_id=lect.id, lecturer_code="GV001")
+        lect_profile = Lecturer(id=lect.id, lecturer_code="GV001")
         db.session.add(lect_profile)
         db.session.commit()
         self.lecturer_id = lect.id
@@ -114,7 +119,7 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(stu)
         db.session.commit()
             
-        stu_profile = Student(account_id=stu.id, student_id="SV001")
+        stu_profile = Student(id=stu.id, student_id="SV001")
         db.session.add(stu_profile)
         db.session.commit()
         self.student_id = stu.id

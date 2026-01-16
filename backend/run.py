@@ -3,7 +3,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from flask import Flask
 from app.extensions import db
-from app.models.user_model import User
 from app.models.account_model import Account
 from dotenv import load_dotenv
 
