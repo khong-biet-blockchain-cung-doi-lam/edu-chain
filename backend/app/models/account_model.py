@@ -11,7 +11,7 @@ class Account(db.Model):
     role = db.Column(db.String(20), default="student")
     
     is_active = db.Column(db.Boolean, nullable=False, default=True)
-    cccd_encrypted = db.Column(db.Text, nullable=True)
+
     
     student = db.relationship('Student', back_populates='account', uselist=False, cascade="all, delete-orphan")
 
