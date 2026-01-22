@@ -9,12 +9,17 @@ class Organization(db.Model):
     name = db.Column(db.Text, nullable=False)
     type = db.Column(db.Text)
     parent_id = db.Column(UUID(as_uuid=True), db.ForeignKey('organizations.id'))
-    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=db.func.now())
 
-    # Relationship for hierarchy
     children = db.relationship('Organization', 
                                backref=db.backref('parent', remote_side=[id]),
                                uselist=True)
 
-    def __repr__(self):
-        return f"<Organization {self.name}>"
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "name": self.name,
+            "type": self.type,
+            "parent_id": str(self.parent_id) if self.parent_id else None,
+            "created_at": str(self.created_at) if self.created_at else None
+        }
