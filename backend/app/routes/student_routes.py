@@ -4,6 +4,7 @@ from app.models.account_model import Account
 from app.models.student_model import Student
 from app.models.course_models import Grade
 # Import models for checks if needed, or just rely on relationships
+from app.extensions import db
 from app.services.excel_upload_service import process_excel_and_upload
 
 bp_student = Blueprint("student", __name__, url_prefix="/api/staff")
@@ -73,6 +74,89 @@ def get_student_profile():
 
 
     return jsonify(response_data), 200
+
+@bp_student_portal.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_student_profile():
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Unauthorized"}), 401
+
+    student = account.student
+    contact = student.contact
+    
+    if not contact:
+        from app.models.student_contact_model import StudentContact
+        # Create if missing (shouldn't happen usually)
+        contact = StudentContact(id=student.id, personal_email=account.username) # fallback
+        db.session.add(contact)
+    
+    data = request.get_json()
+    
+    # Allow updating contact info
+    if "phone" in data:
+        contact.phone = data["phone"]
+    if "email_personal" in data:
+        contact.personal_email = data["email_personal"]
+    if "address" in data:
+        contact.contact_address = data["address"]
+    if "permanent_address" in data:
+        contact.permanent_address = data["permanent_address"]
+        
+    # Allow updating personal info
+    from app.models.student_personal_info_model import StudentPersonalInfo
+    # Strategy: Try to find existing instance in session first (to avoid FlushError), then DB, then create new.
+    p_info = None
+    
+    # 1. Check Session (Identity Map) manually
+    for obj in db.session:
+        # Check against ID if object has it
+        if hasattr(obj, 'id') and str(obj.id) == str(student.id): 
+             if obj.__class__.__name__ == 'StudentPersonalInfo':
+                 p_info = obj
+                 break
+            
+    # 2. Check Database
+    if not p_info:
+        p_info = db.session.get(StudentPersonalInfo, student.id)
+        
+    # 3. Create New
+    if not p_info:
+        from app.models.enums import AcademicStatus
+        p_info = StudentPersonalInfo(
+            id=student.id,
+            academic_status=AcademicStatus.STUDYING
+        )
+        db.session.add(p_info)
+
+    if "first_name" in data:
+        p_info.first_name = data["first_name"]
+    if "last_name" in data:
+        p_info.last_name = data["last_name"]
+    if "gender" in data:
+        p_info.gender = data["gender"]
+    if "national_id" in data:
+        p_info.national_id_number = data["national_id"]
+    if "ethnicity" in data:
+        p_info.ethnicity = data["ethnicity"]
+    if "religion" in data:
+        p_info.religion = data["religion"]
+        
+    if "date_of_birth" in data and data["date_of_birth"]:
+        try:
+            from datetime import datetime
+            # Expect YYYY-MM-DD
+            p_info.date_of_birth = datetime.strptime(data["date_of_birth"], "%Y-%m-%d").date()
+        except ValueError:
+            return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"}), 400
+        
+    try:
+        db.session.commit()
+        return jsonify({"msg": "Profile updated successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": f"Update failed: {str(e)}"}), 500
 
 @bp_student_portal.route("/grades", methods=["GET"])
 @jwt_required()
