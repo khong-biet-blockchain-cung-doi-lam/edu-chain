@@ -17,9 +17,13 @@ def staff_required(required_role_code=None):
                 return {"msg": "Access denied. Staff role required."}, 403
 
             if required_role_code:
-                staff_profile = Staff.query.filter_by(account_id=user.id).first()
+                staff_profile = db.session.get(Staff, user.id)
                 if not staff_profile:
                     return {"msg": "Staff profile not found."}, 403
+                
+                # Check position/role
+                if staff_profile.position != required_role_code:
+                     return {"msg": f"Access denied. Required role: {required_role_code}"}, 403
 
             return fn(*args, **kwargs)
         return decorator

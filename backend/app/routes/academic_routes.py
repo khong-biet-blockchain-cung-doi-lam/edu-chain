@@ -3,14 +3,16 @@ from app.extensions import db
 from app.models.course_models import Subject, Semester, CourseClass
 from app.models.staff_models import Lecturer
 from app.models.account_model import Account
-from app.models.student_model import Student, StudentPersonalInfo
+from app.models.student_model import Student
+from app.models.student_personal_info_model import StudentPersonalInfo
+from app.models.enums import Role
 from app.decorators import staff_required
 import bcrypt
 
 bp_academic = Blueprint("academic", __name__, url_prefix="/api/academic")
 
 @bp_academic.route("/subjects", methods=["POST"])
-@staff_required(required_role_code='ACADEMIC_MANAGER')
+@staff_required(required_role_code=Role.QL_DAO_TAO)
 def add_subject():
     data = request.get_json()
     code = data.get("subject_code")
@@ -31,7 +33,7 @@ def add_subject():
     return jsonify({"msg": "Subject created", "id": new_subject.id}), 201
 
 @bp_academic.route("/semesters", methods=["POST"])
-@staff_required(required_role_code='ACADEMIC_MANAGER')
+@staff_required(required_role_code=Role.QL_DAO_TAO)
 def add_semester():
     data = request.get_json()
     code = data.get("code")
@@ -47,7 +49,7 @@ def add_semester():
     return jsonify({"msg": "Semester created", "id": new_sem.id}), 201
 
 @bp_academic.route("/classes", methods=["POST"])
-@staff_required(required_role_code='ACADEMIC_MANAGER')
+@staff_required(required_role_code=Role.QL_DAO_TAO)
 def add_course_class():
     data = request.get_json()
     class_code = data.get("class_code")
@@ -75,7 +77,7 @@ def add_course_class():
     return jsonify({"msg": "Class created", "id": new_class.id}), 201
 
 @bp_academic.route("/classes/<class_id>/assign", methods=["POST"])
-@staff_required(required_role_code='ACADEMIC_MANAGER')
+@staff_required(required_role_code=Role.QL_DAO_TAO)
 def assign_lecturer(class_id):
     data = request.get_json()
     lecturer_id = data.get("lecturer_id")
@@ -94,7 +96,7 @@ def assign_lecturer(class_id):
     return jsonify({"msg": "Lecturer assigned successfully"}), 200
 
 @bp_academic.route('/students', methods=['POST'])
-@staff_required(required_role_code='ACADEMIC_MANAGER')
+@staff_required(required_role_code=Role.QL_DAO_TAO)
 def create_student():
     data = request.get_json()
     student_code = data.get('student_code')
