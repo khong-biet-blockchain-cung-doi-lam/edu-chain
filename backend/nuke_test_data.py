@@ -62,7 +62,11 @@ with app.app_context():
             db.session.execute(text("DELETE FROM staffs WHERE id = :aid"), {"aid": acc_id})
             
             print("  - Deleting Verifiers...")
-            db.session.execute(text("DELETE FROM verifiers WHERE id = :aid"), {"aid": acc_id})
+            try:
+                with db.session.begin_nested():
+                    db.session.execute(text("DELETE FROM verifiers WHERE id = :aid"), {"aid": acc_id})
+            except Exception:
+                print("    ! Table 'verifiers' not found or error, skipping.")
 
             # 4. Delete Account
             print("  - Deleting Account...")
