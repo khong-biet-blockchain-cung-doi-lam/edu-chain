@@ -8,7 +8,7 @@ class Lecturer(db.Model):
 
     id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
     lecturer_code = db.Column(db.Text, unique=True)
-    # account_id removed
+    full_name = db.Column(db.String(255)) # Added for consistency
     organization_id = db.Column(UUID(as_uuid=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

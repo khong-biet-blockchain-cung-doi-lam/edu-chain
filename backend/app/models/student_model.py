@@ -8,6 +8,7 @@ class Student(db.Model):
     id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
     # Map 'student_id' python attribute to 'student_code' database column
     student_id = db.Column('student_code', db.String(20), unique=True, nullable=False)
+    gpa = db.Column(db.Float, default=0.0)
     # account_id removed
 
     account = db.relationship('Account', back_populates='student')
