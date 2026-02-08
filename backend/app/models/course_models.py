@@ -1,12 +1,12 @@
 from app.extensions import db
-from sqlalchemy.dialects.postgresql import UUID
+from app.models.base import GUID
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Semester(db.Model):
     __tablename__ = 'semesters'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     code = db.Column(db.Text, nullable=False)
     name = db.Column(db.Text, nullable=False)
     start_date = db.Column(db.Date)
@@ -16,23 +16,23 @@ class Semester(db.Model):
 class Subject(db.Model):
     __tablename__ = 'subjects'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     subject_code = db.Column(db.Text, nullable=False, unique=True)
     name = db.Column(db.Text, nullable=False)
     credits = db.Column(db.Integer, nullable=False)
-    organization_id = db.Column(UUID(as_uuid=True)) # Optional based on usage
+    organization_id = db.Column(db.String(36)) # Optional based on usage
 
 class CourseClass(db.Model):
     __tablename__ = 'course_classes'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     class_code = db.Column(db.Text, nullable=False, unique=True)
     name = db.Column(db.Text, nullable=False)
     
-    subject_id = db.Column(UUID(as_uuid=True), db.ForeignKey('subjects.id'))
-    lecturer_id = db.Column(UUID(as_uuid=True), db.ForeignKey('lecturer.id'))
-    semester_id = db.Column(UUID(as_uuid=True), db.ForeignKey('semesters.id'))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    subject_id = db.Column(db.String(36), db.ForeignKey('subjects.id'))
+    lecturer_id = db.Column(db.String(36), db.ForeignKey('lecturer.id'))
+    semester_id = db.Column(db.String(36), db.ForeignKey('semesters.id'))
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     # Relationships
     subject = db.relationship('Subject', backref='classes')
@@ -44,7 +44,7 @@ class CourseClass(db.Model):
 class Grade(db.Model):
     __tablename__ = 'grades'
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     regular_score = db.Column(db.Float)
     midterm_score = db.Column(db.Float)
     final_score = db.Column(db.Float)
@@ -52,9 +52,9 @@ class Grade(db.Model):
     status = db.Column(db.Text) # e.g. 'PASSED', 'FAILED'
     onchain_hash = db.Column(db.Text)
     
-    student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'))
-    course_class_id = db.Column(UUID(as_uuid=True), db.ForeignKey('course_classes.id'))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    student_id = db.Column(db.String(36), db.ForeignKey('student.id'))
+    course_class_id = db.Column(db.String(36), db.ForeignKey('course_classes.id'))
+    created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
 
     # Relationships
     student = db.relationship('Student', backref='grades')

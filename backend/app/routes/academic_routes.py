@@ -57,9 +57,9 @@ def add_course_class():
         return jsonify({"msg": "Missing required fields"}), 400
         
     # Check FKs
-    if not Subject.query.get(subject_id):
+    if not db.session.get(Subject, subject_id):
         return jsonify({"msg": "Subject not found"}), 404
-    if not Semester.query.get(semester_id):
+    if not db.session.get(Semester, semester_id):
         return jsonify({"msg": "Semester not found"}), 404
 
     new_class = CourseClass(
@@ -79,11 +79,11 @@ def assign_lecturer(class_id):
     data = request.get_json()
     lecturer_id = data.get("lecturer_id")
     
-    course_class = CourseClass.query.get(class_id)
+    course_class = db.session.get(CourseClass, class_id)
     if not course_class:
         return jsonify({"msg": "Class not found"}), 404
         
-    lecturer = Lecturer.query.get(lecturer_id)
+    lecturer = db.session.get(Lecturer, lecturer_id)
     if not lecturer:
         return jsonify({"msg": "Lecturer not found"}), 404
         

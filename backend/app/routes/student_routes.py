@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.extensions import db
 from app.models.account_model import Account
 from app.models.student_model import Student
 from app.models.course_models import Grade
@@ -31,7 +32,7 @@ def upload_students():
 def get_student_profile():
     current_account_id = get_jwt_identity()
     
-    account = Account.query.get(current_account_id)
+    account = db.session.get(Account, current_account_id)
     if not account or not account.student:
         return jsonify({"msg": "Không tìm thấy thông tin sinh viên"}), 404
 
@@ -78,7 +79,7 @@ def get_student_profile():
 @jwt_required()
 def get_student_grades():
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    account = db.session.get(Account, current_account_id)
     if not account or not account.student:
         return jsonify({"msg": "Student profile not found"}), 404
 
@@ -114,12 +115,12 @@ def get_student_grades():
 @jwt_required()
 def request_grade_review(grade_id):
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    account = db.session.get(Account, current_account_id)
     if not account or not account.student:
         return jsonify({"msg": "Unauthorized"}), 401
     
     # Verify grade belongs to student
-    grade = Grade.query.get(grade_id)
+    grade = db.session.get(Grade, grade_id)
     if not grade:
         return jsonify({"msg": "Grade not found"}), 404
         
@@ -131,7 +132,6 @@ def request_grade_review(grade_id):
     # Update status
     grade.status = "REVIEW_REQUESTED" 
     
-    from app.extensions import db
     db.session.commit()
     
     return jsonify({"msg": "Review requested successfully", "status": grade.status}), 200

@@ -4,24 +4,24 @@ import uuid
 
 class Major(db.Model):
     __tablename__ = 'majors'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     code = db.Column(db.Text)
     name = db.Column(db.Text)
-    organization_id = db.Column(UUID(as_uuid=True))
+    organization_id = db.Column(db.String(36))
 
 class Cohort(db.Model):
     __tablename__ = 'cohorts'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.Text)
     start_year = db.Column(db.SmallInteger)
     end_year = db.Column(db.SmallInteger)
 
 class Curriculum(db.Model):
     __tablename__ = 'curriculums'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = db.Column(db.Text)
     code = db.Column(db.Text)
-    major_id = db.Column(UUID(as_uuid=True), db.ForeignKey('majors.id'))
+    major_id = db.Column(db.String(36), db.ForeignKey('majors.id'))
     academic_year = db.Column(db.Text)
     total_credits = db.Column(db.Integer)
     is_active = db.Column(db.Boolean)

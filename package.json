@@ -1,0 +1,37 @@
+{
+  "dependencies": {
+    "lucide-react": "^0.563.0",
+    "react-router-dom": "^7.13.0"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "tailwindcss": "^4.1.18"
+  },
+  "name": "edu-chain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install:all": "cd frontend/login-signup && npm install && cd ../organizations && npm install && cd ../admin && npm install",
+    "dev": "concurrently \"cd frontend/login-signup && npm run dev\" \"cd frontend/organizations && npm run dev\" \"cd frontend/admin && npm run dev\"",
+    "dev:login": "cd frontend/login-signup && npm run dev",
+    "dev:org": "cd frontend/organizations && npm run dev",
+    "dev:admin": "cd frontend/admin && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khong-biet-blockchain-cung-doi-lam/edu-chain.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/khong-biet-blockchain-cung-doi-lam/edu-chain/issues"
+  },
+  "homepage": "https://github.com/khong-biet-blockchain-cung-doi-lam/edu-chain#readme"
+}

@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database cho testing
+  postgres_test:
+    image: postgres:15-alpine
+    container_name: edu_chain_test_db
+    environment:
+      POSTGRES_USER: testuser
+      POSTGRES_PASSWORD: testpass
+      POSTGRES_DB: edu_chain_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testuser -d edu_chain_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - test_network
+
+  # Backend app cho testing
+  backend_test:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile.test
+    container_name: edu_chain_test_backend
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+    environment:
+      FLASK_ENV: testing
+      DATABASE_URL: postgresql://testuser:testpass@postgres_test:5432/edu_chain_test
+      TESTING: "true"
+    volumes:
+      - .:/app
+    ports:
+      - "5002:5001"
+    networks:
+      - test_network
+    command: pytest tests/ -v --tb=short
+
+volumes:
+  postgres_test_data:
+
+networks:
+  test_network:
+    driver: bridge

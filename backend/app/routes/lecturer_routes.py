@@ -12,7 +12,7 @@ bp_lecturer = Blueprint("lecturer", __name__, url_prefix="/api/lecturer")
 def get_current_lecturer():
     current_user_id = get_jwt_identity()
     # Assuming the identity is Account ID
-    account = Account.query.get(current_user_id)
+    account = db.session.get(Account, current_user_id)
     if not account:
         return None
     # Assuming relation is setup or we query manually
@@ -47,7 +47,7 @@ def get_class_details(class_id):
     if not lecturer:
          return jsonify({"msg": "Unauthorized"}), 401
 
-    course_class = CourseClass.query.get(class_id)
+    course_class = db.session.get(CourseClass, class_id)
     if not course_class:
         return jsonify({"msg": "Class not found"}), 404
         
@@ -102,7 +102,7 @@ def update_grade():
     grade_id = data.get("grade_id")
     scores = data.get("scores", {}) # { "regular": 10, ... }
     
-    grade = Grade.query.get(grade_id)
+    grade = db.session.get(Grade, grade_id)
     if not grade:
         return jsonify({"msg": "Grade record not found"}), 404
         

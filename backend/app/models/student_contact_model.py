@@ -5,7 +5,7 @@ import uuid
 class StudentContact(db.Model):
     __tablename__ = 'student_contact'
     
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     country = db.Column(db.Text)
     province = db.Column(db.Text)
     district = db.Column(db.Text)

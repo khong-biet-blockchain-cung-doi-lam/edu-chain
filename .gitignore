@@ -1,13 +1,67 @@
-node_modules/
-
-backend/venv/
-
+# Python
 __pycache__/
-.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv
+*.egg-info/
+dist/
+build/
+.eggs/
 
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+test_report.csv
+test_report.json
+*.xlsx
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+package-lock.json
 dist/
 build/
 
-backend/.env
+# Docker
+.dockerignore
 
-.DS_Store
+# Blockchain
+artifacts/
+cache/
+
+# Virtual environments
+.venv/
+
+# Local DB
+backend/app.db
+
+# Test outputs
+backend/tests/reports/
+backend/tests/data/
+data/reports/
+devops/docker/

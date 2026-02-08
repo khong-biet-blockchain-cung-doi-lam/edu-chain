@@ -16,10 +16,42 @@ import uuid
 
 class TestEduChainFlow(unittest.TestCase):
     def setUp(self):
-        self.app = create_app()
+        from flask import Flask
+        
+        # Create app manually with test config
+        self.app = Flask(__name__)
+        self.app.config['TESTING'] = True
+        # Use PostgreSQL if DATABASE_URL is set (for Docker), otherwise SQLite
+        db_url = os.getenv('DATABASE_URL', 'sqlite:///:memory:')
+        self.app.config['SQLALCHEMY_DATABASE_URI'] = db_url
+        self.app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+        self.app.config['JWT_SECRET_KEY'] = 'test-secret-key'
+        
+        # Initialize extensions
+        from app.extensions import db as _db, jwt, cors, migrate
+        _db.init_app(self.app)
+        jwt.init_app(self.app)
+        cors.init_app(self.app)
+        migrate.init_app(self.app, _db)
+        
+        # Register blueprints
+        from app.routes.auth_routes import bp_auth
+        from app.routes.student_routes import bp_student, bp_student_portal
+        from app.routes.academic_routes import bp_academic
+        from app.routes.lecturer_routes import bp_lecturer
+        from app.routes.home_routes import bp_home
+        
+        self.app.register_blueprint(bp_home)
+        self.app.register_blueprint(bp_auth)
+        self.app.register_blueprint(bp_student)
+        self.app.register_blueprint(bp_student_portal)
+        self.app.register_blueprint(bp_academic)
+        self.app.register_blueprint(bp_lecturer)
+        
         self.client = self.app.test_client()
         self.app_context = self.app.app_context()
         self.app_context.push()
+        db.create_all()
         self.cleanup_test_data() # Clean first
         self.setup_data() # Then create fresh
 
@@ -171,7 +203,7 @@ class TestEduChainFlow(unittest.TestCase):
         # --- INTERMEDIATE: ENROLL STUDENT (Manually) ---
         print("\n[1.5] PHASE 1.5: SYSTEM - Enrolling Student to Class") 
         # Since we don't have an enroll API yet, we manually add a Grade record
-        grade_entry = Grade(student_id=self.student_profile_id, course_class_id=uuid.UUID(class_id))
+        grade_entry = Grade(student_id=self.student_profile_id, course_class_id=class_id)
         db.session.add(grade_entry)
         db.session.commit()
         grade_id = grade_entry.id
