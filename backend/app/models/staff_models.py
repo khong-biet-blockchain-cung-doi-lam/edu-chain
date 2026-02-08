@@ -6,11 +6,19 @@ from datetime import datetime, timezone
 class Lecturer(db.Model):
     __tablename__ = 'lecturer'
 
+<<<<<<< HEAD
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     lecturer_code = db.Column(db.Text, unique=True)
     account_id = db.Column(db.String(36), db.ForeignKey('account.id'))
     organization_id = db.Column(db.String(36))
     created_at = db.Column(db.DateTime, default=datetime.now(timezone.utc))
+=======
+    id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
+    lecturer_code = db.Column(db.Text, unique=True)
+    # account_id removed
+    organization_id = db.Column(UUID(as_uuid=True))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+>>>>>>> c7b9cefa4000f931bebcce45bd264766c0265360
 
     # Relationship to Account
     account = db.relationship('Account', backref=db.backref('lecturer_profile', uselist=False))
@@ -18,11 +26,22 @@ class Lecturer(db.Model):
 class Staff(db.Model):
     __tablename__ = 'staffs'
 
+<<<<<<< HEAD
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     account_id = db.Column(db.String(36), db.ForeignKey('account.id'))
     full_name = db.Column(db.Text)
     organization_id = db.Column(db.String(36))
     role_id = db.Column(db.String(36)) # If using a separate roles table or enum
+=======
+    id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
+    # account_id removed
+    full_name = db.Column(db.Text)
+    organization_id = db.Column(UUID(as_uuid=True))
+    # role_id removed
+    staff_code = db.Column(db.Text) # added based on inspection
+    can_sign_documents = db.Column(db.Boolean) # added based on inspection
+    position = db.Column(db.Text) # added based on inspection
+>>>>>>> c7b9cefa4000f931bebcce45bd264766c0265360
 
     # Relationship to Account
     account = db.relationship('Account', backref=db.backref('staff_profile', uselist=False))

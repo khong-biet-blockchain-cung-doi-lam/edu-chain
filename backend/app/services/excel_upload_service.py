@@ -2,6 +2,7 @@ import pandas as pd
 from app.extensions import db
 from app.models.account_model import Account
 from app.models.student_model import Student
+from app.models.student_personal_info_model import StudentPersonalInfo
 from sqlalchemy.exc import IntegrityError
 import bcrypt
 import traceback
@@ -46,7 +47,7 @@ def process_excel_and_upload(file):
             results["skipped"] += 1
             continue
             
-        # Hash
+        # Hash - Fix password logic: Password is still based on citizen_id (National ID)
         hashed = bcrypt.hashpw(citizen_id.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         
         new_acc = Account(username=student_id, password_hash=hashed, role="student")
@@ -54,9 +55,18 @@ def process_excel_and_upload(file):
         
         try:
             db.session.flush()
-            new_student = Student(student_id=student_id, account_id=new_acc.id)
+            new_student = Student(student_id=student_id, id=new_acc.id)
             db.session.add(new_student)
+            db.session.flush() # Flush to get new_student.id
+
+            # Create StudentPersonalInfo sharing same ID
+            new_info = StudentPersonalInfo(
+                id=new_student.id,
+                national_id_number=row["citizen_id"] # Use original validated citizen_id (not truncated, though normally they are short)
+            )
+            db.session.add(new_info)
             db.session.flush()
+            
             results["created"] += 1
         except Exception as e:
             db.session.rollback()

@@ -5,10 +5,17 @@ import uuid
 class Student(db.Model):
     __tablename__ = 'student'
 
+<<<<<<< HEAD
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     # Map 'student_id' python attribute to 'student_code' database column
     student_id = db.Column('student_code', db.String(20), unique=True, nullable=False)
     account_id = db.Column(db.String(36), db.ForeignKey('account.id'), unique=True, nullable=False)
+=======
+    id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
+    # Map 'student_id' python attribute to 'student_code' database column
+    student_id = db.Column('student_code', db.String(20), unique=True, nullable=False)
+    # account_id removed
+>>>>>>> c7b9cefa4000f931bebcce45bd264766c0265360
 
     account = db.relationship('Account', back_populates='student')
 

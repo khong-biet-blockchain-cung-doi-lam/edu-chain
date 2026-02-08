@@ -4,6 +4,7 @@ from app.routes.auth_routes import bp_auth
 from app.routes.student_routes import bp_student, bp_student_portal
 from app.routes.academic_routes import bp_academic
 from app.routes.lecturer_routes import bp_lecturer
+from app.models import organization_model, partner_model, enterprise_model
 # from app.routes.upload_routes import bp_upload 
 # from app.routes.home_routes import bp_home
 

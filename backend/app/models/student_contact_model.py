@@ -5,7 +5,12 @@ import uuid
 class StudentContact(db.Model):
     __tablename__ = 'student_contact'
     
+<<<<<<< HEAD
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+=======
+    # 1-1 with Student
+    id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'), primary_key=True)
+>>>>>>> c7b9cefa4000f931bebcce45bd264766c0265360
     country = db.Column(db.Text)
     province = db.Column(db.Text)
     district = db.Column(db.Text)
@@ -16,15 +21,3 @@ class StudentContact(db.Model):
     personal_email = db.Column(db.Text)
     edu_email = db.Column(db.Text)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
-
-    # @field_validator('phone')
-    # @classmethod
-    # def clean_phone_number(cls, v: str):
-    #     clean_number = v.replace(" ", ""). replace("-", "")
-    #     if not clean_number.isdigit():
-    #         raise ValueError('Số điện thoại không hợp lệ')
-        
-    #     if len(clean_number) != 10:
-    #         raise ValueError('Số điện thoại không hợp lệ')
-        
-    #     return clean_number
