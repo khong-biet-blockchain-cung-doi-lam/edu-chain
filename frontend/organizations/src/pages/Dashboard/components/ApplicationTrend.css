@@ -1,0 +1,47 @@
+/* C:\Users\Dunx\edu-chain\frontend\organizations\src\pages\Dashboard\components\ApplicationTrend.css */
+.application-trend {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+}
+
+.trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.trend-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trend-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.trend-btn {
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.trend-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.trend-chart {
+  width: 100%;
+}
