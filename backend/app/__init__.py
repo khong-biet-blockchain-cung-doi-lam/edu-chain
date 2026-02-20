@@ -22,11 +22,14 @@ def create_app(config_object=None):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    migrate.init_app(app, db)
-    jwt.init_app(app)
 
-    # Import models AFTER db is initialized
-    from app.models import account_model, student_model
+    from app.models import (
+        account_model, 
+        student_model, 
+        organization_model, 
+        partner_model, 
+        enterprise_model
+    )
     
     from app.routes.home_routes import bp_home 
     from app.routes.partner_routes import bp_partner
