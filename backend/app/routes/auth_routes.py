@@ -13,9 +13,10 @@ def login():
     password = data.get("password", "")
 
     if not username or not password:
-        return jsonify({"msg": "Thiếu username hoặc password"}), 400
+        return jsonify({"msg": "Thiếu username/email hoặc password"}), 400
 
-    account = Account.query.filter_by(username=username).first()
+    # Check by username OR email
+    account = Account.query.filter((Account.username == username) | (Account.email == username)).first()
 
     if not account:
         return jsonify({"msg": "Tài khoản không tồn tại"}), 401

@@ -14,3 +14,4 @@ class Role:
     KHOA = "KHOA"
     GIANG_VIEN = "GIANG_VIEN"
     SINH_VIEN = "SINH_VIEN"
+    PARTNER = "PARTNER"

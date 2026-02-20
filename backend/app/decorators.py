@@ -11,6 +11,9 @@ def staff_required(required_role_code=None):
             verify_jwt_in_request()
             
             user_id = get_jwt_identity()
+            if isinstance(user_id, str):
+                import uuid
+                user_id = uuid.UUID(user_id)
             user = db.session.get(Account, user_id)
             
             if not user or user.role != 'staff':
