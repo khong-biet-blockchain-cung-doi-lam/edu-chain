@@ -17,7 +17,7 @@ const courseService = {
     try {
       const queryParams = new URLSearchParams(filters).toString();
       const response = await axios.get(
-        `${API_URL}/admin/courses?${queryParams}`,
+        `${API_URL}/academic/subjects?${queryParams}`,
         getAuthHeader()
       );
       return response.data;
@@ -30,7 +30,7 @@ const courseService = {
   getCourseById: async (id) => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/courses/${id}`,
+        `${API_URL}/academic/subjects/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -43,7 +43,7 @@ const courseService = {
   createCourse: async (courseData) => {
     try {
       const response = await axios.post(
-        `${API_URL}/admin/courses`,
+        `${API_URL}/academic/subjects`,
         courseData,
         getAuthHeader()
       );
@@ -57,7 +57,7 @@ const courseService = {
   updateCourse: async (id, courseData) => {
     try {
       const response = await axios.put(
-        `${API_URL}/admin/courses/${id}`,
+        `${API_URL}/academic/subjects/${id}`,
         courseData,
         getAuthHeader()
       );
@@ -71,7 +71,7 @@ const courseService = {
   deleteCourse: async (id) => {
     try {
       const response = await axios.delete(
-        `${API_URL}/admin/courses/${id}`,
+        `${API_URL}/academic/subjects/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -84,7 +84,7 @@ const courseService = {
   getCourseStats: async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/courses/statistics`,
+        `${API_URL}/academic/subjects/statistics`,
         getAuthHeader()
       );
       return response.data;
@@ -97,7 +97,7 @@ const courseService = {
   getCoursesByDepartment: async (department) => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/courses/department/${department}`,
+        `${API_URL}/academic/subjects/department/${department}`,
         getAuthHeader()
       );
       return response.data;

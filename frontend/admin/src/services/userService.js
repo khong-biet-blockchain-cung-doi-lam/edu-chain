@@ -17,7 +17,7 @@ const userService = {
     try {
       const queryParams = new URLSearchParams(filters).toString();
       const response = await axios.get(
-        `${API_URL}/admin/users?${queryParams}`,
+        `${API_URL}/management/accounts?${queryParams}`,
         getAuthHeader()
       );
       return response.data;
@@ -30,7 +30,7 @@ const userService = {
   getUserById: async (id) => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/users/${id}`,
+        `${API_URL}/management/accounts/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -43,7 +43,7 @@ const userService = {
   createUser: async (userData) => {
     try {
       const response = await axios.post(
-        `${API_URL}/admin/users`,
+        `${API_URL}/management/accounts`,
         userData,
         getAuthHeader()
       );
@@ -57,7 +57,7 @@ const userService = {
   updateUser: async (id, userData) => {
     try {
       const response = await axios.put(
-        `${API_URL}/admin/users/${id}`,
+        `${API_URL}/management/accounts/${id}`,
         userData,
         getAuthHeader()
       );
@@ -71,7 +71,7 @@ const userService = {
   deleteUser: async (id) => {
     try {
       const response = await axios.delete(
-        `${API_URL}/admin/users/${id}`,
+        `${API_URL}/management/accounts/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -84,7 +84,7 @@ const userService = {
   toggleUserStatus: async (id) => {
     try {
       const response = await axios.patch(
-        `${API_URL}/admin/users/${id}/toggle-status`,
+        `${API_URL}/management/accounts/${id}/toggle-status`,
         {},
         getAuthHeader()
       );
@@ -98,7 +98,7 @@ const userService = {
   getUserStats: async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/users/statistics`,
+        `${API_URL}/management/accounts/statistics`,
         getAuthHeader()
       );
       return response.data;

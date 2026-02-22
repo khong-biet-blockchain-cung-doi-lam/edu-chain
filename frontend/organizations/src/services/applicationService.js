@@ -19,7 +19,7 @@ const applicationService = {
     try {
       const queryParams = new URLSearchParams(filters).toString();
       const response = await axios.get(
-        `${API_URL}/applications?${queryParams}`,
+        `${API_URL}/partners/applications?${queryParams}`,
         getAuthHeader()
       );
       return response.data;
@@ -32,7 +32,7 @@ const applicationService = {
   // Get application by ID
   getApplicationById: async (id) => {
     try {
-      const response = await axios.get(`${API_URL}/applications/${id}`, getAuthHeader());
+      const response = await axios.get(`${API_URL}/partners/applications/${id}`, getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error fetching application:', error);
@@ -44,7 +44,7 @@ const applicationService = {
   updateApplicationStatus: async (id, status, notes = '') => {
     try {
       const response = await axios.patch(
-        `${API_URL}/applications/${id}/status`,
+        `${API_URL}/partners/applications/${id}/status`,
         { status, notes },
         getAuthHeader()
       );
@@ -59,7 +59,7 @@ const applicationService = {
   approveApplication: async (id, notes = '') => {
     try {
       const response = await axios.post(
-        `${API_URL}/applications/${id}/approve`,
+        `${API_URL}/partners/applications/${id}/approve`,
         { notes },
         getAuthHeader()
       );
@@ -74,7 +74,7 @@ const applicationService = {
   rejectApplication: async (id, reason = '') => {
     try {
       const response = await axios.post(
-        `${API_URL}/applications/${id}/reject`,
+        `${API_URL}/partners/applications/${id}/reject`,
         { reason },
         getAuthHeader()
       );
@@ -88,7 +88,7 @@ const applicationService = {
   // Get application statistics
   getApplicationStats: async () => {
     try {
-      const response = await axios.get(`${API_URL}/applications/stats`, getAuthHeader());
+      const response = await axios.get(`${API_URL}/partners/applications/stats`, getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error fetching application stats:', error);
@@ -100,7 +100,7 @@ const applicationService = {
   downloadDocument: async (applicationId, documentType) => {
     try {
       const response = await axios.get(
-        `${API_URL}/applications/${applicationId}/documents/${documentType}`,
+        `${API_URL}/partners/applications/${applicationId}/documents/${documentType}`,
         {
           ...getAuthHeader(),
           responseType: 'blob'

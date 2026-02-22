@@ -137,4 +137,66 @@ def update_student_profile():
             from datetime import datetime
             p_info.date_of_birth = datetime.strptime(data["date_of_birth"], "%Y-%m-%d").date()
         except ValueError:
-            return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"
+            return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"}), 400
+            
+    db.session.commit()
+    return jsonify({"msg": "Profile updated successfully"}), 200
+
+@bp_student_portal.route("/grades", methods=["GET"])
+@jwt_required()
+def get_student_grades():
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Student not found"}), 404
+
+    student = account.student
+    grades = Grade.query.filter_by(student_id=student.id).all()
+    
+    results = []
+    for g in grades:
+        results.append({
+            "grade_id": str(g.id),
+            "class_id": str(g.course_class_id),
+            "class_name": g.course_class.name if g.course_class else "Unknown",
+            "scores": {
+                "regular": g.regular_score,
+                "midterm": g.midterm_score,
+                "final": g.final_score,
+                "total": g.total_score
+            },
+            "status": g.status,
+            "onchain_hash": g.onchain_hash
+        })
+        
+    return jsonify(results), 200
+
+@bp_student_portal.route("/grades/<grade_id>/review", methods=["POST"])
+@jwt_required()
+def request_grade_review(grade_id):
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Student not found"}), 404
+
+    import uuid
+    if not isinstance(grade_id, uuid.UUID):
+        try: grade_id = uuid.UUID(grade_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+
+    grade = Grade.query.filter_by(id=grade_id, student_id=account.student.id).first()
+    if not grade:
+        return jsonify({"msg": "Grade not found or unauthorized"}), 404
+
+    data = request.json
+    reason = data.get("reason", "")
+    
+    # In a real app we'd save this reason to a Review table
+    grade.status = "REVIEW_REQUESTED"
+    db.session.commit()
+    
+    return jsonify({
+        "msg": "Review requested",
+        "status": grade.status,
+        "reason": reason
+    }), 200

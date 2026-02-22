@@ -17,7 +17,7 @@ const scholarshipService = {
   // Get all scholarships for organization
   getAllScholarships: async () => {
     try {
-      const response = await axios.get(`${API_URL}/scholarships`, getAuthHeader());
+      const response = await axios.get(`${API_URL}/partners/scholarships`, getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error fetching scholarships:', error);
@@ -28,7 +28,7 @@ const scholarshipService = {
   // Get single scholarship by ID
   getScholarshipById: async (id) => {
     try {
-      const response = await axios.get(`${API_URL}/scholarships/${id}`, getAuthHeader());
+      const response = await axios.get(`${API_URL}/partners/scholarships/${id}`, getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error fetching scholarship:', error);
@@ -40,7 +40,7 @@ const scholarshipService = {
   createScholarship: async (scholarshipData) => {
     try {
       const response = await axios.post(
-        `${API_URL}/scholarships`,
+        `${API_URL}/partners/scholarships`,
         scholarshipData,
         getAuthHeader()
       );
@@ -55,7 +55,7 @@ const scholarshipService = {
   updateScholarship: async (id, scholarshipData) => {
     try {
       const response = await axios.put(
-        `${API_URL}/scholarships/${id}`,
+        `${API_URL}/partners/scholarships/${id}`,
         scholarshipData,
         getAuthHeader()
       );
@@ -70,7 +70,7 @@ const scholarshipService = {
   deleteScholarship: async (id) => {
     try {
       const response = await axios.delete(
-        `${API_URL}/scholarships/${id}`,
+        `${API_URL}/partners/scholarships/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -83,7 +83,7 @@ const scholarshipService = {
   // Get scholarship statistics
   getScholarshipStats: async () => {
     try {
-      const response = await axios.get(`${API_URL}/scholarships/stats`, getAuthHeader());
+      const response = await axios.get(`${API_URL}/partners/scholarships/stats`, getAuthHeader());
       return response.data;
     } catch (error) {
       console.error('Error fetching scholarship stats:', error);
