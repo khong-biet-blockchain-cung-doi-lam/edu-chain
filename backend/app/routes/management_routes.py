@@ -97,3 +97,107 @@ def create_account():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": str(e)}), 500
+
+@bp_management.route("/accounts", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def list_accounts():
+    accounts = Account.query.all()
+    results = []
+    for acc in accounts:
+        results.append({
+            "id": str(acc.id),
+            "username": acc.username,
+            "email": acc.email,
+            "role": acc.role,
+            "is_active": acc.is_active if hasattr(acc, 'is_active') else True
+        })
+    return jsonify(results), 200
+
+@bp_management.route("/accounts/<account_id>", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_account(account_id):
+    if not isinstance(account_id, uuid.UUID):
+        try: account_id = uuid.UUID(account_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+        
+    acc = Account.query.get(account_id)
+    if not acc: return jsonify({"msg": "Not found"}), 404
+    
+    return jsonify({
+        "id": str(acc.id),
+        "username": acc.username,
+        "email": acc.email,
+        "role": acc.role,
+        "is_active": acc.is_active if hasattr(acc, 'is_active') else True
+    }), 200
+
+@bp_management.route("/accounts/<account_id>", methods=["PUT"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def update_account(account_id):
+    if not isinstance(account_id, uuid.UUID):
+        try: account_id = uuid.UUID(account_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+        
+    acc = Account.query.get(account_id)
+    if not acc: return jsonify({"msg": "Not found"}), 404
+    
+    data = request.json
+    if "email" in data: acc.email = data["email"]
+    if "role" in data: acc.role = data["role"]
+    
+    if "password" in data and data["password"]:
+        acc.password_hash = bcrypt.hashpw(data["password"].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+    db.session.commit()
+    return jsonify({"msg": "Updated"}), 200
+
+@bp_management.route("/accounts/<account_id>", methods=["DELETE"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def delete_account(account_id):
+    if not isinstance(account_id, uuid.UUID):
+        try: account_id = uuid.UUID(account_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+        
+    acc = Account.query.get(account_id)
+    if not acc: return jsonify({"msg": "Not found"}), 404
+    
+    # Needs cascade handling in a real app, assuming db setup handles it or soft delete
+    db.session.delete(acc)
+    db.session.commit()
+    return jsonify({"msg": "Deleted"}), 200
+
+@bp_management.route("/accounts/<account_id>/toggle-status", methods=["PATCH"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def toggle_account_status(account_id):
+    if not isinstance(account_id, uuid.UUID):
+        try: account_id = uuid.UUID(account_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+        
+    acc = Account.query.get(account_id)
+    if not acc: return jsonify({"msg": "Not found"}), 404
+    
+    # We might not have 'is_active' in the current Account model. 
+    # Let's add it dynamically or fail gracefully
+    if hasattr(acc, 'is_active'):
+        acc.is_active = not acc.is_active
+        db.session.commit()
+        return jsonify({"msg": "Status toggled", "is_active": acc.is_active}), 200
+    else:
+        return jsonify({"msg": "is_active field not implemented on Account model."}), 400
+
+@bp_management.route("/accounts/statistics", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_account_statistics():
+    total = Account.query.count()
+    students = Account.query.filter_by(role=Role.SINH_VIEN).count()
+    partners = Account.query.filter_by(role=Role.PARTNER).count()
+    lecturers = Account.query.filter_by(role=Role.GIANG_VIEN).count()
+    staffs = Account.query.filter_by(role=Role.STAFF).count() if hasattr(Role, 'STAFF') else 0
+    
+    return jsonify({
+        "total": total,
+        "students": students,
+        "partners": partners,
+        "lecturers": lecturers,
+        "staffs": staffs
+    }), 200

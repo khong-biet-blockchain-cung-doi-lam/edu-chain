@@ -8,12 +8,25 @@ export function OrganizationProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load organization data from localStorage
-    const orgData = localStorage.getItem('userData');
-    const token = localStorage.getItem('authToken');
-    
-    if (orgData && token) {
-      setOrganization(JSON.parse(orgData));
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlUser = params.get('userData');
+
+    if (urlToken && urlUser) {
+      localStorage.setItem('authToken', urlToken);
+      localStorage.setItem('userData', urlUser);
+      let parsedUser = JSON.parse(urlUser);
+      localStorage.setItem('userRole', parsedUser.role);
+      setOrganization(parsedUser);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const orgData = localStorage.getItem('userData');
+      const token = localStorage.getItem('authToken');
+      
+      if (orgData && token) {
+        setOrganization(JSON.parse(orgData));
+      }
     }
     
     setLoading(false);
@@ -28,7 +41,8 @@ export function OrganizationProvider({ children }) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('userRole');
-    window.location.href = 'http://localhost:5000'; // Redirect to login
+    const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
+    window.location.href = loginUrl;
   };
 
   const value = {

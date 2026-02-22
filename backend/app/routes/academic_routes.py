@@ -138,3 +138,133 @@ def create_student():
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": str(e)}), 500
+
+# --- Subject Endpoints ---
+
+@bp_academic.route("/subjects", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def list_subjects():
+    subjects = Subject.query.all()
+    results = [{"id": str(s.id), "subject_code": s.subject_code, "name": s.name, "credits": s.credits} for s in subjects]
+    return jsonify(results), 200
+
+@bp_academic.route("/subjects/<subject_id>", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_subject(subject_id):
+    if not isinstance(subject_id, uuid.UUID):
+        try: subject_id = uuid.UUID(subject_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    s = Subject.query.get(subject_id)
+    if not s: return jsonify({"msg": "Not found"}), 404
+    return jsonify({"id": str(s.id), "subject_code": s.subject_code, "name": s.name, "credits": s.credits}), 200
+
+@bp_academic.route("/subjects/<subject_id>", methods=["PUT"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def update_subject(subject_id):
+    if not isinstance(subject_id, uuid.UUID):
+        try: subject_id = uuid.UUID(subject_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    s = Subject.query.get(subject_id)
+    if not s: return jsonify({"msg": "Not found"}), 404
+    
+    data = request.json
+    if "subject_code" in data: s.subject_code = data["subject_code"]
+    if "name" in data: s.name = data["name"]
+    if "credits" in data: s.credits = data["credits"]
+    
+    db.session.commit()
+    return jsonify({"msg": "Updated"}), 200
+
+@bp_academic.route("/subjects/<subject_id>", methods=["DELETE"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def delete_subject(subject_id):
+    if not isinstance(subject_id, uuid.UUID):
+        try: subject_id = uuid.UUID(subject_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    s = Subject.query.get(subject_id)
+    if not s: return jsonify({"msg": "Not found"}), 404
+    db.session.delete(s)
+    db.session.commit()
+    return jsonify({"msg": "Deleted"}), 200
+
+@bp_academic.route("/subjects/statistics", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_subject_statistics():
+    total = Subject.query.count()
+    return jsonify({"total": total}), 200
+
+@bp_academic.route("/subjects/department/<dept>", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_subjects_by_department(dept):
+    # Mock return all since department isn't on Subject model
+    subjects = Subject.query.all()
+    results = [{"id": str(s.id), "subject_code": s.subject_code, "name": s.name, "credits": s.credits} for s in subjects]
+    return jsonify(results), 200
+
+# --- Program Endpoints (Mapping to Major) ---
+from app.models.academic_models import Major
+
+@bp_academic.route("/programs", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def list_programs():
+    majors = Major.query.all()
+    results = [{"id": str(m.id), "code": m.code, "name": m.name} for m in majors]
+    return jsonify(results), 200
+
+@bp_academic.route("/programs/<program_id>", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_program(program_id):
+    if not isinstance(program_id, uuid.UUID):
+        try: program_id = uuid.UUID(program_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    m = Major.query.get(program_id)
+    if not m: return jsonify({"msg": "Not found"}), 404
+    return jsonify({"id": str(m.id), "code": m.code, "name": m.name}), 200
+
+@bp_academic.route("/programs", methods=["POST"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def create_program():
+    data = request.json
+    code = data.get("code")
+    name = data.get("name")
+    if not code or not name:
+        return jsonify({"msg": "Missing code or name"}), 400
+        
+    m = Major(code=code, name=name)
+    db.session.add(m)
+    db.session.commit()
+    return jsonify({"msg": "Created", "id": m.id}), 201
+
+@bp_academic.route("/programs/<program_id>", methods=["PUT"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def update_program(program_id):
+    if not isinstance(program_id, uuid.UUID):
+        try: program_id = uuid.UUID(program_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    m = Major.query.get(program_id)
+    if not m: return jsonify({"msg": "Not found"}), 404
+    
+    data = request.json
+    if "code" in data: m.code = data["code"]
+    if "name" in data: m.name = data["name"]
+    db.session.commit()
+    return jsonify({"msg": "Updated"}), 200
+
+@bp_academic.route("/programs/<program_id>", methods=["DELETE"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def delete_program(program_id):
+    if not isinstance(program_id, uuid.UUID):
+        try: program_id = uuid.UUID(program_id)
+        except: return jsonify({"msg": "Invalid ID"}), 400
+    m = Major.query.get(program_id)
+    if not m: return jsonify({"msg": "Not found"}), 404
+    db.session.delete(m)
+    db.session.commit()
+    return jsonify({"msg": "Deleted"}), 200
+
+@bp_academic.route("/programs/statistics", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def get_program_statistics():
+    total = Major.query.count()
+    active = total # mock active
+    return jsonify({"total": total, "active": active}), 200

@@ -16,7 +16,7 @@ const programService = {
   getAllPrograms: async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/programs`,
+        `${API_URL}/academic/programs`,
         getAuthHeader()
       );
       return response.data;
@@ -29,7 +29,7 @@ const programService = {
   getProgramById: async (id) => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/programs/${id}`,
+        `${API_URL}/academic/programs/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -42,7 +42,7 @@ const programService = {
   createProgram: async (programData) => {
     try {
       const response = await axios.post(
-        `${API_URL}/admin/programs`,
+        `${API_URL}/academic/programs`,
         programData,
         getAuthHeader()
       );
@@ -56,7 +56,7 @@ const programService = {
   updateProgram: async (id, programData) => {
     try {
       const response = await axios.put(
-        `${API_URL}/admin/programs/${id}`,
+        `${API_URL}/academic/programs/${id}`,
         programData,
         getAuthHeader()
       );
@@ -70,7 +70,7 @@ const programService = {
   deleteProgram: async (id) => {
     try {
       const response = await axios.delete(
-        `${API_URL}/admin/programs/${id}`,
+        `${API_URL}/academic/programs/${id}`,
         getAuthHeader()
       );
       return response.data;
@@ -83,7 +83,7 @@ const programService = {
   getProgramStats: async () => {
     try {
       const response = await axios.get(
-        `${API_URL}/admin/programs/statistics`,
+        `${API_URL}/academic/programs/statistics`,
         getAuthHeader()
       );
       return response.data;

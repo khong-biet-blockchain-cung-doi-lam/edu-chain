@@ -9,17 +9,24 @@ bp_auth = Blueprint("auth", __name__, url_prefix="/api/auth")
 @bp_auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json()
-    username = data.get("username", "").strip()
+    username = data.get("username", "") if data else ""
     password = data.get("password", "")
+    print(f"DEBUG LOGIN: Received username: '{username}'")
+    username = username.strip()
 
-    if not username or not password:
+    if not username or not data.get("password"):
+        print("DEBUG LOGIN: Missing fields")
         return jsonify({"msg": "Thiếu username/email hoặc password"}), 400
 
     # Check by username OR email
+    print(f"DEBUG LOGIN: Querying for '{username}'")
     account = Account.query.filter((Account.username == username) | (Account.email == username)).first()
 
     if not account:
+        print(f"DEBUG LOGIN: Account '{username}' NOT FOUND in DB.")
         return jsonify({"msg": "Tài khoản không tồn tại"}), 401
+    
+    print(f"DEBUG LOGIN: Found account {account.username} (Role: {account.role})")
 
     try:
         stored_hash = account.password_hash.encode('utf-8')
@@ -29,7 +36,7 @@ def login():
             return jsonify({"msg": "Sai mật khẩu"}), 401
     except Exception as e:
         print(f"Login error: {e}")
-        return jsonify({"msg": "Lỗi xác thực mật khẩu"}), 500
+        return jsonify({"msg": f"Lỗi xác thực mật khẩu: {str(e)}"}), 500
 
     token = create_access_token(
         identity=str(account.id),

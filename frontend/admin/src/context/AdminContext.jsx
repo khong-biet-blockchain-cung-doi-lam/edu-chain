@@ -7,11 +7,25 @@ export function AdminProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const adminData = localStorage.getItem('userData');
-    const token = localStorage.getItem('authToken');
-    
-    if (adminData && token) {
-      setAdmin(JSON.parse(adminData));
+    const params = new URLSearchParams(window.location.search);
+    const urlToken = params.get('token');
+    const urlUser = params.get('userData');
+
+    if (urlToken && urlUser) {
+      localStorage.setItem('authToken', urlToken);
+      localStorage.setItem('userData', urlUser);
+      let parsedUser = JSON.parse(urlUser);
+      localStorage.setItem('userRole', parsedUser.role);
+      setAdmin(parsedUser);
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+      const adminData = localStorage.getItem('userData');
+      const token = localStorage.getItem('authToken');
+      
+      if (adminData && token) {
+        setAdmin(JSON.parse(adminData));
+      }
     }
     
     setLoading(false);
@@ -26,7 +40,8 @@ export function AdminProvider({ children }) {
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
     localStorage.removeItem('userRole');
-    window.location.href = 'http://localhost:5000';
+    const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
+    window.location.href = loginUrl;
   };
 
   const value = {

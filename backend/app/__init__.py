@@ -36,6 +36,7 @@ def create_app(config_object=None):
     from app.routes.student_scholarship_routes import bp_student_scholarship
     
     from app.routes.management_routes import bp_management
+    from app.routes.organization_routes import bp_organization
     
     app.register_blueprint(bp_home)
     app.register_blueprint(bp_auth)
@@ -46,5 +47,6 @@ def create_app(config_object=None):
     app.register_blueprint(bp_partner)
     app.register_blueprint(bp_student_scholarship)
     app.register_blueprint(bp_management)
+    app.register_blueprint(bp_organization)
     # app.register_blueprint(bp_upload)
     return app
