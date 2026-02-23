@@ -8,7 +8,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Shield
+  Shield,
+  ClipboardList
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import './AdminSidebar.css';
@@ -23,7 +24,8 @@ export default function AdminSidebar({ isOpen }) {
         { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/users', icon: Users, label: 'User Management' },
         { path: '/programs', icon: GraduationCap, label: 'Programs' },
-        { path: '/courses', icon: BookOpen, label: 'Courses' }
+        { path: '/courses', icon: BookOpen, label: 'Courses' },
+        { path: '/classes', icon: ClipboardList, label: 'Classes' }
       ]
     },
     {

@@ -48,6 +48,22 @@ def add_semester():
     
     return jsonify({"msg": "Semester created", "id": new_sem.id}), 201
 
+@bp_academic.route("/classes", methods=["GET"])
+@staff_required(required_role_code=Role.QL_DAO_TAO)
+def list_classes():
+    classes = CourseClass.query.all()
+    results = []
+    for c in classes:
+        results.append({
+            "id": str(c.id),
+            "class_code": c.class_code,
+            "name": c.name,
+            "subject": {"id": str(c.subject.id), "name": c.subject.name} if c.subject else None,
+            "semester": {"id": str(c.semester.id), "code": c.semester.code} if c.semester else None,
+            "lecturer": {"id": str(c.lecturer.id), "name": c.lecturer.account.login_id} if c.lecturer else None # Mocking name via login_id for now or personal_info
+        })
+    return jsonify(results), 200
+
 @bp_academic.route("/classes", methods=["POST"])
 @staff_required(required_role_code=Role.QL_DAO_TAO)
 def add_course_class():

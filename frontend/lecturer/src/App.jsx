@@ -1,6 +1,21 @@
 import React from 'react';
-import LecturerDashboard from './pages/LectureDashboard';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { LecturerProvider } from './context/LecturerContext';
+import Layout from './components/Layout';
+import LectureDashboard from './pages/LectureDashboard';
+import ClassDetails from './pages/ClassDetails';
 
 export default function App() {
-  return <LecturerDashboard />;
+  return (
+    <Router>
+      <LecturerProvider>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<LectureDashboard />} />
+            <Route path="classes/:id" element={<ClassDetails />} />
+          </Route>
+        </Routes>
+      </LecturerProvider>
+    </Router>
+  );
 }

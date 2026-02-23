@@ -1,139 +1,115 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axiosClient";
+import { useStudent } from "../context/StudentContext";
+import { BookOpen, GraduationCap, Award } from "lucide-react";
 
 export default function StudentDashboard() {
-    const [profile, setProfile] = useState(null);
+    const { profile } = useStudent();
     const [grades, setGrades] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [errorMsg, setErrorMsg] = useState("");
+    const [loadingGrades, setLoadingGrades] = useState(true);
 
     useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search);
-        const token = queryParams.get('token');
-        
-        if (token) {
-            localStorage.setItem('access_token', token);
-            window.history.replaceState({}, document.title, window.location.pathname);
-        }
-
-        const fetchData = async () => {
+        const fetchGrades = async () => {
             try {
-                const profileRes = await api.get('/student/profile');
-                setProfile(profileRes.data);
-                
                 const gradesRes = await api.get('/student/grades');
                 setGrades(gradesRes.data);
             } catch (error) {
-                console.error(error);
-                setErrorMsg(error.toString() + (error.response?.data?.msg ? " - " + error.response.data.msg : ""));
+                console.error("Failed to load grades:", error);
             } finally {
-                setLoading(false);
+                setLoadingGrades(false);
             }
         };
-        fetchData();
-    }, []);
+        if (profile) fetchGrades();
+    }, [profile]);
 
-    if (loading) return <div className="flex justify-center items-center h-screen text-[#00528C] font-bold">Đang tải dữ liệu...</div>;
-    if (!profile) return (
-        <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
-            <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md border-t-4 border-red-500">
-                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex justify-center items-center mx-auto mb-4 text-3xl font-bold">!</div>
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Lỗi Xác Thực</h2>
-                <p className="text-gray-600 mb-6 text-sm">{errorMsg || "Không thể tải thông tin sinh viên"}</p>
-                <button 
-                    onClick={() => {
-                        localStorage.removeItem('access_token');
-                        window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
-                    }}
-                    className="w-full bg-[#00528C] hover:bg-blue-800 text-white font-medium py-2.5 px-4 rounded transition shadow-sm"
-                >
-                    Quay lại Trang Đăng Nhập
-                </button>
-            </div>
-        </div>
-    );
+    // Calculate basic stats
+    const totalCredits = grades.reduce((sum, g) => sum + g.credits, 0);
+    const passedCredits = grades.filter(g => g.scores.total >= 4.0).reduce((sum, g) => sum + g.credits, 0);
 
     return (
-        <div className="bg-gray-100 font-sans min-h-screen flex flex-col">
-            <header className="bg-[#00528C] text-white shadow-md z-10">
-                <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-                    <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#00528C] font-bold text-xl border-2 border-[#FFC101]">N</div>
-                        <div>
-                            <h1 className="font-bold text-lg uppercase leading-tight">Trường ĐH Kinh Tế Quốc Dân</h1>
-                            <p className="text-xs text-[#FFC101] opacity-90">Cổng thông tin Đào tạo</p>
-                        </div>
+        <div className="space-y-6">
+            <h1 className="text-2xl font-bold text-gray-800">Tổng quan Học tập</h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+                        <GraduationCap size={24} />
                     </div>
-                    <div className="flex items-center space-x-4">
-                        <div className="text-right hidden md:block">
-                            <span className="block font-bold text-sm">{profile.personal_info.first_name} {profile.personal_info.last_name}</span>
-                            <span className="block text-xs text-gray-300">{profile.student_id}</span>
-                        </div>
-                        <button 
-                            onClick={() => {
-                                localStorage.removeItem('access_token');
-                                window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
-                            }}
-                            className="bg-[#C41212] hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-medium shadow-sm transition">
-                            Đăng xuất
-                        </button>
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Ngành đào tạo</p>
+                        <p className="font-bold text-gray-800 break-words">{profile.enrollment_info.major}</p>
                     </div>
                 </div>
-            </header>
-
-            <div className="flex-1 container mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-1 space-y-4">
-                    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-200 text-center">
-                        <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 flex items-center justify-center text-3xl text-gray-400">N</div>
-                        <h3 className="font-bold text-gray-800">{profile.personal_info.first_name} {profile.personal_info.last_name}</h3>
-                        <p className="text-sm text-gray-500">Lớp: {profile.personal_info.class_name}</p>
-                        <p className="text-sm text-gray-500">Email: {profile.contact_info.email_edu}</p>
-                        <div className="mt-3 inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">
-                            {profile.personal_info.academic_status}
-                        </div>
+                
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div className="p-3 bg-yellow-50 text-yellow-600 rounded-full">
+                        <Award size={24} />
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Trạng thái học tập</p>
+                        <p className="font-bold text-gray-800">{profile.personal_info.academic_status}</p>
                     </div>
                 </div>
 
-                <div className="lg:col-span-3 space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-[#00528C]">
-                            <p className="text-gray-500 text-xs font-bold uppercase">Ngành đào tạo</p>
-                            <p className="text-xl font-bold text-[#00528C] mt-1">{profile.enrollment_info.major}</p>
-                        </div>
-                        <div className="bg-white p-5 rounded-lg shadow-sm border-l-4 border-[#FFC101]">
-                            <p className="text-gray-500 text-xs font-bold uppercase">Khóa học</p>
-                            <p className="text-xl font-bold text-gray-800 mt-1">{profile.enrollment_info.cohort}</p>
-                        </div>
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex items-center space-x-4">
+                    <div className="p-3 bg-green-50 text-green-600 rounded-full">
+                        <BookOpen size={24} />
                     </div>
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Tín chỉ tích luỹ</p>
+                        <p className="font-bold text-gray-800">{passedCredits} / {totalCredits}</p>
+                    </div>
+                </div>
+            </div>
 
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                        <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                            <h2 className="font-bold text-[#00528C] uppercase text-sm">Kết quả học tập</h2>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left text-sm">
-                                <thead className="bg-gray-100 text-gray-600 uppercase text-xs">
-                                    <tr>
-                                        <th className="px-6 py-3 font-semibold">Môn học</th>
-                                        <th className="px-6 py-3 font-semibold text-center">Số TC</th>
-                                        <th className="px-6 py-3 font-semibold text-center">Điểm hệ 10</th>
-                                        <th className="px-6 py-3 font-semibold text-center">Trạng thái</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-200">
-                                    {grades.map((g, idx) => (
-                                        <tr key={idx} className="hover:bg-blue-50/30 transition">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
+                    <h2 className="font-bold text-gray-700">Kết quả học tập (Hệ 10)</h2>
+                </div>
+                
+                {loadingGrades ? (
+                    <div className="p-8 text-center text-gray-500">Đang tải điểm số...</div>
+                ) : grades.length === 0 ? (
+                    <div className="p-8 text-center text-gray-500">Chưa có kết quả học tập nào được ghi nhận.</div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-[#f8fafc] text-gray-600">
+                                <tr>
+                                    <th className="px-6 py-3 font-medium">Môn học</th>
+                                    <th className="px-6 py-3 font-medium text-center">Số TC</th>
+                                    <th className="px-6 py-3 font-medium text-center">QT</th>
+                                    <th className="px-6 py-3 font-medium text-center">GK</th>
+                                    <th className="px-6 py-3 font-medium text-center">CK</th>
+                                    <th className="px-6 py-3 font-medium text-center">Tổng kết</th>
+                                    <th className="px-6 py-3 font-medium text-center">Đánh giá</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
+                                {grades.map((g, idx) => {
+                                    const isPass = g.scores.total >= 4.0;
+                                    return (
+                                        <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
                                             <td className="px-6 py-4 font-medium text-gray-800">{g.subject_name}</td>
-                                            <td className="px-6 py-4 text-center">{g.credits}</td>
-                                            <td className="px-6 py-4 text-center">{g.scores.total}</td>
-                                            <td className="px-6 py-4 text-center font-bold text-[#00528C]">{g.status}</td>
+                                            <td className="px-6 py-4 text-center text-gray-600">{g.credits}</td>
+                                            <td className="px-6 py-4 text-center">{g.scores.regular ?? '-'}</td>
+                                            <td className="px-6 py-4 text-center">{g.scores.midterm ?? '-'}</td>
+                                            <td className="px-6 py-4 text-center">{g.scores.final ?? '-'}</td>
+                                            <td className="px-6 py-4 text-center font-bold text-[#00528C]">{g.scores.total ?? '-'}</td>
+                                            <td className="px-6 py-4 text-center">
+                                                {g.scores.total !== null ? (
+                                                    <span className={`px-2 py-1 rounded text-xs font-medium ${isPass ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                        {isPass ? 'ĐẠT' : 'KHÔNG ĐẠT'}
+                                                    </span>
+                                                ) : <span className="text-gray-400">-</span>}
+                                            </td>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                )}
             </div>
         </div>
     );
