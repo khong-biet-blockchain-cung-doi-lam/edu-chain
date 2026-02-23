@@ -40,9 +40,9 @@ const LoginSignup = () => {
         } else if (role === "PARTNER") {
           window.location.href = `http://localhost:5003/?token=${token}&userData=${userData}`;
         } else if (role === "SINH_VIEN") {
-           alert("Giao diện Sinh viên Đang phát triển. Đăng nhập thành công!");
+          window.location.href = `http://localhost:5005/?token=${token}&userData=${userData}`;
         } else if (role === "GIANG_VIEN") {
-           alert("Giao diện Giảng viên Đang phát triển. Đăng nhập thành công!");
+          window.location.href = `http://localhost:5006/?token=${token}&userData=${userData}`;
         } else {
            alert("Đăng nhập thành công nhưng chưa có portal cho quyền này!");
         }

@@ -159,6 +159,8 @@ def get_student_grades():
             "grade_id": str(g.id),
             "class_id": str(g.course_class_id),
             "class_name": g.course_class.name if g.course_class else "Unknown",
+            "subject_name": g.course_class.subject.name if (g.course_class and g.course_class.subject) else "Unknown",
+            "credits": g.course_class.subject.credits if (g.course_class and g.course_class.subject) else 0,
             "scores": {
                 "regular": g.regular_score,
                 "midterm": g.midterm_score,
