@@ -5,8 +5,17 @@ export default function StudentDashboard() {
     const [profile, setProfile] = useState(null);
     const [grades, setGrades] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [errorMsg, setErrorMsg] = useState("");
 
     useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const token = queryParams.get('token');
+        
+        if (token) {
+            localStorage.setItem('access_token', token);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const fetchData = async () => {
             try {
                 const profileRes = await api.get('/student/profile');
@@ -16,6 +25,7 @@ export default function StudentDashboard() {
                 setGrades(gradesRes.data);
             } catch (error) {
                 console.error(error);
+                setErrorMsg(error.toString() + (error.response?.data?.msg ? " - " + error.response.data.msg : ""));
             } finally {
                 setLoading(false);
             }
@@ -24,7 +34,24 @@ export default function StudentDashboard() {
     }, []);
 
     if (loading) return <div className="flex justify-center items-center h-screen text-[#00528C] font-bold">Đang tải dữ liệu...</div>;
-    if (!profile) return <div className="text-center text-red-500 mt-10">Không thể tải thông tin sinh viên</div>;
+    if (!profile) return (
+        <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
+            <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md border-t-4 border-red-500">
+                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex justify-center items-center mx-auto mb-4 text-3xl font-bold">!</div>
+                <h2 className="text-xl font-bold text-gray-800 mb-2">Lỗi Xác Thực</h2>
+                <p className="text-gray-600 mb-6 text-sm">{errorMsg || "Không thể tải thông tin sinh viên"}</p>
+                <button 
+                    onClick={() => {
+                        localStorage.removeItem('access_token');
+                        window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
+                    }}
+                    className="w-full bg-[#00528C] hover:bg-blue-800 text-white font-medium py-2.5 px-4 rounded transition shadow-sm"
+                >
+                    Quay lại Trang Đăng Nhập
+                </button>
+            </div>
+        </div>
+    );
 
     return (
         <div className="bg-gray-100 font-sans min-h-screen flex flex-col">
@@ -42,7 +69,12 @@ export default function StudentDashboard() {
                             <span className="block font-bold text-sm">{profile.personal_info.first_name} {profile.personal_info.last_name}</span>
                             <span className="block text-xs text-gray-300">{profile.student_id}</span>
                         </div>
-                        <button className="bg-[#C41212] hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-medium shadow-sm transition">
+                        <button 
+                            onClick={() => {
+                                localStorage.removeItem('access_token');
+                                window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
+                            }}
+                            className="bg-[#C41212] hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-medium shadow-sm transition">
                             Đăng xuất
                         </button>
                     </div>

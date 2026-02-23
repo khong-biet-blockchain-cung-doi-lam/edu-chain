@@ -1,9 +1,9 @@
 {
-  "name": "educhain-admin",
+  "name": "educhain-lecturer",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5004",
+    "dev": "vite --port 5006",
     "build": "vite build",
     "preview": "vite preview"
   },

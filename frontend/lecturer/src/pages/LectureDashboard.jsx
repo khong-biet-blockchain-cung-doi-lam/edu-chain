@@ -6,6 +6,14 @@ export default function LecturerDashboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const token = queryParams.get('token');
+        
+        if (token) {
+            localStorage.setItem('access_token', token);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         const fetchClasses = async () => {
             try {
                 const response = await api.get('/lecturer/classes');
@@ -33,7 +41,12 @@ export default function LecturerDashboard() {
                         </div>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button className="bg-white text-[#C41212] hover:bg-red-50 font-medium px-4 py-1.5 rounded text-sm transition shadow-sm">
+                        <button 
+                            onClick={() => {
+                                localStorage.removeItem('access_token');
+                                window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
+                            }}
+                            className="bg-white text-[#C41212] hover:bg-red-50 font-medium px-4 py-1.5 rounded text-sm transition shadow-sm">
                             Đăng xuất
                         </button>
                     </div>
