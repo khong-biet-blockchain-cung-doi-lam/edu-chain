@@ -8,17 +8,10 @@ import CourseManagement from '../pages/CourseManagement/CourseManagement';
 import Reports from '../pages/Reports/Reports';
 import Settings from '../pages/Settings/Settings';
 import ClassManagement from '../pages/ClassManagement/ClassManagement';
+import ProfileClusters from '../pages/EncryptionManagement/ProfileClusters';
+import GradeClusters from '../pages/EncryptionManagement/GradeClusters';
 
 export default function AppRoutes() {
-  // TẠM THỜI TẮT CHECK ĐỂ TEST
-  // const isAuthenticated = localStorage.getItem('authToken');
-  // const userRole = localStorage.getItem('userRole');
-
-  // if (!isAuthenticated || userRole !== 'admin') {
-  //   window.location.href = 'http://localhost:5000';
-  //   return null;
-  // }
-
   return (
     <Routes>
       <Route path="/" element={<MainLayout />}>
@@ -30,6 +23,10 @@ export default function AppRoutes() {
         <Route path="classes" element={<ClassManagement />} />
         <Route path="reports" element={<Reports />} />
         <Route path="settings" element={<Settings />} />
+        {/* Phòng Quản lý Đào tạo — mã hóa hồ sơ sinh viên */}
+        <Route path="profile-clusters" element={<ProfileClusters />} />
+        {/* Phòng Khảo thí — mã hóa điểm sinh viên */}
+        <Route path="grade-clusters" element={<GradeClusters />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>

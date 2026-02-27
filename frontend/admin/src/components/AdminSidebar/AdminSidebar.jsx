@@ -9,7 +9,9 @@ import {
   Settings,
   LogOut,
   Shield,
-  ClipboardList
+  ClipboardList,
+  Lock,
+  ClipboardCheck
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import './AdminSidebar.css';
@@ -21,11 +23,18 @@ export default function AdminSidebar({ isOpen }) {
     { 
       section: 'QUẢN LÝ',
       items: [
-        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
-        { path: '/users', icon: Users, label: 'Người dùng' },
-        { path: '/programs', icon: GraduationCap, label: 'Ngành học' },
-        { path: '/courses', icon: BookOpen, label: 'Học phần' },
-        { path: '/classes', icon: ClipboardList, label: 'Lớp học phần' }
+        { path: '/dashboard',  icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/users',      icon: Users,           label: 'Người dùng' },
+        { path: '/programs',   icon: GraduationCap,   label: 'Ngành học' },
+        { path: '/courses',    icon: BookOpen,         label: 'Học phần' },
+        { path: '/classes',    icon: ClipboardList,    label: 'Lớp học phần' }
+      ]
+    },
+    {
+      section: 'MÃ HÓA DỮ LIỆU',
+      items: [
+        { path: '/profile-clusters', icon: Lock,          label: 'Hồ sơ SV (QLĐT)' },
+        { path: '/grade-clusters',   icon: ClipboardCheck, label: 'Điểm SV (Khảo thí)' },
       ]
     },
     {
