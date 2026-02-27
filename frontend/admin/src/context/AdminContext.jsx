@@ -2,7 +2,6 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AdminContext = createContext();
 
-// Nhãn hiển thị theo role
 export const ROLE_DISPLAY = {
   ADMIN:      'Quản trị hệ thống',
   QL_DAO_TAO: 'Phòng Quản lý Đào tạo',
@@ -10,67 +9,72 @@ export const ROLE_DISPLAY = {
   KHOA:       'Văn phòng Khoa',
 };
 
-// Normalize legacy roles → new roles
 const LEGACY_ROLE_MAP = {
-  'staff': 'QL_DAO_TAO',
-  'STAFF': 'QL_DAO_TAO',
-  'student': 'SINH_VIEN',
+  'staff':    'QL_DAO_TAO',
+  'STAFF':    'QL_DAO_TAO',
+  'student':  'SINH_VIEN',
   'lecturer': 'GIANG_VIEN',
-  'partner': 'PARTNER',
+  'partner':  'PARTNER',
 };
 
 function normalizeRole(rawRole) {
   if (!rawRole) return null;
-  const upper = rawRole.toUpperCase();
-  // Map legacy → new
-  return LEGACY_ROLE_MAP[rawRole] || LEGACY_ROLE_MAP[upper] || upper;
+  return LEGACY_ROLE_MAP[rawRole] || rawRole.toUpperCase();
 }
 
-export function AdminProvider({ children }) {
-  const [admin, setAdmin] = useState(null);
-  const [currentRole, setCurrentRole] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+// =============================================
+// Đọc trạng thái ĐỒNG BỘ ngay lúc khởi tạo
+// để sidebar không bao giờ thấy currentRole=null
+// =============================================
+function readInitialState() {
+  try {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
     const urlUser  = params.get('userData');
 
     if (urlToken && urlUser) {
-      try {
-        localStorage.setItem('authToken', urlToken);
-        localStorage.setItem('userData', urlUser);
-        // URLSearchParams.get() already decodes once — do NOT double-decode
-        const parsedUser = JSON.parse(urlUser);
-        const role = normalizeRole(parsedUser.role);
-        localStorage.setItem('userRole', role || '');
-        setAdmin(parsedUser);
-        setCurrentRole(role);
-        console.log('[AdminContext] Login URL — role:', role, 'raw:', parsedUser.role);
-      } catch (e) {
-        console.error('[AdminContext] Failed to parse userData from URL:', e);
-      }
+      // Đến từ redirect sau login
+      const parsedUser = JSON.parse(urlUser);
+      const role = normalizeRole(parsedUser.role);
+
+      // Lưu ngay vào localStorage
+      localStorage.setItem('authToken', urlToken);
+      localStorage.setItem('userData', urlUser);
+      localStorage.setItem('userRole', role || '');
+
       // Xóa params khỏi URL
       window.history.replaceState({}, document.title, window.location.pathname);
-    } else {
-      const adminData = localStorage.getItem('userData');
-      const token     = localStorage.getItem('authToken');
-      const savedRole = localStorage.getItem('userRole');
-      if (adminData && token) {
-        try {
-          const parsed = JSON.parse(adminData);
-          // Re-normalize in case old localStorage has legacy role
-          const role = normalizeRole(savedRole) || normalizeRole(parsed.role);
-          setAdmin(parsed);
-          setCurrentRole(role);
-          console.log('[AdminContext] localStorage — role:', role, 'savedRole:', savedRole);
-        } catch (e) {
-          console.error('[AdminContext] Failed to parse userData from localStorage:', e);
-        }
-      }
+
+      return { admin: parsedUser, role };
     }
-    setLoading(false);
-  }, []);
+    
+    // Từ localStorage (F5 / mở lại trang)
+    const savedUser  = localStorage.getItem('userData');
+    const savedToken = localStorage.getItem('authToken');
+    const savedRole  = localStorage.getItem('userRole');
+
+    if (savedUser && savedToken) {
+      const parsed = JSON.parse(savedUser);
+      // Re-normalize phòng khi có legacy role cũ trong localStorage
+      const role = normalizeRole(savedRole) || normalizeRole(parsed.role);
+      // Update localStorage nếu role đã được normalize
+      if (role && role !== savedRole) {
+        localStorage.setItem('userRole', role);
+      }
+      return { admin: parsed, role };
+    }
+  } catch (e) {
+    console.error('[AdminContext] readInitialState error:', e);
+  }
+  return { admin: null, role: null };
+}
+
+export function AdminProvider({ children }) {
+  // Đọc ngay đồng bộ — không cần useEffect mới có role
+  const { admin: initAdmin, role: initRole } = readInitialState();
+
+  const [admin, setAdmin]           = useState(initAdmin);
+  const [currentRole, setCurrentRole] = useState(initRole);
 
   const updateAdmin = (data) => {
     setAdmin(data);
@@ -85,7 +89,7 @@ export function AdminProvider({ children }) {
     window.location.href = loginUrl;
   };
 
-  const value = { admin, currentRole, loading, updateAdmin, logout };
+  const value = { admin, currentRole, updateAdmin, logout };
 
   return (
     <AdminContext.Provider value={value}>

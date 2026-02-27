@@ -7,6 +7,9 @@ export default defineConfig({
     port: 5004,
     open: true
   },
+  preview: {
+    port: 5004,
+  },
   resolve: {
     alias: {
       '@': '/src',
