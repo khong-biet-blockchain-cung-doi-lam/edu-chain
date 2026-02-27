@@ -17,33 +17,33 @@ import './Dashboard.css';
 export default function Dashboard() {
   const stats = [
     {
-      title: 'Total Applications',
+      title: 'Tổng đơn đăng ký',
       value: '2,350',
-      change: '+12% from last month',
+      change: '+12% so với tháng trước',
       trend: 'up',
       icon: FileText,
       color: 'blue'
     },
     {
-      title: 'Active Scholarships',
+      title: 'Học bổng đang cấp',
       value: '12',
-      change: '+2 new this week',
+      change: '+2 mới tuần này',
       trend: 'up',
       icon: TrendingUp,
       color: 'green'
     },
     {
-      title: 'Student Views',
+      title: 'Lượt sinh viên xem',
       value: '45.2k',
-      change: '+18% from last month',
+      change: '+18% so với tháng trước',
       trend: 'up',
       icon: Users,
       color: 'purple'
     },
     {
-      title: 'Awarded Amount',
+      title: 'Số tiền tài trợ',
       value: '$125k',
-      change: '85% of annual budget',
+      change: '85% ngân sách năm',
       trend: 'neutral',
       icon: DollarSign,
       color: 'orange'
@@ -54,19 +54,19 @@ export default function Dashboard() {
     <div className="dashboard-page">
       <div className="dashboard-header">
         <div>
-          <h1 className="dashboard-title">Dashboard</h1>
+          <h1 className="dashboard-title">Tổng quan</h1>
           <p className="dashboard-subtitle">
-            Welcome back, Sarah. Here's what's happening with your programs.
+            Chào mừng trở lại. Dưới đây là tình hình các chương trình của bạn.
           </p>
         </div>
         <div className="dashboard-actions">
           <button className="btn btn-secondary">
             <Download size={18} />
-            Download Report
+            Tải Báo cáo
           </button>
           <Link to="/scholarships/create" className="btn btn-primary">
             <Plus size={18} />
-            New Scholarship
+            Tạo Học bổng
           </Link>
         </div>
       </div>

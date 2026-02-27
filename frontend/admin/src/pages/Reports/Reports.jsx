@@ -29,7 +29,7 @@ export default function Reports() {
 
   const stats = [
     {
-      title: 'Total Revenue',
+      title: 'Tổng doanh thu',
       value: '$2.4M',
       change: '+15.3%',
       trend: 'up',
@@ -37,7 +37,7 @@ export default function Reports() {
       color: 'green'
     },
     {
-      title: 'Active Students',
+      title: 'Sinh viên đang học',
       value: '8,721',
       change: '+12.5%',
       trend: 'up',
@@ -45,7 +45,7 @@ export default function Reports() {
       color: 'blue'
     },
     {
-      title: 'Course Completion',
+      title: 'Tỷ lệ hoàn thành',
       value: '91%',
       change: '+2.1%',
       trend: 'up',
@@ -53,7 +53,7 @@ export default function Reports() {
       color: 'purple'
     },
     {
-      title: 'Avg GPA',
+      title: 'GPA trung bình',
       value: '3.5',
       change: '+0.2',
       trend: 'up',
@@ -72,10 +72,10 @@ export default function Reports() {
   ];
 
   const departmentData = [
-    { name: 'Engineering', value: 3200, color: '#8b5cf6' },
-    { name: 'Business', value: 2100, color: '#ec4899' },
-    { name: 'Science', value: 1800, color: '#06b6d4' },
-    { name: 'IT', value: 1621, color: '#f59e0b' }
+    { name: 'Kỹ thuật', value: 3200, color: '#8b5cf6' },
+    { name: 'Kinh doanh', value: 2100, color: '#ec4899' },
+    { name: 'Khoa học', value: 1800, color: '#06b6d4' },
+    { name: 'CNTT', value: 1621, color: '#f59e0b' }
   ];
 
   const performanceData = [
@@ -118,23 +118,23 @@ export default function Reports() {
 
   const reportTypes = [
     {
-      title: 'System Overview',
-      description: 'Complete platform statistics and metrics',
+      title: 'Tổng quan Hệ thống',
+      description: 'Số liệu thống kê toàn bộ nền tảng',
       icon: '📊'
     },
     {
-      title: 'Enrollment Report',
-      description: 'Student and teacher registration data',
+      title: 'Báo cáo Tuyển sinh',
+      description: 'Dữ liệu đăng ký sinh viên và giảng viên',
       icon: '📈'
     },
     {
-      title: 'Academic Performance',
-      description: 'Grades, completion rates, and GPA analysis',
+      title: 'Kết quả Học tập',
+      description: 'Điểm số, tỷ lệ hoàn thành và phân tích GPA',
       icon: '🎓'
     },
     {
-      title: 'Financial Report',
-      description: 'Revenue, expenses, and budget analysis',
+      title: 'Báo cáo Tài chính',
+      description: 'Phân tích doanh thu, chi phí và ngân sách',
       icon: '💰'
     }
   ];
@@ -153,8 +153,8 @@ export default function Reports() {
     <div className="reports-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Reports & Analytics</h1>
-          <p className="page-subtitle">View and generate system reports</p>
+          <h1 className="page-title">Báo cáo & Phân tích</h1>
+          <p className="page-subtitle">Xem và xuất các báo cáo hệ thống</p>
         </div>
         <div className="header-actions">
           <select 
@@ -162,14 +162,14 @@ export default function Reports() {
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
           >
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-            <option value="quarter">Last Quarter</option>
-            <option value="year">Last Year</option>
+            <option value="week">Tuần trước</option>
+            <option value="month">Tháng trước</option>
+            <option value="quarter">Quý trước</option>
+            <option value="year">Năm trước</option>
           </select>
           <button className="btn btn-primary">
             <Download size={18} />
-            Export All
+            Xuất file
           </button>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function Reports() {
 
       {/* Report Types */}
       <div className="report-types">
-        <h2 className="section-title">Generate Reports</h2>
+        <h2 className="section-title">Tạo báo cáo</h2>
         <div className="report-types-grid">
           {reportTypes.map((type, index) => (
             <div key={index} className="report-type-card">
@@ -216,8 +216,8 @@ export default function Reports() {
         {/* Enrollment Trends */}
         <div className="chart-card chart-full">
           <div className="chart-header">
-            <h3 className="chart-title">Enrollment Trends</h3>
-            <p className="chart-subtitle">User growth over the last 6 months</p>
+            <h3 className="chart-title">Tuyển sinh</h3>
+            <p className="chart-subtitle">Gia tăng lượng người dùng trong 6 tháng qua</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={350}>
@@ -245,8 +245,8 @@ export default function Reports() {
         {/* Students by Department */}
         <div className="chart-card chart-half">
           <div className="chart-header">
-            <h3 className="chart-title">Students by Department</h3>
-            <p className="chart-subtitle">Distribution across departments</p>
+            <h3 className="chart-title">Phân bố Sinh viên</h3>
+            <p className="chart-subtitle">Sinh viên theo từng bộ môn / khoa</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -274,8 +274,8 @@ export default function Reports() {
         {/* Academic Performance */}
         <div className="chart-card chart-half">
           <div className="chart-header">
-            <h3 className="chart-title">Academic Performance</h3>
-            <p className="chart-subtitle">Pass rates and GPA trends</p>
+            <h3 className="chart-title">Kết quả Học tập</h3>
+            <p className="chart-subtitle">Tỷ lệ đỗ và điểm trung bình GPA</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -303,8 +303,8 @@ export default function Reports() {
       {/* Recent Reports */}
       <div className="recent-reports">
         <div className="section-header">
-          <h2 className="section-title">Recent Reports</h2>
-          <button className="btn btn-secondary btn-sm">View All</button>
+          <h2 className="section-title">Báo cáo Gần đây</h2>
+          <button className="btn btn-secondary btn-sm">Xem tất cả</button>
         </div>
         <div className="reports-list">
           {recentReports.map((report) => (

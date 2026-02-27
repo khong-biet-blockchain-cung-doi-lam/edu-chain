@@ -19,25 +19,25 @@ export default function OrgSidebar({ isOpen }) {
 
   const menuItems = [
     { 
-      section: 'PLATFORM',
+      section: 'NỀN TẢNG',
       items: [
-        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/scholarships', icon: GraduationCap, label: 'Scholarships' },
-        { path: '/students', icon: Users, label: 'Student Directory' },
-        { path: '/applications', icon: FileText, label: 'Applications' }
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/scholarships', icon: GraduationCap, label: 'Học bổng' },
+        { path: '/students', icon: Users, label: 'Hồ sơ Ứng viên' },
+        { path: '/applications', icon: FileText, label: 'Đơn đăng ký' }
       ]
     },
     {
-      section: 'ANALYTICS',
+      section: 'PHÂN TÍCH',
       items: [
-        { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-        { path: '/profile', icon: Building2, label: 'Organization Profile' }
+        { path: '/analytics', icon: BarChart3, label: 'Thống kê' },
+        { path: '/profile', icon: Building2, label: 'Hồ sơ Tổ chức' }
       ]
     },
     {
-      section: 'ACCOUNT',
+      section: 'TÀI KHOẢN',
       items: [
-        { path: '/settings', icon: Settings, label: 'Settings' }
+        { path: '/settings', icon: Settings, label: 'Cài đặt' }
       ]
     }
   ];
@@ -47,7 +47,7 @@ export default function OrgSidebar({ isOpen }) {
       <div className="sidebar-header">
         <div className="sidebar-logo">
           <div className="logo-icon">EC</div>
-          {isOpen && <span className="logo-text">Partner Portal</span>}
+          {isOpen && <span className="logo-text">Cổng Đối tác</span>}
         </div>
       </div>
 
@@ -74,7 +74,7 @@ export default function OrgSidebar({ isOpen }) {
       <div className="sidebar-footer">
         <button onClick={logout} className="logout-btn">
           <LogOut size={20} />
-          {isOpen && <span>Sign Out</span>}
+          {isOpen && <span>Đăng xuất</span>}
         </button>
       </div>
     </aside>

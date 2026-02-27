@@ -8,40 +8,40 @@ export default function RecentActivity() {
     {
       id: 1,
       user: 'John Smith',
-      action: 'applied for Tech Scholarship',
-      time: '5 minutes ago',
+      action: 'đã nộp đơn Học bổng Công nghệ',
+      time: '5 phút trước',
       avatar: 'JS',
       type: 'application'
     },
     {
       id: 2,
       user: 'Emily Chen',
-      action: 'was approved for STEM Award',
-      time: '15 minutes ago',
+      action: 'đã được duyệt Học bổng STEM',
+      time: '15 phút trước',
       avatar: 'EC',
       type: 'approval'
     },
     {
       id: 3,
       user: 'Michael Brown',
-      action: 'submitted application documents',
-      time: '1 hour ago',
+      action: 'đã nộp các tài liệu bổ sung',
+      time: '1 giờ trước',
       avatar: 'MB',
       type: 'update'
     },
     {
       id: 4,
       user: 'Sarah Johnson',
-      action: 'applied for Leadership Grant',
-      time: '2 hours ago',
+      action: 'đã nộp đơn Học bổng Lãnh đạo',
+      time: '2 giờ trước',
       avatar: 'SJ',
       type: 'application'
     },
     {
       id: 5,
       user: 'David Lee',
-      action: 'was approved for Innovation Scholarship',
-      time: '3 hours ago',
+      action: 'đã được duyệt Học bổng Đổi mới',
+      time: '3 giờ trước',
       avatar: 'DL',
       type: 'approval'
     }
@@ -59,8 +59,8 @@ export default function RecentActivity() {
   return (
     <div className="recent-activity">
       <div className="activity-header">
-        <h3 className="activity-title">Recent Activity</h3>
-        <button className="view-all-btn">View all activity →</button>
+        <h3 className="activity-title">Hoạt động Gần đây</h3>
+        <button className="view-all-btn">Xem tất cả hoạt động →</button>
       </div>
       <div className="activity-list">
         {activities.map((activity) => (

@@ -1,121 +1,104 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Edit, Trash2, Clock, Users } from 'lucide-react';
+import courseService from '../../services/courseService';
 import './CourseManagement.css';
 
 export default function CourseManagement() {
   const [selectedDepartment, setSelectedDepartment] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+      subject_code: '',
+      name: '',
+      credits: 3
+  });
 
-  const courses = [
-    {
-      id: 1,
-      code: 'CS101',
-      name: 'Introduction to Programming',
-      department: 'Computer Science',
-      instructor: 'Dr. John Smith',
-      credits: 3,
-      students: 120,
-      schedule: 'Mon, Wed 9:00-10:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    },
-    {
-      id: 2,
-      code: 'MATH201',
-      name: 'Calculus II',
-      department: 'Mathematics',
-      instructor: 'Prof. Sarah Lee',
-      credits: 4,
-      students: 85,
-      schedule: 'Tue, Thu 10:00-11:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    },
-    {
-      id: 3,
-      code: 'EE301',
-      name: 'Digital Signal Processing',
-      department: 'Electrical Engineering',
-      instructor: 'Dr. Michael Chen',
-      credits: 3,
-      students: 65,
-      schedule: 'Mon, Wed 14:00-15:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    },
-    {
-      id: 4,
-      code: 'DS201',
-      name: 'Machine Learning Fundamentals',
-      department: 'Data Science',
-      instructor: 'Dr. Emily Wang',
-      credits: 4,
-      students: 95,
-      schedule: 'Tue, Thu 13:00-14:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    },
-    {
-      id: 5,
-      code: 'BA105',
-      name: 'Marketing Principles',
-      department: 'Business',
-      instructor: 'Prof. David Brown',
-      credits: 3,
-      students: 110,
-      schedule: 'Wed, Fri 11:00-12:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    },
-    {
-      id: 6,
-      code: 'CS401',
-      name: 'Advanced Algorithms',
-      department: 'Computer Science',
-      instructor: 'Dr. Jane Miller',
-      credits: 4,
-      students: 45,
-      schedule: 'Tue, Thu 15:00-16:30',
-      semester: 'Spring 2026',
-      status: 'active'
-    }
-  ];
+  const fetchCourses = async () => {
+      try {
+          setLoading(true);
+          const data = await courseService.getAllCourses();
+          setCourses(data || []);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  useEffect(() => {
+      fetchCourses();
+  }, []);
+
+  const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateCourse = async (e) => {
+      e.preventDefault();
+      try {
+          await courseService.createCourse({
+              subject_code: formData.subject_code,
+              name: formData.name,
+              credits: parseInt(formData.credits)
+          });
+          alert("Thêm học phần thành công!");
+          setIsModalOpen(false);
+          setFormData({ subject_code: '', name: '', credits: 3 });
+          fetchCourses();
+      } catch (err) {
+          alert("Lỗi khi thêm học phần: " + (err.response?.data?.msg || err.message));
+      }
+  };
+
+  const handleDeleteCourse = async (id) => {
+      if (window.confirm("Bạn có chắc chắn muốn xóa học phần này?")) {
+          try {
+              await courseService.deleteCourse(id);
+              fetchCourses();
+          } catch (err) {
+              alert("Lỗi khi xóa học phần");
+          }
+      }
+  };
 
   const departments = [
-    'All Departments',
-    'Computer Science',
-    'Mathematics',
-    'Data Science',
-    'Business',
-    'Electrical Engineering'
+    'Tất cả Khoa/Viện',
+    'Công nghệ Thông tin',
+    'Toán Kinh tế',
+    'Khoa học Dữ liệu',
+    'Quản trị Kinh doanh',
+    'Cơ điện tử'
   ];
 
   const stats = [
-    { label: 'Total Courses', value: courses.length },
-    { label: 'Active Students', value: courses.reduce((sum, c) => sum + c.students, 0) },
-    { label: 'Instructors', value: new Set(courses.map(c => c.instructor)).size }
+    { label: 'Tổng số môn học', value: courses.length },
+    { label: 'Số tín chỉ trung bình', value: courses.length > 0 ? (courses.reduce((sum, c) => sum + (c.credits || 0), 0) / courses.length).toFixed(1) : 0 },
+    { label: 'Môn học mới', value: 0 }
   ];
 
   const filteredCourses = courses.filter(course => {
-    const matchesDepartment = selectedDepartment === 'all' || 
-      course.department === departments.find(d => d === selectedDepartment);
+    // Subject model doesn't have department. Filtering by search term instead
     const matchesSearch = 
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesDepartment && matchesSearch;
+      (course.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (course.subject_code || '').toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSearch;
   });
 
   return (
     <div className="course-management-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Course Management</h1>
-          <p className="page-subtitle">Manage courses and schedules</p>
+          <h1 className="page-title">Quản lý Học phần / Môn học</h1>
+          <p className="page-subtitle">Quản lý danh sách các môn học trong hệ thống</p>
         </div>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
           <Plus size={18} />
-          Create New Course
+          Thêm Học phần
         </button>
       </div>
 
@@ -147,7 +130,7 @@ export default function CourseManagement() {
           <Search size={20} className="search-icon" />
           <input
             type="text"
-            placeholder="Search by course name, code, or instructor..."
+            placeholder="Tìm kiếm theo tên môn học, mã môn..."
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -160,55 +143,38 @@ export default function CourseManagement() {
         <table className="courses-table">
           <thead>
             <tr>
-              <th>Course Code</th>
-              <th>Course Name</th>
-              <th>Department</th>
-              <th>Instructor</th>
-              <th>Credits</th>
-              <th>Students</th>
-              <th>Schedule</th>
-              <th>Actions</th>
+              <th>Mã Học phần</th>
+              <th>Tên Học phần</th>
+              <th>Số tín chỉ</th>
+              <th>Khoa/Viện (Mock)</th>
+              <th>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {filteredCourses.map((course) => (
+            {loading ? (
+                <tr><td colSpan="5" style={{textAlign: 'center', padding: '20px'}}>Đang tải dữ liệu...</td></tr>
+            ) : filteredCourses.map((course) => (
               <tr key={course.id}>
                 <td>
-                  <span className="course-code">{course.code}</span>
+                  <span className="course-code">{course.subject_code}</span>
                 </td>
                 <td>
                   <div className="course-info">
                     <div className="course-name">{course.name}</div>
-                    <div className="course-semester">{course.semester}</div>
                   </div>
-                </td>
-                <td>
-                  <span className="course-department">{course.department}</span>
-                </td>
-                <td>
-                  <span className="course-instructor">{course.instructor}</span>
                 </td>
                 <td>
                   <span className="credits-badge">{course.credits}</span>
                 </td>
                 <td>
-                  <div className="students-count">
-                    <Users size={14} />
-                    {course.students}
-                  </div>
-                </td>
-                <td>
-                  <div className="course-schedule">
-                    <Clock size={14} />
-                    {course.schedule}
-                  </div>
+                  <span className="course-department">Viện CNTT & KTS</span>
                 </td>
                 <td>
                   <div className="action-buttons">
-                    <button className="action-btn" title="Edit">
+                    <button className="action-btn" title="Chỉnh sửa">
                       <Edit size={16} />
                     </button>
-                    <button className="action-btn danger" title="Delete">
+                    <button className="action-btn danger" title="Xóa" onClick={() => handleDeleteCourse(course.id)}>
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -218,14 +184,137 @@ export default function CourseManagement() {
           </tbody>
         </table>
 
-        {filteredCourses.length === 0 && (
+        {!loading && filteredCourses.length === 0 && (
           <div className="empty-state">
             <div className="empty-icon">📚</div>
-            <h3 className="empty-title">No courses found</h3>
-            <p className="empty-text">Try adjusting your search or filters</p>
+            <h3 className="empty-title">Không tìm thấy học phần nào</h3>
+            <p className="empty-text">Hãy thử điều chỉnh từ khóa tìm kiếm</p>
           </div>
         )}
       </div>
+
+      {/* Modal Overlay */}
+      {isModalOpen && (
+        <div style={modalOverlayStyle}>
+          <div style={modalContentStyle}>
+            <div style={modalHeaderStyle}>
+              <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1e293b' }}>Thêm Học Phần Mới</h2>
+              <button 
+                onClick={() => setIsModalOpen(false)}
+                style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}
+              >×</button>
+            </div>
+            <form onSubmit={handleCreateCourse} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <div>
+                <label style={labelStyle}>Mã Học phần</label>
+                <input 
+                  type="text" 
+                  name="subject_code" 
+                  value={formData.subject_code} 
+                  onChange={handleInputChange} 
+                  style={inputStyle}
+                  required 
+                  placeholder="VD: IT4501, BA100..."
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Tên Học phần</label>
+                <input 
+                  type="text" 
+                  name="name" 
+                  value={formData.name} 
+                  onChange={handleInputChange} 
+                  style={inputStyle}
+                  required 
+                  placeholder="Nhập tên môn học..."
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Số Tín chỉ</label>
+                <input 
+                  type="number" 
+                  name="credits" 
+                  value={formData.credits} 
+                  onChange={handleInputChange} 
+                  style={inputStyle}
+                  required 
+                  min="1"
+                  max="10"
+                />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={cancelBtnStyle}>Hủy</button>
+                <button type="submit" style={submitBtnStyle}>Tạo mới</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const modalOverlayStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000
+};
+
+const modalContentStyle = {
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    width: '100%',
+    maxWidth: '500px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+};
+
+const modalHeaderStyle = {
+    padding: '20px',
+    borderBottom: '1px solid #e2e8f0',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+};
+
+const labelStyle = {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: '500',
+    color: '#334155',
+    fontSize: '0.875rem'
+};
+
+const inputStyle = {
+    width: '100%',
+    padding: '10px',
+    border: '1px solid #cbd5e1',
+    borderRadius: '4px',
+    fontSize: '0.875rem'
+};
+
+const cancelBtnStyle = {
+    padding: '8px 16px',
+    backgroundColor: '#f1f5f9',
+    color: '#475569',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500'
+};
+
+const submitBtnStyle = {
+    padding: '8px 16px',
+    backgroundColor: '#3b82f6',
+    color: 'white',
+    border: 'none',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontWeight: '500'
+};

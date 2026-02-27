@@ -35,16 +35,17 @@ const LoginSignup = () => {
         const userData = encodeURIComponent(JSON.stringify({ ...data.user, fullName: data.user.username })); // Ensure fullName exists so admin bar doesn't error out
 
         // Cổng chia luồng (SSO Router)
-        if (role === "QL_DAO_TAO") {
+        const roleNormalized = role.toUpperCase();
+        if (roleNormalized === "STAFF" || roleNormalized === "QL_DAO_TAO" || role === "staff") {
           window.location.href = `http://localhost:5004/?token=${token}&userData=${userData}`;
-        } else if (role === "PARTNER") {
+        } else if (roleNormalized === "PARTNER" || role === "partner") {
           window.location.href = `http://localhost:5003/?token=${token}&userData=${userData}`;
-        } else if (role === "SINH_VIEN") {
+        } else if (roleNormalized === "SINH_VIEN" || role === "student") {
           window.location.href = `http://localhost:5005/?token=${token}&userData=${userData}`;
-        } else if (role === "GIANG_VIEN") {
+        } else if (roleNormalized === "GIANG_VIEN" || role === "lecturer") {
           window.location.href = `http://localhost:5006/?token=${token}&userData=${userData}`;
         } else {
-           alert("Đăng nhập thành công nhưng chưa có portal cho quyền này!");
+           alert("Đăng nhập thành công nhưng chưa có portal cho quyền này: " + role);
         }
       } else {
         setErrorMsg(data.msg || "Tên đăng nhập hoặc mật khẩu không đúng.");

@@ -100,7 +100,8 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(staff)
         db.session.commit()
             
-        staff_profile = Staff(id=staff.id, full_name="Test Staff", position=Role.QL_DAO_TAO, staff_code="STAFF001")
+        staff_code = f"STAFF_{uuid.uuid4().hex[:6]}"
+        staff_profile = Staff(id=staff.id, full_name="Test Staff", position=Role.QL_DAO_TAO, staff_code=staff_code)
         db.session.add(staff_profile)
         db.session.commit()
         self.staff_id = staff.id
@@ -112,7 +113,8 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(lect)
         db.session.commit()
                  
-        lect_profile = Lecturer(id=lect.id, lecturer_code="GV001")
+        lect_code = f"GV_{uuid.uuid4().hex[:6]}"
+        lect_profile = Lecturer(id=lect.id, lecturer_code=lect_code)
         db.session.add(lect_profile)
         db.session.commit()
         self.lecturer_id = lect.id
@@ -125,7 +127,8 @@ class TestEduChainFlow(unittest.TestCase):
         db.session.add(stu)
         db.session.commit()
             
-        stu_profile = Student(id=stu.id, student_id="SV001")
+        stu_code = f"SV_{uuid.uuid4().hex[:6]}"
+        stu_profile = Student(id=stu.id, student_id=stu_code)
         db.session.add(stu_profile)
         db.session.commit()
         self.student_id = stu.id
@@ -236,13 +239,15 @@ class TestEduChainFlow(unittest.TestCase):
         # 1.5. Update Profile
         # 1.5. Update Profile
         print("    - [API] Student updates profile contact info")
+        dynamic_national_id = f"ID_{uuid.uuid4().hex[:6]}"
         res = self.client.put("/api/student/profile", json={
             "phone": "0987654321",
             "address": "123 Blockchain Street",
+            "email_personal": f"student_{uuid.uuid4().hex[:6]}@st.neu.edu.vn",
             "first_name": "Nguyen Van",
             "last_name": "A Updated",
             "date_of_birth": "2000-01-01",
-            "national_id": "00123456789",
+            "national_id": dynamic_national_id,
             "gender": "Nam"
         }, headers=headers_stu)
         if res.status_code != 200:
@@ -254,7 +259,7 @@ class TestEduChainFlow(unittest.TestCase):
         self.assertEqual(res.json['contact_info']['phone'], "0987654321")
         self.assertEqual(res.json['personal_info']['first_name'], "Nguyen Van")
         self.assertEqual(res.json['personal_info']['last_name'], "A Updated")
-        self.assertEqual(res.json['personal_info']['national_id'], "00123456789")
+        self.assertEqual(res.json['personal_info']['national_id'], dynamic_national_id)
         print("    - [API] Student profile updated and verified")
 
         # 2. Request Review

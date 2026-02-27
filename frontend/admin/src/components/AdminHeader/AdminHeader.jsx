@@ -14,9 +14,9 @@ export default function AdminHeader({ toggleSidebar }) {
           <Menu size={24} />
         </button>
         <div className="header-breadcrumb">
-          <span className="breadcrumb-text">Admin Portal</span>
+          <span className="breadcrumb-text">Cổng Quản trị</span>
           <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">Dashboard</span>
+          <span className="breadcrumb-current">Tổng quan</span>
         </div>
       </div>
 
@@ -25,7 +25,7 @@ export default function AdminHeader({ toggleSidebar }) {
           <Search size={18} className="search-icon" />
           <input 
             type="text" 
-            placeholder="Search..." 
+            placeholder="Tìm kiếm..." 
             className="search-input"
           />
         </div>
@@ -43,8 +43,8 @@ export default function AdminHeader({ toggleSidebar }) {
             {admin?.name?.substring(0, 2).toUpperCase() || 'AD'}
           </div>
           <div className="user-info">
-            <div className="user-name">{admin?.name || 'Administrator'}</div>
-            <div className="user-role">System Admin</div>
+            <div className="user-name">{admin?.name || 'Quản trị viên'}</div>
+            <div className="user-role">Quản trị Hệ thống</div>
           </div>
         </div>
       </div>

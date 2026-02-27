@@ -1,112 +1,104 @@
-
-import React, { useState } from 'react';
-import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react';
-import './ScholarshipList.css';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import scholarshipService from "../../services/scholarshipService";
+import "./ScholarshipList.css";
 
 export default function ScholarshipList() {
-  const [selectedFilter, setSelectedFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
+  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [scholarships, setScholarships] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const scholarships = [
-    {
-      id: 1,
-      title: 'Technology Excellence Scholarship',
-      amount: 5000,
-      awards: 10,
-      applicants: 45,
-      deadline: '2026-03-15',
-      status: 'active',
-      created: '2026-01-10'
-    },
-    {
-      id: 2,
-      title: 'STEM Women Leadership Award',
-      amount: 7500,
-      awards: 5,
-      applicants: 32,
-      deadline: '2026-03-20',
-      status: 'active',
-      created: '2026-01-12'
-    },
-    {
-      id: 3,
-      title: 'Community Service Grant',
-      amount: 3000,
-      awards: 15,
-      applicants: 58,
-      deadline: '2026-02-28',
-      status: 'active',
-      created: '2026-01-05'
-    },
-    {
-      id: 4,
-      title: 'Innovation in AI Scholarship',
-      amount: 10000,
-      awards: 3,
-      applicants: 67,
-      deadline: '2026-04-01',
-      status: 'active',
-      created: '2026-01-15'
-    },
-    {
-      id: 5,
-      title: 'First Generation College Award',
-      amount: 4000,
-      awards: 20,
-      applicants: 0,
-      deadline: '2026-05-15',
-      status: 'draft',
-      created: '2026-02-01'
+  const fetchScholarships = async () => {
+    try {
+      setLoading(true);
+      const data = await scholarshipService.getAllScholarships();
+      setScholarships(data || []);
+    } catch (err) {
+      console.error("Failed to fetch scholarships", err);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchScholarships();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Bạn có chắc muốn xóa học bổng này?")) {
+      try {
+        await scholarshipService.deleteScholarship(id);
+        fetchScholarships();
+      } catch (err) {
+        alert("Lỗi khi xóa học bổng");
+      }
+    }
+  };
 
   const stats = [
-    { 
-      label: 'Active Scholarships', 
-      value: scholarships.filter(s => s.status === 'active').length 
+    {
+      label: "Đang mở",
+      value: scholarships.filter((s) => s.status === "OPEN").length,
     },
-    { 
-      label: 'Total Applicants', 
-      value: scholarships.reduce((sum, s) => sum + s.applicants, 0) 
+    {
+      label: "Tổng số ứng viên",
+      value: "N/A", // Removed applicants count mock
     },
-    { 
-      label: 'Total Funding', 
-      value: `$${scholarships.reduce((sum, s) => sum + (s.amount * s.awards), 0).toLocaleString()}` 
-    }
+    {
+      label: "Hợp lệ",
+      value: scholarships.length,
+    },
   ];
 
   const filters = [
-    { id: 'all', label: 'All', count: scholarships.length },
-    { id: 'active', label: 'Active', count: scholarships.filter(s => s.status === 'active').length },
-    { id: 'draft', label: 'Draft', count: scholarships.filter(s => s.status === 'draft').length },
-    { id: 'closed', label: 'Closed', count: scholarships.filter(s => s.status === 'closed').length }
+    { id: "all", label: "Tất cả", count: scholarships.length },
+    {
+      id: "OPEN",
+      label: "Đang mở",
+      count: scholarships.filter((s) => s.status === "OPEN").length,
+    },
+    {
+      id: "CLOSED",
+      label: "Đã đóng",
+      count: scholarships.filter((s) => s.status === "CLOSED").length,
+    },
   ];
 
-  const filteredScholarships = scholarships.filter(scholarship => {
-    const matchesFilter = selectedFilter === 'all' || scholarship.status === selectedFilter;
-    const matchesSearch = scholarship.title.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredScholarships = scholarships.filter((scholarship) => {
+    const matchesFilter =
+      selectedFilter === "all" || scholarship.status === selectedFilter;
+    const matchesSearch = scholarship.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
   const getStatusClass = (status) => {
     const classes = {
-      active: 'status-active',
-      draft: 'status-draft',
-      closed: 'status-closed'
+      OPEN: "status-active",
+      CLOSED: "status-closed",
     };
-    return classes[status] || 'status-default';
+    return classes[status] || "status-default";
   };
 
   return (
     <div className="scholarship-list-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Scholarship Programs</h1>
-          <p className="page-subtitle">Manage your scholarship offerings</p>
+          <h1 className="page-title">Quản lý Học bổng</h1>
+          <p className="page-subtitle">
+            Quản lý các chương trình học bổng của Doanh nghiệp
+          </p>
         </div>
-        <button className="btn btn-primary">
+        <button
+          className="btn btn-primary"
+          onClick={() => navigate("/scholarships/post")}
+        >
           <Plus size={18} />
-          Create New Scholarship
+          Tạo Học bổng Mới
         </button>
       </div>
 
@@ -126,7 +118,7 @@ export default function ScholarshipList() {
           <button
             key={filter.id}
             onClick={() => setSelectedFilter(filter.id)}
-            className={`filter-btn ${selectedFilter === filter.id ? 'active' : ''}`}
+            className={`filter-btn ${selectedFilter === filter.id ? "active" : ""}`}
           >
             {filter.label}
             <span className="filter-count">{filter.count}</span>
@@ -140,7 +132,7 @@ export default function ScholarshipList() {
           <Search size={20} className="search-icon" />
           <input
             type="text"
-            placeholder="Search scholarships..."
+            placeholder="Tìm kiếm chương trình học bổng..."
             className="search-input"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -150,62 +142,91 @@ export default function ScholarshipList() {
 
       {/* Scholarship Grid */}
       <div className="scholarships-grid">
-        {filteredScholarships.map((scholarship) => (
-          <div key={scholarship.id} className="scholarship-card">
-            <div className="scholarship-header">
-              <h3 className="scholarship-title">{scholarship.title}</h3>
-              <span className={`status-badge ${getStatusClass(scholarship.status)}`}>
-                {scholarship.status}
-              </span>
-            </div>
-
-            <div className="scholarship-amount">
-              ${scholarship.amount.toLocaleString()}
-            </div>
-
-            <div className="scholarship-details">
-              <div className="detail-item">
-                <span className="detail-label">Awards:</span>
-                <span className="detail-value">{scholarship.awards}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Applicants:</span>
-                <span className="detail-value">{scholarship.applicants}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Deadline:</span>
-                <span className="detail-value">
-                  {new Date(scholarship.deadline).toLocaleDateString()}
+        {loading ? (
+          <div
+            className="loading-state"
+            style={{
+              gridColumn: "1 / -1",
+              padding: "40px",
+              textAlign: "center",
+            }}
+          >
+            Đang tải dữ liệu...
+          </div>
+        ) : (
+          filteredScholarships.map((scholarship) => (
+            <div key={scholarship.id} className="scholarship-card">
+              <div className="scholarship-header">
+                <h3 className="scholarship-title">{scholarship.title}</h3>
+                <span
+                  className={`status-badge ${getStatusClass(scholarship.status)}`}
+                >
+                  {scholarship.status === "OPEN"
+                    ? "Đang Mở"
+                    : scholarship.status === "CLOSED"
+                      ? "Đã Đóng"
+                      : scholarship.status}
                 </span>
               </div>
-            </div>
 
-            <div className="scholarship-actions">
-              <button className="btn btn-outline">
-                <Eye size={16} />
-                View
-              </button>
-              <button className="btn btn-outline">
-                <Edit size={16} />
-                Edit
-              </button>
-              <button className="btn btn-outline danger">
-                <Trash2 size={16} />
-                Delete
-              </button>
+              <div className="scholarship-amount">Học bổng Doanh nghiệp</div>
+
+              <div className="scholarship-details">
+                <div className="detail-item">
+                  <span className="detail-label">Mã HB:</span>
+                  <span className="detail-value text-xs font-mono">
+                    {scholarship.id.substring(0, 8)}...
+                  </span>
+                </div>
+                <div className="detail-item">
+                  <span className="detail-label">GPA Yêu cầu:</span>
+                  <span className="detail-value">
+                    {scholarship.criteria?.min_gpa || "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="scholarship-actions">
+                <button
+                  className="btn btn-outline"
+                  onClick={() => navigate(`/applications`)}
+                >
+                  <Eye size={16} />
+                  Ứng viên
+                </button>
+                <button
+                  className="btn btn-outline"
+                  onClick={() => alert("Đang phát triển")}
+                >
+                  <Edit size={16} />
+                  Sửa
+                </button>
+                <button
+                  className="btn btn-outline danger"
+                  onClick={() => handleDelete(scholarship.id)}
+                >
+                  <Trash2 size={16} />
+                  Xóa
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {filteredScholarships.length === 0 && (
+      {!loading && filteredScholarships.length === 0 && (
         <div className="empty-state">
           <div className="empty-icon">🎓</div>
-          <h3 className="empty-title">No scholarships found</h3>
-          <p className="empty-text">Try adjusting your search or create a new scholarship</p>
-          <button className="btn btn-primary">
+          <h3 className="empty-title">Không tìm thấy học bổng</h3>
+          <p className="empty-text">
+            Chưa có hoặc không có học bổng nào phù hợp với tìm kiếm.
+          </p>
+          <button
+            className="btn btn-primary"
+            onClick={() => navigate("/scholarships/post")}
+          >
             <Plus size={18} />
-            Create Scholarship
+            Tạo Học bổng
           </button>
         </div>
       )}

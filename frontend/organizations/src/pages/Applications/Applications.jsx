@@ -45,20 +45,20 @@ export default function Applications() {
   // API returns "APPLIED" which is "pending" in the old UI.
   // Lets map status for tabs: 'pending' -> 'applied'
   const tabs = [
-    { id: 'all', label: 'All Applications', count: applications.length },
-    { id: 'applied', label: 'Pending', count: applications.filter(a => a.status === 'applied').length },
-    { id: 'reviewing', label: 'Reviewing', count: applications.filter(a => a.status === 'reviewing').length },
-    { id: 'approved', label: 'Approved', count: applications.filter(a => a.status === 'approved').length },
-    { id: 'rejected', label: 'Rejected', count: applications.filter(a => a.status === 'rejected').length }
+    { id: 'all', label: 'Tất cả Đơn', count: applications.length },
+    { id: 'applied', label: 'Chờ xử lý', count: applications.filter(a => a.status === 'applied').length },
+    { id: 'reviewing', label: 'Đang xem xét', count: applications.filter(a => a.status === 'reviewing').length },
+    { id: 'approved', label: 'Đã phê duyệt', count: applications.filter(a => a.status === 'approved').length },
+    { id: 'rejected', label: 'Đã từ chối', count: applications.filter(a => a.status === 'rejected').length }
   ];
 
   const getStatusConfig = (status) => {
     const configs = {
-      applied: { label: 'Pending Review', class: 'status-pending', icon: Clock },
-      pending: { label: 'Pending Review', class: 'status-pending', icon: Clock },
-      reviewing: { label: 'Under Review', class: 'status-reviewing', icon: Eye },
-      approved: { label: 'Approved', class: 'status-approved', icon: Check },
-      rejected: { label: 'Rejected', class: 'status-rejected', icon: X }
+      applied: { label: 'Chờ phê duyệt', class: 'status-pending', icon: Clock },
+      pending: { label: 'Chờ phê duyệt', class: 'status-pending', icon: Clock },
+      reviewing: { label: 'Đang xem xét', class: 'status-reviewing', icon: Eye },
+      approved: { label: 'Đã duyệt', class: 'status-approved', icon: Check },
+      rejected: { label: 'Đã từ chối', class: 'status-rejected', icon: X }
     };
     return configs[status] || configs.pending;
   };
@@ -104,12 +104,12 @@ export default function Applications() {
     <div className="applications-page">
       <div className="applications-header">
         <div>
-          <h1 className="applications-title">Applications Data Room</h1>
-          <p className="applications-subtitle">Review and manage scholarship applications revealed via ZKP Consent</p>
+          <h1 className="applications-title">Phòng Quản lý Đơn đăng ký (Data Room)</h1>
+          <p className="applications-subtitle">Xem xét và quản lý các đơn xin học bổng đã cung cấp bằng chứng ZKP</p>
         </div>
         <button className="btn btn-secondary">
           <Download size={18} />
-          Export Applications
+          Xuất Đơn đăng ký
         </button>
       </div>
 
@@ -133,7 +133,7 @@ export default function Applications() {
           <Search size={20} className="search-icon" />
           <input
             type="text"
-            placeholder="Search by student name or scholarship..."
+            placeholder="Tìm kiếm theo tên sinh viên hoặc học bổng..."
             className="search-input-large"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -141,7 +141,7 @@ export default function Applications() {
         </div>
         <button className="btn btn-secondary">
           <Filter size={18} />
-          Filters
+          Lọc
         </button>
       </div>
 
@@ -175,15 +175,15 @@ export default function Applications() {
 
               <div className="application-card-body">
                 <div className="application-detail-row">
-                  <span className="detail-label">Scholarship:</span>
+                  <span className="detail-label">Học bổng:</span>
                   <span className="detail-value">{application.scholarship}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Program:</span>
+                  <span className="detail-label">Chương trình:</span>
                   <span className="detail-value">{application.program}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Year:</span>
+                  <span className="detail-label">Năm học:</span>
                   <span className="detail-value">{application.year}</span>
                 </div>
                 <div className="application-detail-row">
@@ -191,7 +191,7 @@ export default function Applications() {
                   <span className="detail-value font-bold text-[#00528C]">{application.gpa}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Applied:</span>
+                  <span className="detail-label">Ngày nộp:</span>
                   <span className="detail-value">
                     {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'N/A'}
                   </span>
@@ -204,7 +204,7 @@ export default function Applications() {
                   className="btn btn-secondary btn-sm btn-full"
                 >
                   <Eye size={16} />
-                  View Details
+                  Xem chi tiết
                 </button>
                 {application.status === 'applied' && (
                   <div className="action-buttons-group">
@@ -213,14 +213,14 @@ export default function Applications() {
                       disabled={actionLoading === application.id}
                       className="btn btn-success btn-sm flex-1 justify-center"
                     >
-                      {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Approve</>}
+                      {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Duyệt</>}
                     </button>
                     <button
                       onClick={() => handleReject(application.id)}
                       disabled={actionLoading === application.id}
                       className="btn btn-danger btn-sm flex-1 justify-center"
                     >
-                       {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><X size={16} /> Reject</>}
+                       {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><X size={16} /> Từ chối</>}
                     </button>
                   </div>
                 )}
@@ -233,11 +233,11 @@ export default function Applications() {
       {!loading && filteredApplications.length === 0 && (
         <div className="empty-state w-full col-span-full py-12">
           <div className="empty-icon text-4xl mb-3 text-gray-300">📋</div>
-          <h3 className="empty-title text-xl font-bold text-gray-600">No applications found</h3>
+          <h3 className="empty-title text-xl font-bold text-gray-600">Không tìm thấy hồ sơ</h3>
           <p className="empty-text text-gray-500">
             {searchTerm
-              ? 'Try adjusting your search terms'
-              : 'No students have consented to share their data for this scholarship yet.'}
+              ? 'Hãy thử thay đổi từ khóa tìm kiếm của bạn'
+              : 'Chưa có ứng viên nào sử dụng mã ZKP để ứng tuyển kỳ học bổng này.'}
           </p>
         </div>
       )}
@@ -247,7 +247,7 @@ export default function Applications() {
         <div className="modal-overlay" onClick={() => setSelectedApplication(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header flex justify-between items-center">
-              <h2 className="modal-title font-bold text-xl text-gray-800">Application Details</h2>
+              <h2 className="modal-title font-bold text-xl text-gray-800">Chi tiết Đơn đăng ký</h2>
               <button
                 onClick={() => setSelectedApplication(null)}
                 className="text-gray-400 hover:text-red-500 transition"
@@ -268,33 +268,33 @@ export default function Applications() {
 
               <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
                 <div className="modal-detail-item">
-                  <span className="block text-xs font-bold text-gray-500 uppercase">Scholarship</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Học bổng</span>
                   <span className="font-medium text-gray-800">{selectedApplication.scholarship}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="block text-xs font-bold text-gray-500 uppercase">Program</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Chương trình</span>
                   <span className="font-medium text-gray-800">{selectedApplication.program}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="block text-xs font-bold text-gray-500 uppercase">Year Level</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Năm học</span>
                   <span className="font-medium text-gray-800">{selectedApplication.year}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="block text-xs font-bold text-gray-500 uppercase">ZKP Verified GPA</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">GPA đã xác thực(ZKP)</span>
                   <span className="font-bold text-[#C41212] text-lg">{selectedApplication.gpa}</span>
                 </div>
               </div>
 
               <div className="modal-section">
-                <h4 className="font-bold text-gray-700 mb-3 border-b pb-2">Verified Documents (ZKP)</h4>
+                <h4 className="font-bold text-gray-700 mb-3 border-b pb-2">Tài liệu Xác thực (ZKP)</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center bg-green-50 p-3 rounded border border-green-100">
-                    <span className="text-green-800 font-medium">✅ Academic Transcript</span>
-                    <button className="text-green-600 hover:text-green-800 text-sm font-bold">View Data</button>
+                    <span className="text-green-800 font-medium">✅ Bảng điểm Học tập</span>
+                    <button className="text-green-600 hover:text-green-800 text-sm font-bold">Xem Dữ liệu</button>
                   </div>
                   <div className="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-100">
-                    <span className="text-gray-700 font-medium">✅ IELTS Certificate (7.5)</span>
-                    <button className="text-blue-600 hover:text-blue-800 text-sm font-bold">View Data</button>
+                    <span className="text-gray-700 font-medium">✅ Chứng chỉ IELTS (7.5)</span>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm font-bold">Xem Dữ liệu</button>
                   </div>
                 </div>
               </div>
@@ -304,7 +304,7 @@ export default function Applications() {
                 onClick={() => setSelectedApplication(null)}
                 className="px-4 py-2 bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-100 font-medium transition"
               >
-                Close
+                Đóng
               </button>
               {selectedApplication.status === 'applied' && (
                 <>
@@ -316,7 +316,7 @@ export default function Applications() {
                     className="px-4 py-2 bg-red-100 text-red-700 border border-red-200 rounded hover:bg-red-200 font-medium transition flex items-center"
                   >
                     <X size={18} className="mr-1" />
-                    Reject
+                    Từ chối
                   </button>
                   <button
                     onClick={() => {
@@ -326,7 +326,7 @@ export default function Applications() {
                     className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium transition shadow-sm flex items-center"
                   >
                     <Check size={18} className="mr-1" />
-                    Approve
+                    Duyệt
                   </button>
                 </>
               )}

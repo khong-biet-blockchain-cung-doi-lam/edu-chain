@@ -19,25 +19,25 @@ export default function AdminSidebar({ isOpen }) {
 
   const menuItems = [
     { 
-      section: 'MANAGEMENT',
+      section: 'QUẢN LÝ',
       items: [
-        { path: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/users', icon: Users, label: 'User Management' },
-        { path: '/programs', icon: GraduationCap, label: 'Programs' },
-        { path: '/courses', icon: BookOpen, label: 'Courses' },
-        { path: '/classes', icon: ClipboardList, label: 'Classes' }
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/users', icon: Users, label: 'Người dùng' },
+        { path: '/programs', icon: GraduationCap, label: 'Ngành học' },
+        { path: '/courses', icon: BookOpen, label: 'Học phần' },
+        { path: '/classes', icon: ClipboardList, label: 'Lớp học phần' }
       ]
     },
     {
-      section: 'ANALYTICS',
+      section: 'PHÂN TÍCH',
       items: [
-        { path: '/reports', icon: BarChart3, label: 'Reports' }
+        { path: '/reports', icon: BarChart3, label: 'Báo cáo' }
       ]
     },
     {
-      section: 'SYSTEM',
+      section: 'HỆ THỐNG',
       items: [
-        { path: '/settings', icon: Settings, label: 'Settings' }
+        { path: '/settings', icon: Settings, label: 'Cài đặt' }
       ]
     }
   ];
@@ -49,7 +49,7 @@ export default function AdminSidebar({ isOpen }) {
           <div className="logo-icon">
             <Shield size={24} />
           </div>
-          {isOpen && <span className="logo-text">Admin Portal</span>}
+          {isOpen && <span className="logo-text">Quản trị viên</span>}
         </div>
       </div>
 
@@ -76,7 +76,7 @@ export default function AdminSidebar({ isOpen }) {
       <div className="sidebar-footer">
         <button onClick={logout} className="logout-btn">
           <LogOut size={20} />
-          {isOpen && <span>Sign Out</span>}
+          {isOpen && <span>Đăng xuất</span>}
         </button>
       </div>
     </aside>

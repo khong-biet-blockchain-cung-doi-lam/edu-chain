@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, UserPlus, BookOpen, AlertCircle, CheckCircle, GraduationCap } from 'lucide-react';
 import classService from '../../services/classService';
 import userService from '../../services/userService';
+import courseService from '../../services/courseService';
+import axios from 'axios';
 import './ClassManagement.css';
 
 export default function ClassManagement() {
   const [classes, setClasses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [semesters, setSemesters] = useState([{id: 1, name: "Học kỳ 1 2025-2026", code: "HK1_2526"}]); // Mock semester until semester route exists
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
@@ -16,6 +20,16 @@ export default function ClassManagement() {
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedLecturerId, setSelectedLecturerId] = useState('');
   const [assigning, setAssigning] = useState(false);
+
+  // Create Modal state
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [formData, setFormData] = useState({
+    class_code: '',
+    name: '',
+    subject_id: '',
+    semester_id: 1 // Mock semester logic
+  });
 
   useEffect(() => {
     fetchData();
@@ -33,12 +47,56 @@ export default function ClassManagement() {
       const giangVien = usersData.filter(u => u.role === 'GIANG_VIEN');
       setLecturers(giangVien);
       
+      // Fetch courses (subjects) for Create Class dropdown
+      try {
+          const coursesData = await courseService.getAllCourses();
+          setCourses(coursesData);
+      } catch (err) {
+          console.error("Could not fetch courses", err);
+      }
+      
     } catch (error) {
       console.error(error);
       setMsg({ text: 'Lỗi tải dữ liệu lớp học', type: 'error' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCreateClass = async (e) => {
+      e.preventDefault();
+      if (!formData.subject_id) {
+          alert("Vui lòng chọn học phần/môn học");
+          return;
+      }
+      
+      setCreating(true);
+      try {
+          // Since semester is mocked, let's bypass if the API requires UUID by creating it or using a hardcoded one the backend accepts,
+          // for now we'll send it but if it fails we show error. 
+          // Ideally we would fetch semesters from an API.
+          await classService.createClass({
+              class_code: formData.class_code,
+              name: formData.name,
+              subject_id: formData.subject_id,
+              semester_id: '123e4567-e89b-12d3-a456-426614174000' // Mock UUID for backend
+          });
+          setMsg({ text: 'Tạo lớp học thành công!', type: 'success' });
+          setShowCreateModal(false);
+          setFormData({ class_code: '', name: '', subject_id: '', semester_id: 1 });
+          fetchData();
+      } catch (error) {
+          console.error(error);
+          alert('Lỗi khi tạo lớp (Có thể do CSDL thiếu Học kỳ): ' + (error.response?.data?.msg || error.message));
+      } finally {
+          setCreating(false);
+          setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+      }
   };
 
   const handleOpenAssignModal = (cls) => {
@@ -90,7 +148,7 @@ export default function ClassManagement() {
           <h1 className="page-title">Quản lý Lớp học phần</h1>
           <p className="page-subtitle">Quản lý lớp học và phân công giảng viên</p>
         </div>
-        <button className="btn btn-primary">
+        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
           <Plus size={18} />
           Tạo Lớp Mới
         </button>
@@ -241,6 +299,78 @@ export default function ClassManagement() {
                 {assigning ? 'Đang lưu...' : 'Lưu Thay đổi'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Tạo Lớp Học Phần Mới</h3>
+            </div>
+            <form onSubmit={handleCreateClass} className="modal-body">
+              <div style={{ marginBottom: '15px' }}>
+                <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Mã Lớp (VD: L01, IT4501-1):</label>
+                <input 
+                  type="text" 
+                  className="form-control"
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  name="class_code"
+                  value={formData.class_code}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Tên Lớp (Mô tả):</label>
+                <input 
+                  type="text" 
+                  className="form-control"
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div style={{ marginBottom: '15px' }}>
+                <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Môn học / Học phần:</label>
+                <select 
+                  className="form-select"
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
+                  name="subject_id"
+                  value={formData.subject_id}
+                  onChange={handleInputChange}
+                  required
+                >
+                  <option value="">-- Chọn Môn học --</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.id}>
+                      {course.subject_code} - {course.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="modal-footer" style={{ marginTop: '20px' }}>
+                <button 
+                  type="button"
+                  className="btn btn-secondary" 
+                  onClick={() => setShowCreateModal(false)}
+                  disabled={creating}
+                >
+                  Hủy
+                </button>
+                <button 
+                  type="submit"
+                  className="btn btn-primary" 
+                  disabled={creating}
+                >
+                  {creating ? 'Đang tạo...' : 'Lưu Thay đổi'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

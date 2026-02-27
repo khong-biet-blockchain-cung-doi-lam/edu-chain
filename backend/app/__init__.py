@@ -4,15 +4,16 @@ from app.routes.auth_routes import bp_auth
 from app.routes.student_routes import bp_student, bp_student_portal
 from app.routes.academic_routes import bp_academic
 from app.routes.lecturer_routes import bp_lecturer
+from app.routes.encryption_routes import bp_encrypt, bp_decrypt
 from app.models import (
-    organization_model, 
-    partner_model, 
-    enterprise_model, 
-    scholarship_model, 
-    student_certificate_model
+    organization_model,
+    partner_model,
+    enterprise_model,
+    scholarship_model,
+    student_certificate_model,
+    encrypted_cluster_model   # đảm bảo table được tạo khi db.create_all()
 )
-# from app.routes.upload_routes import bp_upload 
-# from app.routes.home_routes import bp_home
+
 
 def create_app(config_object=None):
     app = Flask(__name__)
@@ -24,20 +25,19 @@ def create_app(config_object=None):
     jwt.init_app(app)
 
     from app.models import (
-        account_model, 
-        student_model, 
-        organization_model, 
-        partner_model, 
+        account_model,
+        student_model,
+        organization_model,
+        partner_model,
         enterprise_model
     )
-    
-    from app.routes.home_routes import bp_home 
+
+    from app.routes.home_routes import bp_home
     from app.routes.partner_routes import bp_partner
     from app.routes.student_scholarship_routes import bp_student_scholarship
-    
     from app.routes.management_routes import bp_management
     from app.routes.organization_routes import bp_organization
-    
+
     app.register_blueprint(bp_home)
     app.register_blueprint(bp_auth)
     app.register_blueprint(bp_student)
@@ -48,5 +48,7 @@ def create_app(config_object=None):
     app.register_blueprint(bp_student_scholarship)
     app.register_blueprint(bp_management)
     app.register_blueprint(bp_organization)
-    # app.register_blueprint(bp_upload)
+    app.register_blueprint(bp_encrypt)     # Mã hóa
+    app.register_blueprint(bp_decrypt)     # Giải mã
+
     return app

@@ -1,22 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { useStudent } from '../context/StudentContext';
-import { LayoutDashboard, UserCircle, Award, FileBadge } from 'lucide-react';
+import { 
+    LayoutDashboard, 
+    UserCircle, 
+    Award, 
+    FileBadge,
+    LogOut,
+    GraduationCap,
+    Menu,
+    X,
+    ClipboardEdit
+} from 'lucide-react';
+import './Sidebar.css';
+
 
 export default function Layout() {
     const { profile, loading, errorMsg, logout } = useStudent();
+    const [isOpen, setIsOpen] = useState(true);
 
-    if (loading) return <div className="flex justify-center items-center h-screen text-[#00528C] font-bold">Đang tải dữ liệu...</div>;
+    if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',color:'#8b5cf6',fontWeight:'bold'}}>Đang tải dữ liệu...</div>;
     
     if (!profile) return (
-        <div className="flex flex-col justify-center items-center h-screen bg-gray-50">
-            <div className="bg-white p-8 rounded-lg shadow-md text-center max-w-md border-t-4 border-red-500">
-                <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex justify-center items-center mx-auto mb-4 text-3xl font-bold">!</div>
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Lỗi Xác Thực</h2>
-                <p className="text-gray-600 mb-6 text-sm">{errorMsg || "Không thể tải thông tin sinh viên"}</p>
+        <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',height:'100vh',background:'#f8fafc'}}>
+            <div style={{background:'white',padding:'2rem',borderRadius:'12px',boxShadow:'0 4px 24px rgba(0,0,0,0.08)',textAlign:'center',maxWidth:'400px',borderTop:'4px solid #ef4444'}}>
+                <div style={{width:'64px',height:'64px',background:'#fef2f2',color:'#ef4444',borderRadius:'50%',display:'flex',justifyContent:'center',alignItems:'center',margin:'0 auto 1rem',fontSize:'2rem',fontWeight:'bold'}}>!</div>
+                <h2 style={{fontSize:'1.25rem',fontWeight:'bold',color:'#0f172a',marginBottom:'0.5rem'}}>Lỗi Xác Thực</h2>
+                <p style={{color:'#64748b',marginBottom:'1.5rem',fontSize:'0.875rem'}}>{errorMsg || "Không thể tải thông tin sinh viên"}</p>
                 <button 
                     onClick={logout}
-                    className="w-full bg-[#00528C] hover:bg-blue-800 text-white font-medium py-2.5 px-4 rounded transition shadow-sm"
+                    style={{width:'100%',background:'#8b5cf6',color:'white',fontWeight:'600',padding:'0.75rem 1rem',borderRadius:'8px',border:'none',cursor:'pointer',transition:'background 0.2s'}}
+                    onMouseOver={e => e.target.style.background='#7c3aed'}
+                    onMouseOut={e => e.target.style.background='#8b5cf6'}
                 >
                     Quay lại Trang Đăng Nhập
                 </button>
@@ -24,70 +39,81 @@ export default function Layout() {
         </div>
     );
 
-    const navItems = [
-        { path: '/', label: 'Bàn làm việc', icon: <LayoutDashboard size={20} /> },
-        { path: '/profile', label: 'Hồ sơ Sinh viên', icon: <UserCircle size={20} /> },
-        { path: '/certificates', label: 'Quản lý Chứng chỉ', icon: <FileBadge size={20} /> },
-        { path: '/scholarships', label: 'Học bổng & ZKP', icon: <Award size={20} /> },
+    const menuItems = [
+        {
+            section: 'HỌC TẬP',
+            items: [
+                { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
+                { path: '/profile', label: 'Hồ sơ Sinh viên', icon: UserCircle },
+                { path: '/certificates', label: 'Chứng chỉ', icon: FileBadge },
+                { path: '/course-registration', label: 'Đăng ký Học phần', icon: ClipboardEdit },
+            ]
+        },
+        {
+            section: 'HỌC BỔNG',
+            items: [
+                { path: '/scholarships', label: 'Học bổng & ZKP', icon: Award },
+            ]
+        }
     ];
 
     return (
-        <div className="min-h-screen bg-gray-100 font-sans flex text-gray-800">
+        <div className="portal-layout student-portal">
             {/* Sidebar */}
-            <aside className="w-64 bg-[#00528C] text-white flex flex-col hidden md:flex">
-                <div className="p-4 border-b border-blue-800 flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#00528C] font-bold text-xl border-2 border-[#FFC101]">N</div>
-                    <div>
-                        <h1 className="font-bold text-lg uppercase leading-tight">NEU</h1>
-                        <p className="text-xs text-[#FFC101]">Cổng Sinh viên</p>
+            <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
+                <div className="sidebar-header">
+                    <div className="sidebar-logo">
+                        <div className="logo-icon" style={{background: 'linear-gradient(135deg, #8b5cf6, #ec4899)'}}>
+                            <GraduationCap size={22} />
+                        </div>
+                        {isOpen && <span className="logo-text">Cổng Sinh Viên</span>}
                     </div>
+                    <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
+                        {isOpen ? <X size={18}/> : <Menu size={18}/>}
+                    </button>
                 </div>
-                <nav className="flex-1 py-4">
-                    <ul>
-                        {navItems.map((item) => (
-                            <li key={item.path} className="px-3 mb-1">
+
+                <nav className="sidebar-nav">
+                    {menuItems.map((section, idx) => (
+                        <div key={idx} className="nav-section">
+                            {isOpen && <div className="nav-section-title">{section.section}</div>}
+                            {section.items.map((item) => (
                                 <NavLink
+                                    key={item.path}
                                     to={item.path}
-                                    className={({ isActive }) => 
-                                        `flex items-center space-x-3 px-3 py-2.5 rounded-md transition-colors ${
-                                            isActive ? 'bg-blue-800 text-white font-medium' : 'text-blue-100 hover:bg-blue-800/50'
-                                        }`
-                                    }
+                                    end={item.path === '/'}
+                                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                                 >
-                                    {item.icon}
-                                    <span>{item.label}</span>
+                                    <item.icon size={20} className="nav-icon" />
+                                    {isOpen && <span className="nav-label">{item.label}</span>}
                                 </NavLink>
-                            </li>
-                        ))}
-                    </ul>
+                            ))}
+                        </div>
+                    ))}
                 </nav>
+
+                <div className="sidebar-footer">
+                    {isOpen && profile && (
+                        <div className="user-info">
+                            <div className="user-avatar" style={{background:'linear-gradient(135deg,#8b5cf6,#ec4899)'}}>
+                                {(profile.personal_info?.first_name?.[0] || 'S')}
+                            </div>
+                            <div className="user-details">
+                                <div className="user-name">{profile.personal_info?.first_name} {profile.personal_info?.last_name}</div>
+                                <div className="user-role">{profile.student_id}</div>
+                            </div>
+                        </div>
+                    )}
+                    <button onClick={logout} className="logout-btn">
+                        <LogOut size={20} />
+                        {isOpen && <span>Đăng xuất</span>}
+                    </button>
+                </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col h-screen overflow-hidden">
-                {/* Header */}
-                <header className="bg-white shadow-sm z-10 border-b border-gray-200">
-                    <div className="px-6 py-3 flex justify-between items-center">
-                        <div className="font-bold text-gray-700 md:hidden">Cổng Sinh viên NEU</div>
-                        <div className="hidden md:block text-gray-500 text-sm">
-                            Trường Đại Học Kinh Tế Quốc Dân
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="text-right">
-                                <span className="block font-bold text-sm text-[#00528C]">{profile.personal_info.first_name} {profile.personal_info.last_name}</span>
-                                <span className="block text-xs text-gray-500">{profile.student_id}</span>
-                            </div>
-                            <button 
-                                onClick={logout}
-                                className="bg-[#C41212] hover:bg-red-700 text-white px-4 py-1.5 rounded text-sm font-medium transition shadow-sm">
-                                Đăng xuất
-                            </button>
-                        </div>
-                    </div>
-                </header>
-
-                {/* Page Content */}
-                <div className="flex-1 overflow-auto p-6">
+            <main className={`portal-main ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+                <div className="portal-content">
                     <Outlet />
                 </div>
             </main>

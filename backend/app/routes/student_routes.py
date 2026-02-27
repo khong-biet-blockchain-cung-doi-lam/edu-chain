@@ -85,7 +85,7 @@ def update_student_profile():
     
     if not contact:
         from app.models.student_contact_model import StudentContact
-        contact = StudentContact(id=student.id, personal_email=account.username) 
+        contact = StudentContact(id=student.id) 
         db.session.add(contact)
     
     data = request.get_json()
@@ -202,3 +202,96 @@ def request_grade_review(grade_id):
         "status": grade.status,
         "reason": reason
     }), 200
+
+# ==================== COURSE REGISTRATION ====================
+
+@bp_student_portal.route("/available-classes", methods=["GET"])
+@jwt_required()
+def get_available_classes():
+    """Lấy danh sách tất cả lớp học phần để đăng ký"""
+    from app.models.course_models import CourseClass
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Student not found"}), 404
+
+    student = account.student
+    # IDs of classes student already enrolled in
+    enrolled_class_ids = set(
+        str(g.course_class_id) for g in Grade.query.filter_by(student_id=student.id).all()
+    )
+
+    classes = CourseClass.query.all()
+    results = []
+    for c in classes:
+        results.append({
+            "id": str(c.id),
+            "code": c.class_code,
+            "name": c.name,
+            "subject": c.subject.name if c.subject else "Unknown",
+            "credits": c.subject.credits if c.subject else 0,
+            "semester": c.semester.code if c.semester else "Unknown",
+            "lecturer": c.lecturer.full_name if c.lecturer else "Chưa phân công",
+            "enrolled": str(c.id) in enrolled_class_ids,
+            "student_count": len(c.grades)
+        })
+    return jsonify(results), 200
+
+@bp_student_portal.route("/enroll/<class_id>", methods=["POST"])
+@jwt_required()
+def enroll_class(class_id):
+    """Đăng ký học phần"""
+    from app.models.course_models import CourseClass
+    import uuid as _uuid
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Student not found"}), 404
+
+    student = account.student
+    
+    try:
+        class_uuid = _uuid.UUID(class_id)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
+    course_class = CourseClass.query.get(class_uuid)
+    if not course_class:
+        return jsonify({"msg": "Lớp học phần không tồn tại"}), 404
+
+    # Check if already enrolled
+    existing = Grade.query.filter_by(
+        student_id=student.id, 
+        course_class_id=class_uuid
+    ).first()
+    if existing:
+        return jsonify({"msg": "Đã đăng ký lớp học phần này rồi"}), 400
+
+    new_grade = Grade(student_id=student.id, course_class_id=class_uuid, status="ENROLLED")
+    db.session.add(new_grade)
+    db.session.commit()
+    return jsonify({"msg": "Đăng ký học phần thành công!"}), 201
+
+@bp_student_portal.route("/enroll/<class_id>", methods=["DELETE"])
+@jwt_required()
+def drop_class(class_id):
+    """Hủy đăng ký học phần"""
+    import uuid as _uuid
+    current_account_id = get_jwt_identity()
+    account = Account.query.get(current_account_id)
+    if not account or not account.student:
+        return jsonify({"msg": "Student not found"}), 404
+
+    student = account.student
+    try:
+        class_uuid = _uuid.UUID(class_id)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
+    grade = Grade.query.filter_by(student_id=student.id, course_class_id=class_uuid).first()
+    if not grade:
+        return jsonify({"msg": "Chưa đăng ký lớp học phần này"}), 404
+
+    db.session.delete(grade)
+    db.session.commit()
+    return jsonify({"msg": "Hủy đăng ký thành công"}), 200

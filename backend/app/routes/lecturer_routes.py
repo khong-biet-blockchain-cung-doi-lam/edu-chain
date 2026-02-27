@@ -116,6 +116,131 @@ def update_grade():
     
     return jsonify({"msg": "Grade updated", "status": grade.status, "total": grade.total_score}), 200
 
+@bp_lecturer.route("/profile", methods=["GET"])
+@jwt_required()
+def get_profile():
+    lecturer = get_current_lecturer()
+    if not lecturer:
+         return jsonify({"msg": "Unauthorized"}), 401
+
+    account = lecturer.account
+    
+    return jsonify({
+        "lecturer_code": lecturer.lecturer_code,
+        "full_name": lecturer.full_name,
+        "email": account.email,
+        "username": account.username
+    }), 200
+
+@bp_lecturer.route("/profile", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    lecturer = get_current_lecturer()
+    if not lecturer:
+         return jsonify({"msg": "Unauthorized"}), 401
+
+    data = request.get_json()
+    
+    # Update Lecturer specifics
+    if "full_name" in data:
+        lecturer.full_name = data["full_name"]
+        
+    # Update Account email if provided
+    if "email" in data:
+        lecturer.account.email = data["email"]
+
+    db.session.commit()
+    
+    return jsonify({"msg": "Profile updated successfully"}), 200
+
 @bp_lecturer.route("/dashboard", methods=["GET"])
 def dashboard():
     return render_template("lecturer/dashboard.html")
+
+# ==================== CLASS ASSIGNMENT ====================
+
+@bp_lecturer.route("/available-classes", methods=["GET"])
+@jwt_required()
+def get_available_classes():
+    """Lấy danh sách các lớp học phần chưa có giảng viên"""
+    lecturer = get_current_lecturer()
+    if not lecturer:
+        return jsonify({"msg": "Unauthorized"}), 401
+
+    # Get all unassigned classes
+    unassigned = CourseClass.query.filter(CourseClass.lecturer_id == None).all()
+    # Also get classes assigned to THIS lecturer (so they can see their claimed ones)
+    my_classes = CourseClass.query.filter_by(lecturer_id=lecturer.id).all()
+
+    results = []
+    for c in unassigned:
+        results.append({
+            "id": str(c.id),
+            "code": c.class_code,
+            "name": c.name,
+            "subject": c.subject.name if c.subject else "Unknown",
+            "credits": c.subject.credits if c.subject else 0,
+            "semester": c.semester.code if c.semester else "Unknown",
+            "student_count": len(c.grades),
+            "claimed": False
+        })
+    for c in my_classes:
+        results.append({
+            "id": str(c.id),
+            "code": c.class_code,
+            "name": c.name,
+            "subject": c.subject.name if c.subject else "Unknown",
+            "credits": c.subject.credits if c.subject else 0,
+            "semester": c.semester.code if c.semester else "Unknown",
+            "student_count": len(c.grades),
+            "claimed": True
+        })
+
+    return jsonify(results), 200
+
+@bp_lecturer.route("/claim-class/<class_id>", methods=["POST"])
+@jwt_required()
+def claim_class(class_id):
+    """Giảng viên nhận lớp học phần"""
+    import uuid as _uuid
+    lecturer = get_current_lecturer()
+    if not lecturer:
+        return jsonify({"msg": "Unauthorized"}), 401
+
+    try:
+        class_uuid = _uuid.UUID(class_id)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
+    course_class = CourseClass.query.get(class_uuid)
+    if not course_class:
+        return jsonify({"msg": "Lớp học phần không tồn tại"}), 404
+
+    if course_class.lecturer_id and course_class.lecturer_id != lecturer.id:
+        return jsonify({"msg": "Lớp học phần này đã có giảng viên khác đảm nhận"}), 400
+
+    course_class.lecturer_id = lecturer.id
+    db.session.commit()
+    return jsonify({"msg": "Nhận lớp học phần thành công!"}), 200
+
+@bp_lecturer.route("/claim-class/<class_id>", methods=["DELETE"])
+@jwt_required()
+def release_class(class_id):
+    """Giảng viên trả lại lớp học phần"""
+    import uuid as _uuid
+    lecturer = get_current_lecturer()
+    if not lecturer:
+        return jsonify({"msg": "Unauthorized"}), 401
+
+    try:
+        class_uuid = _uuid.UUID(class_id)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
+    course_class = CourseClass.query.get(class_uuid)
+    if not course_class or course_class.lecturer_id != lecturer.id:
+        return jsonify({"msg": "Không có quyền với lớp này"}), 403
+
+    course_class.lecturer_id = None
+    db.session.commit()
+    return jsonify({"msg": "Đã trả lại lớp học phần"}), 200

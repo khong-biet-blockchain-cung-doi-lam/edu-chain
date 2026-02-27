@@ -83,13 +83,13 @@ export default function StudentDirectory() {
     <div className="student-directory-page">
       <div className="directory-header">
         <div>
-          <h1 className="directory-title">Student Directory</h1>
-          <p className="directory-subtitle">Browse and manage student profiles</p>
+          <h1 className="directory-title">Danh bạ Sinh viên</h1>
+          <p className="directory-subtitle">Duyệt và quản lý hồ sơ sinh viên</p>
         </div>
         <div className="directory-actions">
           <button className="btn btn-secondary">
             <Download size={18} />
-            Export
+            Xuất Dữ liệu
           </button>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default function StudentDirectory() {
             <Search size={20} className="search-icon" />
             <input
               type="text"
-              placeholder="Search students by name, program, or ID..."
+              placeholder="Tìm kiếm sinh viên theo tên, chương trình hoặc ID..."
               className="search-input-large"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -108,7 +108,7 @@ export default function StudentDirectory() {
           </div>
           <button className="btn btn-secondary">
             <Filter size={18} />
-            Filters
+            Lọc
           </button>
         </div>
 
@@ -116,12 +116,12 @@ export default function StudentDirectory() {
           <table className="students-table">
             <thead>
               <tr>
-                <th>Student</th>
-                <th>Program</th>
-                <th>Year</th>
+                <th>Sinh viên</th>
+                <th>Chương trình</th>
+                <th>Năm học</th>
                 <th>GPA</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -144,7 +144,7 @@ export default function StudentDirectory() {
                     </span>
                   </td>
                   <td>
-                    <button className="action-link">View Profile →</button>
+                    <button className="action-link">Xem Hồ sơ →</button>
                   </td>
                 </tr>
               ))}
@@ -154,18 +154,18 @@ export default function StudentDirectory() {
 
         <div className="table-pagination">
           <div className="pagination-info">
-            Showing 1-6 of 1,247 students
+            Đang hiển thị 1-6 trong 1,247 sinh viên
           </div>
           <div className="pagination-controls">
             <button className="pagination-btn">
               <ChevronLeft size={18} />
-              Previous
+              Trước
             </button>
             <button className="pagination-btn active">1</button>
             <button className="pagination-btn">2</button>
             <button className="pagination-btn">3</button>
             <button className="pagination-btn">
-              Next
+              Tiếp theo
               <ChevronRight size={18} />
             </button>
           </div>

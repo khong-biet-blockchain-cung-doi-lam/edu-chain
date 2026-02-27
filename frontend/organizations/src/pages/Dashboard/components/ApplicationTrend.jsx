@@ -16,10 +16,10 @@ export default function ApplicationTrend() {
   return (
     <div className="application-trend">
       <div className="trend-header">
-        <h3 className="trend-title">Application Trend</h3>
+        <h3 className="trend-title">Biểu đồ Đơn đăng ký</h3>
         <div className="trend-actions">
-          <button className="trend-btn">Filter</button>
-          <button className="trend-btn">Download</button>
+          <button className="trend-btn">Lọc</button>
+          <button className="trend-btn">Tải về</button>
         </div>
       </div>
       <div className="trend-chart">
