@@ -1,9 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Shield, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Plus, Trash2, Shield, CheckCircle, XCircle, Building2 } from 'lucide-react';
 import userService from '../../services/userService';
+import { useAdmin } from '../../context/AdminContext';
 import './UserManagement.css';
 
+// =============================================
+// Config theo role của caller
+// =============================================
+
+// Email domain gợi ý tự động
+const ROLE_DOMAIN = {
+  SINH_VIEN:  '@st.neu.edu.vn',
+  GIANG_VIEN: '@lt.neu.edu.vn',
+  PARTNER:    '@tp.neu.edu.vn',
+  QL_DAO_TAO: '@qldt.neu.edu.vn',
+  KHAO_THI:   '@kt.neu.edu.vn',
+  KHOA:       '@khoa.neu.edu.vn',
+};
+
+// Options tạo tài khoản theo caller-role
+const CREATABLE_ROLES = {
+  ADMIN: [
+    { value: 'QL_DAO_TAO', label: 'Phòng Quản lý Đào tạo', domain: '@qldt.neu.edu.vn' },
+    { value: 'KHAO_THI',   label: 'Phòng Khảo thí',        domain: '@kt.neu.edu.vn' },
+    { value: 'KHOA',       label: 'Văn phòng Khoa',         domain: '@khoa.neu.edu.vn' },
+    { value: 'PARTNER',    label: 'Đối tác / Doanh nghiệp', domain: '@tp.neu.edu.vn' },
+  ],
+  QL_DAO_TAO: [
+    { value: 'SINH_VIEN',  label: 'Sinh viên',              domain: '@st.neu.edu.vn' },
+  ],
+  KHOA: [
+    { value: 'GIANG_VIEN', label: 'Giảng viên',             domain: '@lt.neu.edu.vn' },
+  ],
+  KHAO_THI: [], // không tạo tài khoản
+};
+
+// Tiêu đề trang theo role
+const PAGE_CONFIG = {
+  ADMIN:      { title: 'Tạo Tài khoản Phòng ban', subtitle: 'Cấp tài khoản cho các phòng ban và đối tác' },
+  QL_DAO_TAO: { title: 'Quản lý Sinh viên',        subtitle: 'Tạo và quản lý tài khoản sinh viên' },
+  KHOA:       { title: 'Quản lý Giảng viên',       subtitle: 'Tạo và quản lý tài khoản giảng viên của khoa' },
+  KHAO_THI:   { title: 'Danh sách Sinh viên',      subtitle: 'Xem danh sách sinh viên (chỉ tên + mã)' },
+};
+
+const ROLE_NAME = {
+  SINH_VIEN:  'Sinh viên',
+  GIANG_VIEN: 'Giảng viên',
+  PARTNER:    'Đối tác',
+  QL_DAO_TAO: 'Phòng QLĐT',
+  KHAO_THI:   'Phòng Khảo thí',
+  KHOA:       'Văn phòng Khoa',
+  ADMIN:      'Quản trị viên',
+};
+
 export default function UserManagement() {
+  const { currentRole } = useAdmin();
+  const creatableRoles = CREATABLE_ROLES[currentRole] || [];
+  const pageConfig = PAGE_CONFIG[currentRole] || { title: 'Quản lý Người dùng', subtitle: '' };
+  const defaultNewRole = creatableRoles[0]?.value || '';
+
   const [selectedRole, setSelectedRole] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState([]);
@@ -16,7 +71,7 @@ export default function UserManagement() {
     username: '',
     email: '',
     password: '',
-    role: 'SINH_VIEN',
+    role: defaultNewRole,
     full_name: ''
   });
 
@@ -41,27 +96,18 @@ export default function UserManagement() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    
-    // Auto suggest email domain based on role if email is empty or partially typed domain
+    // Auto-suggest email domain when role or username changes
     if (name === 'role') {
-        const domains = {
-            'SINH_VIEN': '@st.neu.edu.vn',
-            'GIANG_VIEN': '@lt.neu.edu.vn',
-            'PARTNER': '@tp.neu.edu.vn',
-            'QL_DAO_TAO': '@qldt.neu.edu.vn'
-        };
-        const currentEmailPrefix = formData.email.split('@')[0];
-        setFormData(prev => ({ ...prev, role: value, email: currentEmailPrefix + (domains[value] || '') }));
-    }
-    if (name === 'username' && formData.email === '') {
-        const domains = {
-            'SINH_VIEN': '@st.neu.edu.vn',
-            'GIANG_VIEN': '@lt.neu.edu.vn',
-            'PARTNER': '@tp.neu.edu.vn',
-            'QL_DAO_TAO': '@qldt.neu.edu.vn'
-        };
-        setFormData(prev => ({ ...prev, username: value, email: value + (domains[formData.role] || '') }));
+      const prefix = formData.email.split('@')[0];
+      setFormData(prev => ({ ...prev, role: value, email: prefix + (ROLE_DOMAIN[value] || '') }));
+    } else if (name === 'username') {
+      setFormData(prev => ({
+        ...prev,
+        username: value,
+        email: formData.email === '' ? value + (ROLE_DOMAIN[formData.role] || '') : formData.email
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
@@ -98,26 +144,24 @@ export default function UserManagement() {
       }
   }
 
-  const roleTextMap = {
-      'SINH_VIEN': 'Sinh viên',
-      'GIANG_VIEN': 'Giảng viên',
-      'PARTNER': 'Doanh nghiệp',
-      'QL_DAO_TAO': 'Quản lý Đào tạo',
-      'ADMIN': 'Quản trị viên'
-  };
+  // Dynamic stats + tabs based on what this role can see
+  const visibleRoleKeys = [...new Set(users.map(u => u.role))];
 
   const stats = [
     { label: 'Tổng số', value: users.length },
-    { label: 'Sinh viên', value: users.filter(u => u.role === 'SINH_VIEN').length },
-    { label: 'Giảng viên', value: users.filter(u => u.role === 'GIANG_VIEN').length },
-    { label: 'Đối tác', value: users.filter(u => u.role === 'PARTNER').length }
+    ...visibleRoleKeys.map(r => ({
+      label: ROLE_NAME[r] || r,
+      value: users.filter(u => u.role === r).length
+    }))
   ];
 
   const roleTabs = [
     { id: 'all', label: 'Tất cả', count: users.length },
-    { id: 'SINH_VIEN', label: 'Sinh viên', count: users.filter(u => u.role === 'SINH_VIEN').length },
-    { id: 'GIANG_VIEN', label: 'Giảng viên', count: users.filter(u => u.role === 'GIANG_VIEN').length },
-    { id: 'PARTNER', label: 'Đối tác', count: users.filter(u => u.role === 'PARTNER').length }
+    ...visibleRoleKeys.map(r => ({
+      id: r,
+      label: ROLE_NAME[r] || r,
+      count: users.filter(u => u.role === r).length
+    }))
   ];
 
   const filteredUsers = users.filter(user => {
@@ -155,13 +199,15 @@ export default function UserManagement() {
     <div className="user-management-page">
       <div className="page-header">
         <div>
-          <h1 className="page-title">Quản lý Người dùng</h1>
-          <p className="page-subtitle">Quản lý tài khoản toàn hệ thống</p>
+          <h1 className="page-title">{pageConfig.title}</h1>
+          <p className="page-subtitle">{pageConfig.subtitle}</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-          <Plus size={18} />
-          Thêm Người Dùng
-        </button>
+        {creatableRoles.length > 0 && (
+          <button className="btn btn-primary" onClick={() => { setFormData({ username: '', email: '', password: '', role: defaultNewRole, full_name: '' }); setIsModalOpen(true); }}>
+            <Plus size={18} />
+            Thêm tài khoản
+          </button>
+        )}
       </div>
 
       {errorMsg && <div style={{ color: "red", marginBottom: "15px", padding: "10px", backgroundColor: "#ffe6e6", borderRadius: "5px" }}>{errorMsg}</div>}
@@ -231,7 +277,7 @@ export default function UserManagement() {
                 </td>
                 <td>
                   <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
-                    {roleTextMap[user.role] || user.role}
+                    {ROLE_NAME[user.role] || user.role}
                   </span>
                 </td>
                 <td>
@@ -279,10 +325,11 @@ export default function UserManagement() {
               <div>
                 <label style={labelStyle}>Vai trò</label>
                 <select name="role" value={formData.role} onChange={handleInputChange} style={inputStyle} required>
-                    <option value="SINH_VIEN">Sinh Viên (@st.neu.edu.vn)</option>
-                    <option value="GIANG_VIEN">Giảng Viên (@lt.neu.edu.vn)</option>
-                    <option value="PARTNER">Đối tác Doanh nghiệp (@tp.neu.edu.vn)</option>
-                    <option value="QL_DAO_TAO">Quản lý Đào tạo (@qldt.neu.edu.vn)</option>
+                  {creatableRoles.map(opt => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label} ({opt.domain})
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>
