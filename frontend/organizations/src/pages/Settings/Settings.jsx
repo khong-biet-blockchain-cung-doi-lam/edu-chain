@@ -47,11 +47,11 @@ export default function Settings() {
   });
 
   const tabs = [
-    { id: 'account', label: 'Account', icon: User },
-    { id: 'password', label: 'Password', icon: Lock },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'security', label: 'Security', icon: Shield },
-    { id: 'billing', label: 'Billing', icon: CreditCard }
+    { id: 'account', label: 'Tài khoản', icon: User },
+    { id: 'password', label: 'Mật khẩu', icon: Lock },
+    { id: 'notifications', label: 'Thông báo', icon: Bell },
+    { id: 'security', label: 'Bảo mật', icon: Shield },
+    { id: 'billing', label: 'Thanh toán', icon: CreditCard }
   ];
 
   const handleAccountSave = () => {
@@ -94,13 +94,13 @@ export default function Settings() {
     <div className="settings-page">
       <div className="settings-header">
         <div>
-          <h1 className="settings-title">Settings</h1>
-          <p className="settings-subtitle">Manage your account preferences and security</p>
+          <h1 className="settings-title">Cài đặt</h1>
+          <p className="settings-subtitle">Quản lý tùy chọn bảo mật và tài khoản của bạn</p>
         </div>
         {saveSuccess && (
           <div className="success-message">
             <Check size={18} />
-            Settings saved successfully!
+            Đã lưu cài đặt thành công!
           </div>
         )}
       </div>
@@ -129,13 +129,13 @@ export default function Settings() {
           {activeTab === 'account' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">Account Information</h2>
-                <p className="section-description">Update your account details and preferences</p>
+                <h2 className="section-title">Thông tin Tài khoản</h2>
+                <p className="section-description">Cập nhật thông tin chi tiết và tùy chọn</p>
               </div>
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Full Name</label>
+                  <label className="form-label">Họ và Tên</label>
                   <input
                     type="text"
                     className="form-input"
@@ -145,7 +145,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Email Address</label>
+                  <label className="form-label">Địa chỉ Email</label>
                   <input
                     type="email"
                     className="form-input"
@@ -155,7 +155,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Phone Number</label>
+                  <label className="form-label">Số Điện thoại</label>
                   <input
                     type="tel"
                     className="form-input"
@@ -165,7 +165,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Timezone</label>
+                  <label className="form-label">Múi giờ</label>
                   <select
                     className="form-select"
                     value={accountSettings.timezone}
@@ -179,7 +179,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Language</label>
+                  <label className="form-label">Ngôn ngữ</label>
                   <select
                     className="form-select"
                     value={accountSettings.language}
@@ -196,7 +196,7 @@ export default function Settings() {
               <div className="section-actions">
                 <button onClick={handleAccountSave} className="btn btn-primary">
                   <Save size={18} />
-                  Save Changes
+                  Lưu Thay đổi
                 </button>
               </div>
             </div>
@@ -206,14 +206,14 @@ export default function Settings() {
           {activeTab === 'password' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">Change Password</h2>
-                <p className="section-description">Ensure your account is using a strong password</p>
+                <h2 className="section-title">Đổi Mật khẩu</h2>
+                <p className="section-description">Đảm bảo tài khoản của bạn đang sử dụng mật khẩu mạnh</p>
               </div>
 
               <form onSubmit={handlePasswordChange}>
                 <div className="form-grid-single">
                   <div className="form-group">
-                    <label className="form-label">Current Password</label>
+                    <label className="form-label">Mật khẩu Hiện tại</label>
                     <div className="password-input-wrapper">
                       <input
                         type={showCurrentPassword ? 'text' : 'password'}
@@ -233,7 +233,7 @@ export default function Settings() {
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">New Password</label>
+                    <label className="form-label">Mật khẩu Mới</label>
                     <div className="password-input-wrapper">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
@@ -250,11 +250,11 @@ export default function Settings() {
                         {showNewPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                       </button>
                     </div>
-                    <span className="form-hint">Must be at least 8 characters</span>
+                    <span className="form-hint">Phải có ít nhất 8 ký tự</span>
                   </div>
 
                   <div className="form-group">
-                    <label className="form-label">Confirm New Password</label>
+                    <label className="form-label">Xác nhận Mật khẩu Mới</label>
                     <input
                       type="password"
                       className="form-input"
@@ -268,7 +268,7 @@ export default function Settings() {
                 <div className="section-actions">
                   <button type="submit" className="btn btn-primary">
                     <Save size={18} />
-                    Update Password
+                    Cập nhật Mật khẩu
                   </button>
                 </div>
               </form>
@@ -279,17 +279,17 @@ export default function Settings() {
           {activeTab === 'notifications' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">Notification Preferences</h2>
-                <p className="section-description">Manage how you receive notifications</p>
+                <h2 className="section-title">Tùy chọn Thông báo</h2>
+                <p className="section-description">Quản lý cách bạn nhận thông báo</p>
               </div>
 
               <div className="notification-group">
-                <h3 className="notification-group-title">Email Notifications</h3>
+                <h3 className="notification-group-title">Thông báo qua Email</h3>
                 <div className="notification-list">
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">New Applications</div>
-                      <div className="notification-description">Get notified when students apply for scholarships</div>
+                      <div className="notification-label">Hồ sơ Ứng tuyển Mới</div>
+                      <div className="notification-description">Nhận thông báo khi sinh viên nộp đơn cho học bổng</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -303,8 +303,8 @@ export default function Settings() {
 
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">Application Updates</div>
-                      <div className="notification-description">Updates on application status changes</div>
+                      <div className="notification-label">Cập nhật Hồ sơ Ứng tuyển</div>
+                      <div className="notification-description">Cập nhật về sự thay đổi trạng thái hồ sơ</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -318,8 +318,8 @@ export default function Settings() {
 
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">Weekly Report</div>
-                      <div className="notification-description">Receive weekly summary of activity</div>
+                      <div className="notification-label">Báo cáo Hàng tuần</div>
+                      <div className="notification-description">Nhận bản tóm tắt hoạt động hàng tuần</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -333,8 +333,8 @@ export default function Settings() {
 
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">Marketing Emails</div>
-                      <div className="notification-description">Updates about new features and tips</div>
+                      <div className="notification-label">Email Tiếp thị</div>
+                      <div className="notification-description">Cập nhật về các tính năng mới và các mẹo</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -349,12 +349,12 @@ export default function Settings() {
               </div>
 
               <div className="notification-group">
-                <h3 className="notification-group-title">Push Notifications</h3>
+                <h3 className="notification-group-title">Thông báo Đẩy (Push)</h3>
                 <div className="notification-list">
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">New Applications</div>
-                      <div className="notification-description">Browser notifications for new applications</div>
+                      <div className="notification-label">Hồ sơ Ứng tuyển Mới</div>
+                      <div className="notification-description">Thông báo qua trình duyệt khi có hồ sơ mới</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -368,8 +368,8 @@ export default function Settings() {
 
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">Application Approved</div>
-                      <div className="notification-description">When an application is approved</div>
+                      <div className="notification-label">Hồ sơ Được phê duyệt</div>
+                      <div className="notification-description">Khi một hồ sơ được chấp nhận</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -383,8 +383,8 @@ export default function Settings() {
 
                   <div className="notification-item">
                     <div className="notification-info">
-                      <div className="notification-label">System Updates</div>
-                      <div className="notification-description">Platform updates and maintenance</div>
+                      <div className="notification-label">Cập nhật Hệ thống</div>
+                      <div className="notification-description">Bảo trì và cập nhật nền tảng</div>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -404,16 +404,16 @@ export default function Settings() {
           {activeTab === 'security' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">Security Settings</h2>
-                <p className="section-description">Manage your account security preferences</p>
+                <h2 className="section-title">Cài đặt Bảo mật</h2>
+                <p className="section-description">Quản lý tùy chọn bảo mật tài khoản cá nhân</p>
               </div>
 
               <div className="security-list">
                 <div className="security-item">
                   <div className="security-info">
-                    <div className="security-label">Two-Factor Authentication</div>
+                    <div className="security-label">Xác thực Hai Ngôn ngữ (2FA)</div>
                     <div className="security-description">
-                      Add an extra layer of security to your account
+                      Thêm một lớp bảo mật phụ cho tài khoản của bạn
                     </div>
                   </div>
                   <label className="toggle-switch">
@@ -428,9 +428,9 @@ export default function Settings() {
 
                 <div className="security-item">
                   <div className="security-info">
-                    <div className="security-label">Login Alerts</div>
+                    <div className="security-label">Cảnh báo Đăng nhập</div>
                     <div className="security-description">
-                      Get notified when there's a login from a new device
+                      Nhận thông báo khi có đăng nhập từ một thiết bị mới
                     </div>
                   </div>
                   <label className="toggle-switch">
@@ -445,9 +445,9 @@ export default function Settings() {
 
                 <div className="security-item">
                   <div className="security-info">
-                    <div className="security-label">Session Timeout</div>
+                    <div className="security-label">Hết hạn Phiên đăng nhập</div>
                     <div className="security-description">
-                      Automatically log out after inactivity
+                      Tự động đăng nhập ngắt kết nối sau thời gian không hoạt động
                     </div>
                   </div>
                   <select
@@ -456,34 +456,34 @@ export default function Settings() {
                     value={securitySettings.sessionTimeout}
                     onChange={(e) => setSecuritySettings({ ...securitySettings, sessionTimeout: e.target.value })}
                   >
-                    <option value="15">15 minutes</option>
-                    <option value="30">30 minutes</option>
-                    <option value="60">1 hour</option>
-                    <option value="120">2 hours</option>
+                    <option value="15">15 phút</option>
+                    <option value="30">30 phút</option>
+                    <option value="60">1 giờ</option>
+                    <option value="120">2 giờ</option>
                   </select>
                 </div>
               </div>
 
               <div className="danger-zone">
-                <h3 className="danger-zone-title">Danger Zone</h3>
+                <h3 className="danger-zone-title">Khu vực Nguy hiểm</h3>
                 <div className="danger-zone-content">
                   <div className="danger-item">
                     <div>
-                      <div className="danger-label">Deactivate Account</div>
+                      <div className="danger-label">Vô hiệu hóa Tài khoản</div>
                       <div className="danger-description">
-                        Temporarily disable your account
+                        Tạm thời tắt thiết lập cho tài khoản của bạn
                       </div>
                     </div>
-                    <button className="btn btn-danger-outline">Deactivate</button>
+                    <button className="btn btn-danger-outline">Vô hiệu hóa</button>
                   </div>
                   <div className="danger-item">
                     <div>
-                      <div className="danger-label">Delete Account</div>
+                      <div className="danger-label">Xóa Tài khoản</div>
                       <div className="danger-description">
-                        Permanently delete your account and all data
+                        Xóa hoàn toàn tài khoản của bạn và mọi dữ liệu
                       </div>
                     </div>
-                    <button className="btn btn-danger">Delete Account</button>
+                    <button className="btn btn-danger">Xóa Tài khoản</button>
                   </div>
                 </div>
               </div>
@@ -494,58 +494,50 @@ export default function Settings() {
           {activeTab === 'billing' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">Billing & Subscription</h2>
-                <p className="section-description">Manage your subscription and payment methods</p>
+                <h2 className="section-title">Thanh toán &amp; Gói dịch vụ</h2>
+                <p className="section-description">Quản lý gói thanh toán và tài khoản của bạn</p>
               </div>
 
-              <div className="billing-info-card">
-                <div className="billing-plan">
-                  <div className="plan-badge">Pro Plan</div>
-                  <div className="plan-price">$99/month</div>
-                  <div className="plan-description">
-                    Unlimited scholarships • Priority support • Advanced analytics
-                  </div>
+              <div style={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                justifyContent: 'center', padding: '4rem 2rem',
+                background: 'linear-gradient(135deg, #f0f4ff 0%, #faf5ff 100%)',
+                borderRadius: '16px', border: '2px dashed #c4b5fd',
+                textAlign: 'center', gap: '1.25rem', marginTop: '1rem'
+              }}>
+                <div style={{
+                  width: '72px', height: '72px',
+                  background: 'linear-gradient(135deg, #8b5cf6, #ec4899)',
+                  borderRadius: '20px', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', fontSize: '2rem',
+                  boxShadow: '0 8px 24px rgba(139,92,246,0.3)'
+                }}>💳</div>
+
+                <div>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: '800', color: '#1e1b4b', margin: '0 0 0.5rem' }}>
+                    Đang phát triển
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.95rem', maxWidth: '380px', margin: '0 auto' }}>
+                    Tính năng <strong>Thanh toán &amp; Gói dịch vụ</strong> đang được xây dựng. Chúng tôi sẽ thông báo ngay khi sẵn sàng!
+                  </p>
                 </div>
-                <button className="btn btn-secondary">Change Plan</button>
-              </div>
 
-              <div className="payment-methods">
-                <h3 className="subsection-title">Payment Methods</h3>
-                <div className="payment-card">
-                  <div className="card-icon">💳</div>
-                  <div className="card-details">
-                    <div className="card-brand">Visa ending in 4242</div>
-                    <div className="card-expiry">Expires 12/2025</div>
-                  </div>
-                  <div className="card-badge">Default</div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {['Quản lý gói dịch vụ', 'Hoá đơn điện tử', 'Đa phương thức TT'].map(f => (
+                    <span key={f} style={{
+                      background: '#ede9fe', color: '#7c3aed', padding: '0.35rem 0.875rem',
+                      borderRadius: '20px', fontSize: '0.78rem', fontWeight: '600'
+                    }}>{f}</span>
+                  ))}
                 </div>
-                <button className="btn btn-secondary">
-                  <Plus size={18} />
-                  Add Payment Method
-                </button>
-              </div>
 
-              <div className="billing-history">
-                <h3 className="subsection-title">Billing History</h3>
-                <div className="invoice-list">
-                  <div className="invoice-item">
-                    <div className="invoice-date">Feb 1, 2026</div>
-                    <div className="invoice-description">Pro Plan - Monthly</div>
-                    <div className="invoice-amount">$99.00</div>
-                    <button className="btn btn-link">Download</button>
-                  </div>
-                  <div className="invoice-item">
-                    <div className="invoice-date">Jan 1, 2026</div>
-                    <div className="invoice-description">Pro Plan - Monthly</div>
-                    <div className="invoice-amount">$99.00</div>
-                    <button className="btn btn-link">Download</button>
-                  </div>
-                  <div className="invoice-item">
-                    <div className="invoice-date">Dec 1, 2025</div>
-                    <div className="invoice-description">Pro Plan - Monthly</div>
-                    <div className="invoice-amount">$99.00</div>
-                    <button className="btn btn-link">Download</button>
-                  </div>
+                <div style={{
+                  padding: '0.75rem 1.5rem', background: 'white',
+                  borderRadius: '10px', border: '1px solid #ddd6fe',
+                  display: 'flex', alignItems: 'center', gap: '0.5rem',
+                  fontSize: '0.85rem', color: '#7c3aed', fontWeight: '600'
+                }}>
+                  🚀 Dự kiến ra mắt trong thời gian tới
                 </div>
               </div>
             </div>

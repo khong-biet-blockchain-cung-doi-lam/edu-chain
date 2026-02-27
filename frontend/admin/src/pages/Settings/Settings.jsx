@@ -64,12 +64,12 @@ export default function Settings() {
   });
 
   const tabs = [
-    { id: 'general', label: 'General', icon: Globe },
-    { id: 'security', label: 'Security', icon: Shield },
+    { id: 'general', label: 'Chung', icon: Globe },
+    { id: 'security', label: 'Bảo mật', icon: Shield },
     { id: 'email', label: 'Email', icon: Mail },
-    { id: 'notifications', label: 'Notifications', icon: Bell },
-    { id: 'database', label: 'Database', icon: Database },
-    { id: 'backup', label: 'Backup', icon: Server }
+    { id: 'notifications', label: 'Thông báo', icon: Bell },
+    { id: 'database', label: 'CSDL', icon: Database },
+    { id: 'backup', label: 'Sao lưu', icon: Server }
   ];
 
   const handleSave = () => {
@@ -82,12 +82,12 @@ export default function Settings() {
     <div className="admin-settings-page">
       <div className="settings-header">
         <div>
-          <h1 className="settings-title">System Settings</h1>
-          <p className="settings-subtitle">Configure platform settings and preferences</p>
+          <h1 className="settings-title">Cài đặt Hệ thống</h1>
+          <p className="settings-subtitle">Cấu hình các tùy chọn và dịch vụ của nền tảng</p>
         </div>
         {saveSuccess && (
           <div className="success-alert">
-            <span>✓</span> Settings saved successfully!
+            <span>✓</span> Đã lưu cài đặt thành công!
           </div>
         )}
       </div>
@@ -116,13 +116,13 @@ export default function Settings() {
           {activeTab === 'general' && (
             <div className="settings-section">
               <div className="section-header">
-                <h2 className="section-title">General Settings</h2>
-                <p className="section-description">Configure basic platform settings</p>
+                <h2 className="section-title">Cài đặt Chung</h2>
+                <p className="section-description">Cấu hình thông tin cơ bản của nền tảng</p>
               </div>
 
               <div className="form-grid">
                 <div className="form-group">
-                  <label className="form-label">Site Name</label>
+                  <label className="form-label">Tên Website</label>
                   <input
                     type="text"
                     className="form-input"
@@ -142,7 +142,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Admin Email</label>
+                  <label className="form-label">Email Quản trị</label>
                   <input
                     type="email"
                     className="form-input"
@@ -152,7 +152,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Support Email</label>
+                  <label className="form-label">Email Hỗ trợ</label>
                   <input
                     type="email"
                     className="form-input"
@@ -162,7 +162,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Timezone</label>
+                  <label className="form-label">Múi giờ</label>
                   <select
                     className="form-select"
                     value={generalSettings.timezone}
@@ -176,7 +176,7 @@ export default function Settings() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Default Language</label>
+                  <label className="form-label">Ngôn ngữ Mặc định</label>
                   <select
                     className="form-select"
                     value={generalSettings.language}
@@ -196,7 +196,7 @@ export default function Settings() {
                       onChange={(e) => setGeneralSettings({ ...generalSettings, maintenanceMode: e.target.checked })}
                     />
                     <span className="toggle-slider"></span>
-                    <span className="toggle-label">Enable Maintenance Mode</span>
+                    <span className="toggle-label">Bật Chế độ Bảo trì</span>
                   </label>
                   <p className="form-hint">When enabled, only administrators can access the system</p>
                 </div>

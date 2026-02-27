@@ -89,50 +89,50 @@ export default function PostScholarship() {
       <div className="page-header">
         <button onClick={() => navigate('/scholarships')} className="back-btn">
           <ArrowLeft size={20} />
-          Back to Scholarships
+          Trở lại danh sách Học bổng
         </button>
         <div className="header-actions">
           <button onClick={handleSaveDraft} className="btn btn-secondary">
             <Save size={18} />
-            Save Draft
+            Lưu Nháp
           </button>
           <button onClick={() => setShowPreview(!showPreview)} className="btn btn-secondary">
             <Eye size={18} />
-            Preview
+            Xem trước
           </button>
         </div>
       </div>
 
       <div className="page-title-section">
         <h1 className="page-title">
-          {isEditMode ? 'Edit Scholarship' : 'Create New Scholarship'}
+          {isEditMode ? 'Chỉnh sửa Học bổng' : 'Tạo Học bổng Mới'}
         </h1>
         <p className="page-subtitle">
-          Fill in the details below to create a new scholarship opportunity
+          Điền thông tin bên dưới để tạo học bổng mới
         </p>
       </div>
 
       <form onSubmit={handlePublish} className="scholarship-form">
         {/* Basic Information */}
         <div className="form-section">
-          <h2 className="section-title">Basic Information</h2>
+          <h2 className="section-title">Thông tin Cơ bản</h2>
           <div className="form-grid">
             <div className="form-group full-width">
-              <label className="form-label">Scholarship Title *</label>
+              <label className="form-label">Tên Học bổng *</label>
               <input
                 type="text"
                 name="title"
                 className="form-input"
-                placeholder="e.g., TechCorp STEM Excellence Scholarship 2026"
+                placeholder="VD: Học bổng Xuất sắc Công nghệ TechCorp 2026"
                 value={formData.title}
                 onChange={handleInputChange}
                 required
               />
-              <span className="form-hint">Choose a clear, descriptive title for your scholarship</span>
+              <span className="form-hint">Chọn một cái tên rõ ràng và mô tả được học bổng của bạn</span>
             </div>
 
             <div className="form-group">
-              <label className="form-label">Award Amount *</label>
+              <label className="form-label">Mức Tài trợ *</label>
               <div className="input-with-prefix">
                 <span className="input-prefix">$</span>
                 <input
@@ -148,7 +148,7 @@ export default function PostScholarship() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Number of Awards *</label>
+              <label className="form-label">Số lượng Suất học bổng *</label>
               <input
                 type="number"
                 name="numberOfAwards"
@@ -162,7 +162,7 @@ export default function PostScholarship() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Application Deadline *</label>
+              <label className="form-label">Hạn nộp Đơn *</label>
               <input
                 type="date"
                 name="deadline"
@@ -174,7 +174,7 @@ export default function PostScholarship() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Eligible Programs *</label>
+              <label className="form-label">Chương trình Áp dụng *</label>
               <select
                 name="program"
                 className="form-select"
@@ -182,12 +182,12 @@ export default function PostScholarship() {
                 onChange={handleInputChange}
                 required
               >
-                <option value="">Select program</option>
-                <option value="computer-science">Computer Science</option>
-                <option value="engineering">Engineering</option>
-                <option value="mathematics">Mathematics</option>
-                <option value="data-science">Data Science</option>
-                <option value="all-stem">All STEM Programs</option>
+                <option value="">Chọn chương trình</option>
+                <option value="computer-science">Khoa học Máy tính</option>
+                <option value="engineering">Kỹ thuật</option>
+                <option value="mathematics">Toán học</option>
+                <option value="data-science">Khoa học Dữ liệu</option>
+                <option value="all-stem">Tất cả chương trình STEM</option>
               </select>
             </div>
           </div>
@@ -195,30 +195,30 @@ export default function PostScholarship() {
 
         {/* Description */}
         <div className="form-section">
-          <h2 className="section-title">Scholarship Description</h2>
+          <h2 className="section-title">Mô tả Học bổng</h2>
           <div className="form-group">
-            <label className="form-label">Description *</label>
+            <label className="form-label">Mô tả chi tiết *</label>
             <textarea
               name="description"
               className="form-textarea"
               rows="6"
-              placeholder="Provide detailed information about the scholarship, its purpose, and what you're looking for in candidates..."
+              placeholder="Cung cấp thông tin chi tiết về học bổng, mục đích và những gì bạn tìm kiếm ở ứng viên..."
               value={formData.description}
               onChange={handleInputChange}
               required
             />
             <span className="form-hint">
-              Include information about your organization, scholarship goals, and selection criteria
+              Bao gồm thông tin về tổ chức của bạn, mục tiêu học bổng và tiêu chí lựa chọn
             </span>
           </div>
         </div>
 
         {/* Eligibility Requirements */}
         <div className="form-section">
-          <h2 className="section-title">Eligibility Requirements</h2>
+          <h2 className="section-title">Điều kiện Xét duyệt</h2>
           <div className="form-grid">
             <div className="form-group">
-              <label className="form-label">Minimum GPA</label>
+              <label className="form-label">GPA tối thiểu</label>
               <input
                 type="number"
                 step="0.01"
@@ -235,7 +235,7 @@ export default function PostScholarship() {
             </div>
 
             <div className="form-group">
-              <label className="form-label">Citizenship Status</label>
+              <label className="form-label">Tình trạng Quốc tịch</label>
               <select
                 className="form-select"
                 value={formData.eligibility.citizenship}
@@ -252,9 +252,9 @@ export default function PostScholarship() {
             </div>
 
             <div className="form-group full-width">
-              <label className="form-label">Year Level</label>
+              <label className="form-label">Bậc Năm học</label>
               <div className="checkbox-group">
-                {['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate'].map((year) => (
+                {['Năm 1', 'Năm 2', 'Năm 3', 'Năm 4', 'Tốt nghiệp'].map((year) => (
                   <label key={year} className="checkbox-label">
                     <input
                       type="checkbox"
@@ -272,7 +272,7 @@ export default function PostScholarship() {
 
         {/* Required Documents */}
         <div className="form-section">
-          <h2 className="section-title">Required Documents</h2>
+          <h2 className="section-title">Tài liệu Yêu cầu</h2>
           <div className="checkbox-group">
             <label className="checkbox-label">
               <input
@@ -281,7 +281,7 @@ export default function PostScholarship() {
                 checked={formData.requirements.transcript}
                 onChange={() => handleCheckboxChange('requirements', 'transcript')}
               />
-              <span>Academic Transcript</span>
+              <span>Bảng điểm Học tập</span>
             </label>
             <label className="checkbox-label">
               <input
@@ -290,7 +290,7 @@ export default function PostScholarship() {
                 checked={formData.requirements.essay}
                 onChange={() => handleCheckboxChange('requirements', 'essay')}
               />
-              <span>Personal Essay</span>
+              <span>Bài Tự luận Cá nhân</span>
             </label>
             <label className="checkbox-label">
               <input
@@ -299,7 +299,7 @@ export default function PostScholarship() {
                 checked={formData.requirements.recommendation}
                 onChange={() => handleCheckboxChange('requirements', 'recommendation')}
               />
-              <span>Letters of Recommendation</span>
+              <span>Thư Giới thiệu</span>
             </label>
             <label className="checkbox-label">
               <input
@@ -320,7 +320,7 @@ export default function PostScholarship() {
             onClick={() => navigate('/scholarships')}
             className="btn btn-secondary"
           >
-            Cancel
+            Hủy
           </button>
           <button
             type="submit"
@@ -330,12 +330,12 @@ export default function PostScholarship() {
             {loading ? (
               <>
                 <span className="spinner"></span>
-                Publishing...
+                Đang tải...
               </>
             ) : (
               <>
                 <Send size={18} />
-                Publish Scholarship
+                Đăng Học bổng
               </>
             )}
           </button>

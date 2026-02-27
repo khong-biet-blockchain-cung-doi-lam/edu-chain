@@ -24,7 +24,7 @@ import './Dashboard.css';
 export default function Dashboard() {
   const stats = [
     {
-      title: 'Total Users',
+      title: 'Người dùng',
       value: '12,543',
       change: '+12.5%',
       trend: 'up',
@@ -32,7 +32,7 @@ export default function Dashboard() {
       color: 'blue'
     },
     {
-      title: 'Active Students',
+      title: 'Sinh viên đang học',
       value: '8,721',
       change: '+8.2%',
       trend: 'up',
@@ -40,7 +40,7 @@ export default function Dashboard() {
       color: 'green'
     },
     {
-      title: 'Total Courses',
+      title: 'Học phần',
       value: '456',
       change: '+5.4%',
       trend: 'up',
@@ -48,7 +48,7 @@ export default function Dashboard() {
       color: 'purple'
     },
     {
-      title: 'System Health',
+      title: 'Độ ổn định hệ thống',
       value: '99.9%',
       change: '+0.1%',
       trend: 'up',
@@ -58,69 +58,69 @@ export default function Dashboard() {
   ];
 
   const userGrowthData = [
-    { month: 'Jan', students: 6500, teachers: 450, organizations: 120 },
-    { month: 'Feb', students: 7200, teachers: 480, organizations: 135 },
-    { month: 'Mar', students: 7800, teachers: 510, organizations: 148 },
-    { month: 'Apr', students: 8100, teachers: 530, organizations: 156 },
-    { month: 'May', students: 8500, teachers: 560, organizations: 168 },
-    { month: 'Jun', students: 8721, teachers: 580, organizations: 175 }
+    { month: 'T1', students: 6500, teachers: 450, organizations: 120 },
+    { month: 'T2', students: 7200, teachers: 480, organizations: 135 },
+    { month: 'T3', students: 7800, teachers: 510, organizations: 148 },
+    { month: 'T4', students: 8100, teachers: 530, organizations: 156 },
+    { month: 'T5', students: 8500, teachers: 560, organizations: 168 },
+    { month: 'T6', students: 8721, teachers: 580, organizations: 175 }
   ];
 
   const activityData = [
-    { day: 'Mon', logins: 2400, registrations: 145 },
-    { day: 'Tue', logins: 2800, registrations: 198 },
-    { day: 'Wed', logins: 3200, registrations: 234 },
-    { day: 'Thu', logins: 2900, registrations: 187 },
-    { day: 'Fri', logins: 3500, registrations: 267 },
-    { day: 'Sat', logins: 1800, registrations: 98 },
-    { day: 'Sun', logins: 1600, registrations: 76 }
+    { day: 'T2', logins: 2400, registrations: 145 },
+    { day: 'T3', logins: 2800, registrations: 198 },
+    { day: 'T4', logins: 3200, registrations: 234 },
+    { day: 'T5', logins: 2900, registrations: 187 },
+    { day: 'T6', logins: 3500, registrations: 267 },
+    { day: 'T7', logins: 1800, registrations: 98 },
+    { day: 'CN', logins: 1600, registrations: 76 }
   ];
 
   const recentActivities = [
     {
       id: 1,
       type: 'user_registered',
-      user: 'John Smith',
-      role: 'Student',
-      action: 'registered to the system',
-      time: '5 minutes ago',
-      avatar: 'JS'
+      user: 'Nguyễn Văn A',
+      role: 'Sinh viên',
+      action: 'đã đăng ký tài khoản mới',
+      time: '5 phút trước',
+      avatar: 'NA'
     },
     {
       id: 2,
       type: 'course_created',
-      user: 'Dr. Maria Garcia',
-      role: 'Teacher',
-      action: 'created a new course "Advanced Mathematics"',
-      time: '15 minutes ago',
-      avatar: 'MG'
+      user: 'TS. Trần Thị B',
+      role: 'Giảng viên',
+      action: 'đã tạo học phần mới "Toán cao cấp"',
+      time: '15 phút trước',
+      avatar: 'TB'
     },
     {
       id: 3,
       type: 'scholarship_posted',
       user: 'TechCorp Foundation',
-      role: 'Organization',
-      action: 'posted a new scholarship program',
-      time: '1 hour ago',
+      role: 'Đối tác',
+      action: 'đã đăng một chương trình học bổng mới',
+      time: '1 giờ trước',
       avatar: 'TC'
     },
     {
       id: 4,
       type: 'program_updated',
-      user: 'Admin Team',
-      role: 'Admin',
-      action: 'updated Computer Science program requirements',
-      time: '2 hours ago',
-      avatar: 'AT'
+      user: 'Phòng Đào Tạp',
+      role: 'Quản trị',
+      action: 'đã cập nhật yêu cầu ngành Khoa học Máy tính',
+      time: '2 giờ trước',
+      avatar: 'PD'
     },
     {
       id: 5,
       type: 'user_verified',
-      user: 'Sarah Johnson',
-      role: 'Teacher',
-      action: 'was verified as a faculty member',
-      time: '3 hours ago',
-      avatar: 'SJ'
+      user: 'Lê Hoàng C',
+      role: 'Giảng viên',
+      action: 'đã được xác thực hồ sơ giảng viên',
+      time: '3 giờ trước',
+      avatar: 'LC'
     }
   ];
 
@@ -128,23 +128,23 @@ export default function Dashboard() {
     {
       id: 1,
       type: 'warning',
-      title: 'High Server Load',
-      message: 'Server CPU usage at 85%. Consider scaling.',
-      time: '10 minutes ago'
+      title: 'Tải Server Cao',
+      message: 'CPU đang ở mức 85%. Đề xuất mở rộng.',
+      time: '10 phút trước'
     },
     {
       id: 2,
       type: 'info',
-      title: 'Scheduled Maintenance',
-      message: 'System maintenance scheduled for Sunday 2 AM.',
-      time: '2 hours ago'
+      title: 'Lịch Bảo Trì',
+      message: 'Hệ thống sẽ bảo trì vào 2h sáng Chủ nhật.',
+      time: '2 giờ trước'
     },
     {
       id: 3,
       type: 'success',
-      title: 'Backup Completed',
-      message: 'Daily database backup completed successfully.',
-      time: '5 hours ago'
+      title: 'Sao lưu thành công',
+      message: 'Đã hoàn thành sao lưu cơ sở dữ liệu hàng ngày.',
+      time: '5 giờ trước'
     }
   ];
 
@@ -172,8 +172,8 @@ export default function Dashboard() {
     <div className="admin-dashboard">
       <div className="dashboard-header">
         <div>
-          <h1 className="dashboard-title">System Overview</h1>
-          <p className="dashboard-subtitle">Monitor and manage your platform</p>
+          <h1 className="dashboard-title">Tổng quan Hệ thống</h1>
+          <p className="dashboard-subtitle">Theo dõi và quản lý nền tảng của bạn</p>
         </div>
       </div>
 
@@ -207,8 +207,8 @@ export default function Dashboard() {
         <div className="chart-card chart-large">
           <div className="chart-header">
             <div>
-              <h3 className="chart-title">User Growth</h3>
-              <p className="chart-subtitle">Total users by role over the last 6 months</p>
+              <h3 className="chart-title">Tăng trưởng Người dùng</h3>
+              <p className="chart-subtitle">Lượng người dùng mới trong 6 tháng qua</p>
             </div>
           </div>
           <div className="chart-body">
@@ -225,9 +225,9 @@ export default function Dashboard() {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
-                <Line type="monotone" dataKey="students" stroke="#2563eb" strokeWidth={2} name="Students" />
-                <Line type="monotone" dataKey="teachers" stroke="#10b981" strokeWidth={2} name="Teachers" />
-                <Line type="monotone" dataKey="organizations" stroke="#8b5cf6" strokeWidth={2} name="Organizations" />
+                <Line type="monotone" dataKey="students" stroke="#2563eb" strokeWidth={2} name="Sinh viên" />
+                <Line type="monotone" dataKey="teachers" stroke="#10b981" strokeWidth={2} name="Giảng viên" />
+                <Line type="monotone" dataKey="organizations" stroke="#8b5cf6" strokeWidth={2} name="Đối tác" />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -236,8 +236,8 @@ export default function Dashboard() {
         <div className="chart-card chart-medium">
           <div className="chart-header">
             <div>
-              <h3 className="chart-title">Weekly Activity</h3>
-              <p className="chart-subtitle">Logins and registrations this week</p>
+              <h3 className="chart-title">Hoạt động trong Tuần</h3>
+              <p className="chart-subtitle">Lượt đăng nhập và đăng ký tuần này</p>
             </div>
           </div>
           <div className="chart-body">
@@ -254,8 +254,8 @@ export default function Dashboard() {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
                   }}
                 />
-                <Bar dataKey="logins" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Logins" />
-                <Bar dataKey="registrations" fill="#ec4899" radius={[8, 8, 0, 0]} name="Registrations" />
+                <Bar dataKey="logins" fill="#8b5cf6" radius={[8, 8, 0, 0]} name="Đăng nhập" />
+                <Bar dataKey="registrations" fill="#ec4899" radius={[8, 8, 0, 0]} name="Đăng ký" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -266,7 +266,7 @@ export default function Dashboard() {
       <div className="bottom-section">
         <div className="activity-panel">
           <div className="panel-header">
-            <h3 className="panel-title">Recent Activity</h3>
+            <h3 className="panel-title">Hoạt động Gần đây</h3>
           </div>
           <div className="activity-list">
             {recentActivities.map((activity) => (
@@ -290,7 +290,7 @@ export default function Dashboard() {
 
         <div className="alerts-panel">
           <div className="panel-header">
-            <h3 className="panel-title">System Alerts</h3>
+            <h3 className="panel-title">Cảnh báo Hệ thống</h3>
           </div>
           <div className="alerts-list">
             {systemAlerts.map((alert) => (

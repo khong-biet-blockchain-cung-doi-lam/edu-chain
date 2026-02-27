@@ -15,9 +15,9 @@ export default function OrgHeader({ toggleSidebar }) {
           <Menu size={24} />
         </button>
         <div className="header-breadcrumb">
-          <span className="breadcrumb-text">University Partner Portal</span>
+          <span className="breadcrumb-text">Cổng Đối tác Đại học</span>
           <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">Dashboard</span>
+          <span className="breadcrumb-current">Tổng quan</span>
         </div>
       </div>
 
@@ -26,7 +26,7 @@ export default function OrgHeader({ toggleSidebar }) {
           <Search size={18} className="search-icon" />
           <input 
             type="text" 
-            placeholder="Search..." 
+            placeholder="Tìm kiếm..." 
             className="search-input"
           />
         </div>

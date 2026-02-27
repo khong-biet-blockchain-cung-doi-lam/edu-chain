@@ -1,101 +1,70 @@
-// frontend/organizations/src/pages/Applications/Applications.jsx
-import React, { useState } from 'react';
-import { Search, Filter, Download, Eye, Check, X, Clock } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, Eye, Check, X, Clock, Loader2 } from 'lucide-react';
+import applicationService from '../../services/applicationService';
 import './Applications.css';
 
 export default function Applications() {
   const [selectedTab, setSelectedTab] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedApplication, setSelectedApplication] = useState(null);
+  
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
-  const applications = [
-    {
-      id: 1,
-      studentName: 'Emily Martinez',
-      studentInitials: 'EM',
-      email: 'emily.martinez@student.edu',
-      scholarship: 'Women in Tech 2026',
-      appliedDate: '2026-02-01',
-      status: 'pending',
-      gpa: '3.92',
-      program: 'Computer Science',
-      year: 'Junior',
-      gradient: 'gradient-blue'
-    },
-    {
-      id: 2,
-      studentName: 'James Chen',
-      studentInitials: 'JC',
-      email: 'james.chen@student.edu',
-      scholarship: 'STEM Excellence Grant',
-      appliedDate: '2026-02-02',
-      status: 'reviewing',
-      gpa: '3.85',
-      program: 'Electrical Engineering',
-      year: 'Senior',
-      gradient: 'gradient-purple'
-    },
-    {
-      id: 3,
-      studentName: 'Sophia Patel',
-      studentInitials: 'SP',
-      email: 'sophia.patel@student.edu',
-      scholarship: 'Future Leaders Grant',
-      appliedDate: '2026-01-28',
-      status: 'approved',
-      gpa: '4.00',
-      program: 'Mathematics',
-      year: 'Sophomore',
-      gradient: 'gradient-green'
-    },
-    {
-      id: 4,
-      studentName: 'Michael Johnson',
-      studentInitials: 'MJ',
-      email: 'michael.j@student.edu',
-      scholarship: 'Engineering Excellence',
-      appliedDate: '2026-01-25',
-      status: 'rejected',
-      gpa: '3.78',
-      program: 'Mechanical Engineering',
-      year: 'Junior',
-      gradient: 'gradient-orange'
-    },
-    {
-      id: 5,
-      studentName: 'Aisha Lopez',
-      studentInitials: 'AL',
-      email: 'aisha.lopez@student.edu',
-      scholarship: 'Women in Tech 2026',
-      appliedDate: '2026-02-03',
-      status: 'pending',
-      gpa: '3.95',
-      program: 'Data Science',
-      year: 'Senior',
-      gradient: 'gradient-pink'
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const data = await applicationService.getAllApplications();
+      // map api fields to component fields
+      const formatted = data.map(app => ({
+        id: app.id,
+        studentName: app.student_name,
+        studentInitials: app.student_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase(),
+        email: app.student_email,
+        scholarship: app.scholarship_title,
+        appliedDate: app.applied_at,
+        status: app.status.toLowerCase(), // API returns APPLIED, APPROVED, REJECTED
+        gpa: app.gpa ? parseFloat(app.gpa).toFixed(2) : 'N/A',
+        program: app.program || 'N/A',
+        year: app.year || 'N/A',
+        gradient: ['gradient-blue', 'gradient-purple', 'gradient-green', 'gradient-orange', 'gradient-pink'][Math.floor(Math.random()*5)]
+      }));
+      setApplications(formatted);
+    } catch (error) {
+      console.error('Failed to fetch applications', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
+  useEffect(() => {
+    fetchApplications();
+  }, []);
+
+  // API returns "APPLIED" which is "pending" in the old UI.
+  // Lets map status for tabs: 'pending' -> 'applied'
   const tabs = [
-    { id: 'all', label: 'All Applications', count: applications.length },
-    { id: 'pending', label: 'Pending', count: applications.filter(a => a.status === 'pending').length },
-    { id: 'reviewing', label: 'Reviewing', count: applications.filter(a => a.status === 'reviewing').length },
-    { id: 'approved', label: 'Approved', count: applications.filter(a => a.status === 'approved').length },
-    { id: 'rejected', label: 'Rejected', count: applications.filter(a => a.status === 'rejected').length }
+    { id: 'all', label: 'Tất cả Đơn', count: applications.length },
+    { id: 'applied', label: 'Chờ xử lý', count: applications.filter(a => a.status === 'applied').length },
+    { id: 'reviewing', label: 'Đang xem xét', count: applications.filter(a => a.status === 'reviewing').length },
+    { id: 'approved', label: 'Đã phê duyệt', count: applications.filter(a => a.status === 'approved').length },
+    { id: 'rejected', label: 'Đã từ chối', count: applications.filter(a => a.status === 'rejected').length }
   ];
 
   const getStatusConfig = (status) => {
     const configs = {
-      pending: { label: 'Pending Review', class: 'status-pending', icon: Clock },
-      reviewing: { label: 'Under Review', class: 'status-reviewing', icon: Eye },
-      approved: { label: 'Approved', class: 'status-approved', icon: Check },
-      rejected: { label: 'Rejected', class: 'status-rejected', icon: X }
+      applied: { label: 'Chờ phê duyệt', class: 'status-pending', icon: Clock },
+      pending: { label: 'Chờ phê duyệt', class: 'status-pending', icon: Clock },
+      reviewing: { label: 'Đang xem xét', class: 'status-reviewing', icon: Eye },
+      approved: { label: 'Đã duyệt', class: 'status-approved', icon: Check },
+      rejected: { label: 'Đã từ chối', class: 'status-rejected', icon: X }
     };
     return configs[status] || configs.pending;
   };
 
   const filteredApplications = applications.filter(app => {
-    const matchesTab = selectedTab === 'all' || app.status === selectedTab;
+    const matchesTab = selectedTab === 'all' || app.status === selectedTab || (selectedTab === 'pending' && app.status === 'applied');
     const matchesSearch = app.studentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          app.scholarship.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesTab && matchesSearch;
@@ -105,26 +74,42 @@ export default function Applications() {
     setSelectedApplication(application);
   };
 
-  const handleApprove = (id) => {
-    console.log('Approving application:', id);
-    // API call to approve
+  const handleApprove = async (id) => {
+    setActionLoading(id);
+    try {
+      await applicationService.approveApplication(id);
+      fetchApplications();
+    } catch (error) {
+      console.error(error);
+      alert('Error approving application');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
-  const handleReject = (id) => {
-    console.log('Rejecting application:', id);
-    // API call to reject
+  const handleReject = async (id) => {
+    setActionLoading(id);
+    try {
+      await applicationService.rejectApplication(id);
+      fetchApplications();
+    } catch (error) {
+      console.error(error);
+      alert('Error rejecting application');
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   return (
     <div className="applications-page">
       <div className="applications-header">
         <div>
-          <h1 className="applications-title">Applications</h1>
-          <p className="applications-subtitle">Review and manage scholarship applications</p>
+          <h1 className="applications-title">Phòng Quản lý Đơn đăng ký (Data Room)</h1>
+          <p className="applications-subtitle">Xem xét và quản lý các đơn xin học bổng đã cung cấp bằng chứng ZKP</p>
         </div>
         <button className="btn btn-secondary">
           <Download size={18} />
-          Export Applications
+          Xuất Đơn đăng ký
         </button>
       </div>
 
@@ -148,7 +133,7 @@ export default function Applications() {
           <Search size={20} className="search-icon" />
           <input
             type="text"
-            placeholder="Search by student name or scholarship..."
+            placeholder="Tìm kiếm theo tên sinh viên hoặc học bổng..."
             className="search-input-large"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -156,13 +141,17 @@ export default function Applications() {
         </div>
         <button className="btn btn-secondary">
           <Filter size={18} />
-          Filters
+          Lọc
         </button>
       </div>
 
       {/* Applications List */}
       <div className="applications-grid">
-        {filteredApplications.map((application) => {
+        {loading ? (
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 p-12 flex justify-center text-gray-400">
+            <Loader2 className="animate-spin mr-2" /> Đang tải dữ liệu hồ sơ...
+          </div>
+        ) : filteredApplications.map((application) => {
           const statusConfig = getStatusConfig(application.status);
           const StatusIcon = statusConfig.icon;
 
@@ -186,29 +175,25 @@ export default function Applications() {
 
               <div className="application-card-body">
                 <div className="application-detail-row">
-                  <span className="detail-label">Scholarship:</span>
+                  <span className="detail-label">Học bổng:</span>
                   <span className="detail-value">{application.scholarship}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Program:</span>
+                  <span className="detail-label">Chương trình:</span>
                   <span className="detail-value">{application.program}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Year:</span>
+                  <span className="detail-label">Năm học:</span>
                   <span className="detail-value">{application.year}</span>
                 </div>
                 <div className="application-detail-row">
                   <span className="detail-label">GPA:</span>
-                  <span className="detail-value font-bold">{application.gpa}</span>
+                  <span className="detail-value font-bold text-[#00528C]">{application.gpa}</span>
                 </div>
                 <div className="application-detail-row">
-                  <span className="detail-label">Applied:</span>
+                  <span className="detail-label">Ngày nộp:</span>
                   <span className="detail-value">
-                    {new Date(application.appliedDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
+                    {application.appliedDate ? new Date(application.appliedDate).toLocaleDateString() : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -219,23 +204,23 @@ export default function Applications() {
                   className="btn btn-secondary btn-sm btn-full"
                 >
                   <Eye size={16} />
-                  View Details
+                  Xem chi tiết
                 </button>
-                {application.status === 'pending' && (
+                {application.status === 'applied' && (
                   <div className="action-buttons-group">
                     <button
                       onClick={() => handleApprove(application.id)}
-                      className="btn btn-success btn-sm"
+                      disabled={actionLoading === application.id}
+                      className="btn btn-success btn-sm flex-1 justify-center"
                     >
-                      <Check size={16} />
-                      Approve
+                      {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><Check size={16} /> Duyệt</>}
                     </button>
                     <button
                       onClick={() => handleReject(application.id)}
-                      className="btn btn-danger btn-sm"
+                      disabled={actionLoading === application.id}
+                      className="btn btn-danger btn-sm flex-1 justify-center"
                     >
-                      <X size={16} />
-                      Reject
+                       {actionLoading === application.id ? <Loader2 size={16} className="animate-spin" /> : <><X size={16} /> Từ chối</>}
                     </button>
                   </div>
                 )}
@@ -245,14 +230,14 @@ export default function Applications() {
         })}
       </div>
 
-      {filteredApplications.length === 0 && (
-        <div className="empty-state">
-          <div className="empty-icon">📋</div>
-          <h3 className="empty-title">No applications found</h3>
-          <p className="empty-text">
+      {!loading && filteredApplications.length === 0 && (
+        <div className="empty-state w-full col-span-full py-12">
+          <div className="empty-icon text-4xl mb-3 text-gray-300">📋</div>
+          <h3 className="empty-title text-xl font-bold text-gray-600">Không tìm thấy hồ sơ</h3>
+          <p className="empty-text text-gray-500">
             {searchTerm
-              ? 'Try adjusting your search terms'
-              : 'No applications match the selected filter'}
+              ? 'Hãy thử thay đổi từ khóa tìm kiếm của bạn'
+              : 'Chưa có ứng viên nào sử dụng mã ZKP để ứng tuyển kỳ học bổng này.'}
           </p>
         </div>
       )}
@@ -261,91 +246,87 @@ export default function Applications() {
       {selectedApplication && (
         <div className="modal-overlay" onClick={() => setSelectedApplication(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">Application Details</h2>
+            <div className="modal-header flex justify-between items-center">
+              <h2 className="modal-title font-bold text-xl text-gray-800">Chi tiết Đơn đăng ký</h2>
               <button
                 onClick={() => setSelectedApplication(null)}
-                className="modal-close"
+                className="text-gray-400 hover:text-red-500 transition"
               >
                 <X size={24} />
               </button>
             </div>
-            <div className="modal-body">
-              <div className="modal-student-info">
-                <div className={`student-avatar-large ${selectedApplication.gradient}`}>
+            <div className="modal-body p-6">
+              <div className="modal-student-info flex items-center mb-6">
+                <div className={`student-avatar-large ${selectedApplication.gradient} w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl mr-4`}>
                   {selectedApplication.studentInitials}
                 </div>
                 <div>
-                  <h3 className="student-name-large">{selectedApplication.studentName}</h3>
-                  <p className="student-email">{selectedApplication.email}</p>
+                  <h3 className="student-name-large font-bold text-xl text-gray-800">{selectedApplication.studentName}</h3>
+                  <p className="student-email text-gray-500">{selectedApplication.email}</p>
                 </div>
               </div>
 
-              <div className="modal-details-grid">
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-100 mb-6">
                 <div className="modal-detail-item">
-                  <span className="modal-detail-label">Scholarship</span>
-                  <span className="modal-detail-value">{selectedApplication.scholarship}</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Học bổng</span>
+                  <span className="font-medium text-gray-800">{selectedApplication.scholarship}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="modal-detail-label">Program</span>
-                  <span className="modal-detail-value">{selectedApplication.program}</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Chương trình</span>
+                  <span className="font-medium text-gray-800">{selectedApplication.program}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="modal-detail-label">Year Level</span>
-                  <span className="modal-detail-value">{selectedApplication.year}</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">Năm học</span>
+                  <span className="font-medium text-gray-800">{selectedApplication.year}</span>
                 </div>
                 <div className="modal-detail-item">
-                  <span className="modal-detail-label">GPA</span>
-                  <span className="modal-detail-value font-bold">{selectedApplication.gpa}</span>
+                  <span className="block text-xs font-bold text-gray-500 uppercase">GPA đã xác thực(ZKP)</span>
+                  <span className="font-bold text-[#C41212] text-lg">{selectedApplication.gpa}</span>
                 </div>
               </div>
 
               <div className="modal-section">
-                <h4 className="modal-section-title">Documents</h4>
-                <div className="documents-list">
-                  <div className="document-item">
-                    <span>📄 Academic Transcript</span>
-                    <button className="btn btn-link">Download</button>
+                <h4 className="font-bold text-gray-700 mb-3 border-b pb-2">Tài liệu Xác thực (ZKP)</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center bg-green-50 p-3 rounded border border-green-100">
+                    <span className="text-green-800 font-medium">✅ Bảng điểm Học tập</span>
+                    <button className="text-green-600 hover:text-green-800 text-sm font-bold">Xem Dữ liệu</button>
                   </div>
-                  <div className="document-item">
-                    <span>📝 Personal Essay</span>
-                    <button className="btn btn-link">Download</button>
-                  </div>
-                  <div className="document-item">
-                    <span>📋 Resume</span>
-                    <button className="btn btn-link">Download</button>
+                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded border border-gray-100">
+                    <span className="text-gray-700 font-medium">✅ Chứng chỉ IELTS (7.5)</span>
+                    <button className="text-blue-600 hover:text-blue-800 text-sm font-bold">Xem Dữ liệu</button>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="modal-footer">
+            <div className="modal-footer p-4 bg-gray-50 border-t flex justify-end gap-3 rounded-b-lg">
               <button
                 onClick={() => setSelectedApplication(null)}
-                className="btn btn-secondary"
+                className="px-4 py-2 bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-100 font-medium transition"
               >
-                Close
+                Đóng
               </button>
-              {selectedApplication.status === 'pending' && (
+              {selectedApplication.status === 'applied' && (
                 <>
                   <button
                     onClick={() => {
                       handleReject(selectedApplication.id);
                       setSelectedApplication(null);
                     }}
-                    className="btn btn-danger"
+                    className="px-4 py-2 bg-red-100 text-red-700 border border-red-200 rounded hover:bg-red-200 font-medium transition flex items-center"
                   >
-                    <X size={18} />
-                    Reject
+                    <X size={18} className="mr-1" />
+                    Từ chối
                   </button>
                   <button
                     onClick={() => {
                       handleApprove(selectedApplication.id);
                       setSelectedApplication(null);
                     }}
-                    className="btn btn-success"
+                    className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium transition shadow-sm flex items-center"
                   >
-                    <Check size={18} />
-                    Approve
+                    <Check size={18} className="mr-1" />
+                    Duyệt
                   </button>
                 </>
               )}

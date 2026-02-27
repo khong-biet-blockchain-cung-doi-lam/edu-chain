@@ -38,30 +38,30 @@ export default function Analytics() {
 
   const stats = [
     {
-      title: 'Total Investment',
+      title: 'Tổng mức Đầu tư',
       value: '$125,000',
-      change: '+15% vs last year',
+      change: '+15% so với năm ngoái',
       icon: DollarSign,
       color: 'blue'
     },
     {
-      title: 'Students Supported',
+      title: 'Số sinh viên được hỗ trợ',
       value: '156',
-      change: '+23% growth',
+      change: 'Tăng trưởng +23%',
       icon: Users,
       color: 'green'
     },
     {
-      title: 'Scholarships Awarded',
+      title: 'Số Học bổng đã cấp',
       value: '42',
-      change: '12 active programs',
+      change: '12 chương trình đang mở',
       icon: Award,
       color: 'purple'
     },
     {
-      title: 'Success Rate',
+      title: 'Tỷ lệ Thành công',
       value: '68%',
-      change: '+5% improvement',
+      change: 'Cải thiện +5%',
       icon: TrendingUp,
       color: 'orange'
     }
@@ -71,8 +71,8 @@ export default function Analytics() {
     <div className="analytics-page">
       <div className="analytics-header">
         <div>
-          <h1 className="analytics-title">Analytics & Reports</h1>
-          <p className="analytics-subtitle">Track your scholarship program performance</p>
+          <h1 className="analytics-title">Phân tích & Báo cáo</h1>
+          <p className="analytics-subtitle">Theo dõi hiệu quả chương trình học bổng của bạn</p>
         </div>
         <div className="analytics-actions">
           <select
@@ -80,14 +80,14 @@ export default function Analytics() {
             onChange={(e) => setTimeRange(e.target.value)}
             className="time-range-select"
           >
-            <option value="1month">Last Month</option>
-            <option value="3months">Last 3 Months</option>
-            <option value="6months">Last 6 Months</option>
-            <option value="1year">Last Year</option>
+            <option value="1month">Tháng trước</option>
+            <option value="3months">3 Tháng trước</option>
+            <option value="6months">6 Tháng trước</option>
+            <option value="1year">Năm ngoái</option>
           </select>
           <button className="btn btn-primary">
             <Download size={18} />
-            Export Report
+            Xuất Báo cáo
           </button>
         </div>
       </div>
@@ -116,8 +116,8 @@ export default function Analytics() {
         {/* Application Trends */}
         <div className="chart-card">
           <div className="chart-header">
-            <h3 className="chart-title">Application Trends</h3>
-            <p className="chart-subtitle">Applications vs Approvals over time</p>
+            <h3 className="chart-title">Xu hướng Đăng ký</h3>
+            <p className="chart-subtitle">Lượng Đăng ký vs Phê duyệt theo thời gian</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -139,14 +139,14 @@ export default function Analytics() {
                   dataKey="applications" 
                   stroke="#2563eb" 
                   strokeWidth={2}
-                  name="Applications"
+                  name="Đăng ký"
                 />
                 <Line 
                   type="monotone" 
                   dataKey="approved" 
                   stroke="#10b981" 
                   strokeWidth={2}
-                  name="Approved"
+                  name="Đã duyệt"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -156,8 +156,8 @@ export default function Analytics() {
         {/* Program Distribution */}
         <div className="chart-card">
           <div className="chart-header">
-            <h3 className="chart-title">Program Distribution</h3>
-            <p className="chart-subtitle">Applicants by field of study</p>
+            <h3 className="chart-title">Phân bổ Ngành học</h3>
+            <p className="chart-subtitle">Ứng viên theo lĩnh vực học</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -185,8 +185,8 @@ export default function Analytics() {
         {/* Year Level Distribution */}
         <div className="chart-card chart-card-full">
           <div className="chart-header">
-            <h3 className="chart-title">Year Level Distribution</h3>
-            <p className="chart-subtitle">Applicants by academic year</p>
+            <h3 className="chart-title">Phân bổ theo Năm học</h3>
+            <p className="chart-subtitle">Ứng viên theo bậc năm học</p>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={300}>
@@ -211,32 +211,32 @@ export default function Analytics() {
 
       {/* Performance Insights */}
       <div className="insights-section">
-        <h2 className="insights-title">Key Insights</h2>
+        <h2 className="insights-title">Thông tin Nổi bật</h2>
         <div className="insights-grid">
           <div className="insight-card">
             <div className="insight-icon success">✓</div>
             <div className="insight-content">
-              <h4 className="insight-heading">Strong Growth</h4>
+              <h4 className="insight-heading">Tăng trưởng Mạnh</h4>
               <p className="insight-text">
-                Applications increased by 23% compared to last year, showing strong program visibility
+                Đơn đăng ký tăng 23% so với năm ngoái, cho thấy độ nhận diện của chương trình rất cao
               </p>
             </div>
           </div>
           <div className="insight-card">
             <div className="insight-icon info">ℹ</div>
             <div className="insight-content">
-              <h4 className="insight-heading">Popular Programs</h4>
+              <h4 className="insight-heading">Chương trình Phổ biến</h4>
               <p className="insight-text">
-                Computer Science and Engineering programs attract 63% of total applications
+                Chương trình Khoa học máy tính và Kỹ thuật thu hút 63% tổng số hồ sơ
               </p>
             </div>
           </div>
           <div className="insight-card">
             <div className="insight-icon warning">⚠</div>
             <div className="insight-content">
-              <h4 className="insight-heading">Seasonal Trend</h4>
+              <h4 className="insight-heading">Xu hướng Mùa vụ</h4>
               <p className="insight-text">
-                Peak application period is April-June, consider increasing resources during this time
+                Thời gian cao điểm nộp đơn là từ tháng 4 đến tháng 6, xem xét tăng cường nguồn lực hỗ trợ trong thời gian này
               </p>
             </div>
           </div>

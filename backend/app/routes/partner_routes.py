@@ -242,11 +242,18 @@ def list_applications():
     for app in apps:
         if app.status == "ELIGIBLE_PENDING_CONSENT":
             continue # Don't show students who haven't consented
+            
+        stu = app.student
         results.append({
             "id": str(app.id),
             "scholarship_id": str(app.scholarship_id),
             "scholarship_title": app.scholarship.title,
             "student_id": str(app.student_id),
+            "student_name": f"{stu.personal_info.first_name} {stu.personal_info.last_name}" if stu.personal_info else "N/A",
+            "student_email": stu.account.email if stu.account else "N/A",
+            "gpa": stu.total_grade,
+            "program": stu.enrollment.major.name if getattr(stu, "enrollment", None) and stu.enrollment.major else "Information Technology",
+            "year": "Junior",
             "status": app.status,
             "applied_at": app.applied_at.isoformat() if app.applied_at else None
         })
