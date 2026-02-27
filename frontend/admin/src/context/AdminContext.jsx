@@ -2,13 +2,29 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const AdminContext = createContext();
 
-// Định nghĩa quyền sidebar theo role
+// Nhãn hiển thị theo role
 export const ROLE_DISPLAY = {
   ADMIN:      'Quản trị hệ thống',
   QL_DAO_TAO: 'Phòng Quản lý Đào tạo',
   KHAO_THI:   'Phòng Khảo thí',
   KHOA:       'Văn phòng Khoa',
 };
+
+// Normalize legacy roles → new roles
+const LEGACY_ROLE_MAP = {
+  'staff': 'QL_DAO_TAO',
+  'STAFF': 'QL_DAO_TAO',
+  'student': 'SINH_VIEN',
+  'lecturer': 'GIANG_VIEN',
+  'partner': 'PARTNER',
+};
+
+function normalizeRole(rawRole) {
+  if (!rawRole) return null;
+  const upper = rawRole.toUpperCase();
+  // Map legacy → new
+  return LEGACY_ROLE_MAP[rawRole] || LEGACY_ROLE_MAP[upper] || upper;
+}
 
 export function AdminProvider({ children }) {
   const [admin, setAdmin] = useState(null);
@@ -21,21 +37,36 @@ export function AdminProvider({ children }) {
     const urlUser  = params.get('userData');
 
     if (urlToken && urlUser) {
-      localStorage.setItem('authToken', urlToken);
-      localStorage.setItem('userData', urlUser);
-      const parsedUser = JSON.parse(decodeURIComponent(urlUser));
-      const role = (parsedUser.role || '').toUpperCase();
-      localStorage.setItem('userRole', role);
-      setAdmin(parsedUser);
-      setCurrentRole(role);
+      try {
+        localStorage.setItem('authToken', urlToken);
+        localStorage.setItem('userData', urlUser);
+        // URLSearchParams.get() already decodes once — do NOT double-decode
+        const parsedUser = JSON.parse(urlUser);
+        const role = normalizeRole(parsedUser.role);
+        localStorage.setItem('userRole', role || '');
+        setAdmin(parsedUser);
+        setCurrentRole(role);
+        console.log('[AdminContext] Login URL — role:', role, 'raw:', parsedUser.role);
+      } catch (e) {
+        console.error('[AdminContext] Failed to parse userData from URL:', e);
+      }
+      // Xóa params khỏi URL
       window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       const adminData = localStorage.getItem('userData');
       const token     = localStorage.getItem('authToken');
       const savedRole = localStorage.getItem('userRole');
       if (adminData && token) {
-        setAdmin(JSON.parse(adminData));
-        setCurrentRole((savedRole || '').toUpperCase());
+        try {
+          const parsed = JSON.parse(adminData);
+          // Re-normalize in case old localStorage has legacy role
+          const role = normalizeRole(savedRole) || normalizeRole(parsed.role);
+          setAdmin(parsed);
+          setCurrentRole(role);
+          console.log('[AdminContext] localStorage — role:', role, 'savedRole:', savedRole);
+        } catch (e) {
+          console.error('[AdminContext] Failed to parse userData from localStorage:', e);
+        }
       }
     }
     setLoading(false);
@@ -54,13 +85,7 @@ export function AdminProvider({ children }) {
     window.location.href = loginUrl;
   };
 
-  const value = {
-    admin,
-    currentRole,    // 'ADMIN' | 'QL_DAO_TAO' | 'KHAO_THI' | 'KHOA'
-    loading,
-    updateAdmin,
-    logout,
-  };
+  const value = { admin, currentRole, loading, updateAdmin, logout };
 
   return (
     <AdminContext.Provider value={value}>
