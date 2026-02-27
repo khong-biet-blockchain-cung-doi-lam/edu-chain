@@ -36,9 +36,12 @@ const LoginSignup = () => {
 
         // Cổng chia luồng (SSO Router)
         const roleNormalized = role.toUpperCase();
-        if (roleNormalized === "STAFF" || roleNormalized === "QL_DAO_TAO" || role === "staff") {
+        const ADMIN_ROLES = ["ADMIN", "QL_DAO_TAO", "KHAO_THI", "KHOA", "STAFF", "staff"];
+
+        if (ADMIN_ROLES.includes(roleNormalized)) {
+          // Tất cả nhân viên phòng ban → cổng Admin (port 5004)
           window.location.href = `http://localhost:5004/?token=${token}&userData=${userData}`;
-        } else if (roleNormalized === "PARTNER" || role === "partner") {
+        } else if (roleNormalized === "PARTNER") {
           window.location.href = `http://localhost:5003/?token=${token}&userData=${userData}`;
         } else if (roleNormalized === "SINH_VIEN" || role === "student") {
           window.location.href = `http://localhost:5005/?token=${token}&userData=${userData}`;
@@ -47,6 +50,7 @@ const LoginSignup = () => {
         } else {
            alert("Đăng nhập thành công nhưng chưa có portal cho quyền này: " + role);
         }
+
       } else {
         setErrorMsg(data.msg || "Tên đăng nhập hoặc mật khẩu không đúng.");
       }

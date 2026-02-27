@@ -5,6 +5,7 @@ from app.routes.student_routes import bp_student, bp_student_portal
 from app.routes.academic_routes import bp_academic
 from app.routes.lecturer_routes import bp_lecturer
 from app.routes.encryption_routes import bp_encrypt, bp_decrypt
+from app.routes.khao_thi_routes import bp_khao_thi
 from app.models import (
     organization_model,
     partner_model,
@@ -50,5 +51,7 @@ def create_app(config_object=None):
     app.register_blueprint(bp_organization)
     app.register_blueprint(bp_encrypt)     # Mã hóa
     app.register_blueprint(bp_decrypt)     # Giải mã
+    app.register_blueprint(bp_khao_thi)    # Phòng Khảo thí
 
     return app
+

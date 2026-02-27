@@ -1,0 +1,190 @@
+/* GradeManagement.css */
+
+.grade-mgmt-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.grade-mgmt-header { display: flex; align-items: flex-start; }
+.grade-mgmt-title { font-size: 1.6rem; font-weight: 800; color: #0f172a; margin: 0 0 0.25rem; }
+.grade-mgmt-subtitle { font-size: 0.875rem; color: #64748b; margin: 0; }
+
+.grade-mgmt-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+}
+
+.grade-search { position: relative; flex: 1; }
+.grade-search-icon { position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+.grade-search-input {
+    width: 100%;
+    padding: 0.65rem 1rem 0.65rem 2.4rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+    box-sizing: border-box;
+    background: #f8fafc;
+}
+.grade-search-input:focus { border-color: #6366f1; background: white; }
+
+.grade-btn-refresh {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.1rem;
+    background: #f1f5f9;
+    color: #374151;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.grade-loading, .grade-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    color: #94a3b8;
+    gap: 0.75rem;
+}
+
+/* Student cards */
+.grade-student-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.grade-student-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.grade-student-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+}
+.grade-student-header:hover { background: #f8fafc; }
+
+.grade-student-info { display: flex; align-items: center; gap: 1rem; }
+.grade-student-code { font-weight: 800; font-size: 0.95rem; color: #1e293b; }
+.grade-student-name { font-size: 0.875rem; color: #374151; }
+.grade-subject-count {
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+}
+.grade-student-toggle { color: #94a3b8; }
+
+/* Grade detail panel */
+.grade-detail {
+    border-top: 1px solid #f1f5f9;
+    overflow-x: auto;
+}
+
+.grade-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.825rem;
+}
+.grade-table th {
+    padding: 0.7rem 0.75rem;
+    background: #f8fafc;
+    font-weight: 700;
+    font-size: 0.72rem;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+}
+.grade-table td {
+    padding: 0.7rem 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: #374151;
+}
+.grade-table tbody tr:hover { background: #fafafa; }
+.grade-table tbody tr:last-child td { border-bottom: none; }
+
+/* Status badge */
+.grade-status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+/* Inline edit input */
+.grade-input {
+    width: 70px;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid #6366f1;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    outline: none;
+    text-align: center;
+}
+
+/* Action buttons */
+.grade-actions-col { display: flex; gap: 0.4rem; }
+.grade-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+}
+.grade-action.edit     { background: #e0e7ff; color: #3730a3; }
+.grade-action.finalize { background: #dcfce7; color: #15803d; }
+.grade-action.delete   { background: #fee2e2; color: #b91c1c; }
+.grade-action.save     { background: #10b981; color: white; }
+.grade-action.cancel   { background: #f1f5f9; color: #64748b; }
+.grade-action:hover { filter: brightness(0.92); transform: translateY(-1px); }
+.grade-action:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+/* Toast */
+.grade-toast {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    animation: slideInTop 0.3s ease;
+}
+@keyframes slideInTop {
+    from { transform: translateY(-20px); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+}
+.grade-toast.success { background: #10b981; color: white; }
+.grade-toast.error   { background: #ef4444; color: white; }
+.grade-toast.info    { background: #6366f1; color: white; }
