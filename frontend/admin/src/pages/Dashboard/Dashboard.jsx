@@ -57,15 +57,7 @@ export default function Dashboard() {
     }
   ];
 
-  const userGrowthData = [
-    { month: 'T1', students: 6500, teachers: 450, organizations: 120 },
-    { month: 'T2', students: 7200, teachers: 480, organizations: 135 },
-    { month: 'T3', students: 7800, teachers: 510, organizations: 148 },
-    { month: 'T4', students: 8100, teachers: 530, organizations: 156 },
-    { month: 'T5', students: 8500, teachers: 560, organizations: 168 },
-    { month: 'T6', students: 8721, teachers: 580, organizations: 175 }
-  ];
-
+ 
   const activityData = [
     { day: 'T2', logins: 2400, registrations: 145 },
     { day: 'T3', logins: 2800, registrations: 198 },
@@ -204,34 +196,7 @@ export default function Dashboard() {
 
       {/* Charts Section */}
       <div className="charts-section">
-        <div className="chart-card chart-large">
-          <div className="chart-header">
-            <div>
-              <h3 className="chart-title">Tăng trưởng Người dùng</h3>
-              <p className="chart-subtitle">Lượng người dùng mới trong 6 tháng qua</p>
-            </div>
-          </div>
-          <div className="chart-body">
-            <ResponsiveContainer width="100%" height={350}>
-              <LineChart data={userGrowthData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="month" stroke="#94a3b8" />
-                <YAxis stroke="#94a3b8" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '8px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                  }}
-                />
-                <Line type="monotone" dataKey="students" stroke="#2563eb" strokeWidth={2} name="Sinh viên" />
-                <Line type="monotone" dataKey="teachers" stroke="#10b981" strokeWidth={2} name="Giảng viên" />
-                <Line type="monotone" dataKey="organizations" stroke="#8b5cf6" strokeWidth={2} name="Đối tác" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
+        
 
         <div className="chart-card chart-medium">
           <div className="chart-header">
