@@ -32,14 +32,30 @@ bp_khao_thi = Blueprint("khao_thi", __name__, url_prefix="/api/khao-thi")
 @jwt_required()
 @role_required(Role.KHAO_THI, Role.ADMIN)
 def list_students_with_grades():
-    """Xem danh sách sinh viên kèm tổng quan điểm"""
-    students = Student.query.all()
+    """Xem danh sách sinh viên kèm tổng quan điểm, có thể lọc theo lớp"""
+    class_id = request.args.get('class_id')
+    
+    if class_id:
+        try:
+            class_uuid = uuid.UUID(class_id)
+            # Lấy sinh viên có điểm trong lớp này
+            grades = Grade.query.filter_by(course_class_id=class_uuid).all()
+            student_ids = list(set([g.student_id for g in grades]))
+            students = Student.query.filter(Student.id.in_(student_ids)).all()
+        except Exception:
+            students = []
+    else:
+        students = Student.query.all()
+
     result = []
     for s in students:
         full_name = ""
         if s.personal_info:
             pi = s.personal_info
             full_name = f"{pi.first_name or ''} {pi.last_name or ''}".strip()
+        
+        # Nếu đang lọc theo lớp, chỉ đếm điểm của lớp đó hoặc tổng? 
+        # Để đơn giản, cứ đếm tổng số học phần SV đó có
         grade_count = Grade.query.filter_by(student_id=s.id).count()
         result.append({
             "id": str(s.id),
@@ -87,20 +103,85 @@ def get_student_grades(student_id):
             }
         grades_list.append({
             "grade_id": str(g.id),
-            **class_info,
             "regular_score": g.regular_score,
             "midterm_score": g.midterm_score,
             "final_score": g.final_score,
             "total_score": g.total_score,
             "status": g.status,
-            "is_finalized": getattr(g, 'is_finalized', False),
+            "is_finalized": g.is_finalized,
+            "is_pending_review": g.is_pending_review,
+            "review_notes": g.review_notes,
+            "class_id": str(g.course_class_id) if g.course_class_id else None,
+            "class_name": g.course_class.name if g.course_class else None,
+            "subject_name": g.course_class.subject.name if g.course_class and g.course_class.subject else None
         })
 
     return jsonify({
+        "student_id": str(student.id),
         "student_code": student.student_id,
         "full_name": full_name,
         "grades": grades_list,
     }), 200
+
+
+# ================================================================
+# GET /api/khao-thi/classes — Lấy danh sách lớp học để quản lý
+# ================================================================
+
+@bp_khao_thi.route("/classes", methods=["GET"])
+@jwt_required()
+@role_required(Role.KHAO_THI, Role.ADMIN)
+def get_classes():
+    """Lấy danh sách các lớp học kèm theo thống kê trạng thái điểm"""
+    classes = CourseClass.query.all()
+    classes_list = []
+    
+    for c in classes:
+        total_students = len(c.grades)
+        finalized_count = sum(1 for g in c.grades if g.is_finalized)
+        pending_count = sum(1 for g in c.grades if g.is_pending_review)
+        
+        classes_list.append({
+            "id": str(c.id),
+            "name": c.name,
+            "class_code": c.class_code,
+            "subject": c.subject.name if c.subject else None,
+            "lecturer": c.lecturer.full_name if c.lecturer else "Chưa phân công",
+            "stats": {
+                "total": total_students,
+                "finalized": finalized_count,
+                "pending": pending_count
+            },
+            "status": "Đã chốt" if total_students > 0 and finalized_count == total_students else ("Chờ xét duyệt" if pending_count > 0 else "Chưa chốt")
+        })
+        
+    return jsonify(classes_list), 200
+
+# ================================================================
+# PATCH /api/khao-thi/grades/<grade_id>/notes — Cập nhật chú thích
+# ================================================================
+
+@bp_khao_thi.route("/grades/<grade_id>/notes", methods=["PATCH"])
+@jwt_required()
+@role_required(Role.KHAO_THI, Role.ADMIN)
+def update_grade_notes(grade_id):
+    """Cập nhật chú thích/nhận xét của phòng Khảo thí cho giảng viên"""
+    try:
+        grade_uuid = uuid.UUID(grade_id)
+    except ValueError:
+        return jsonify({"msg": "ID không hợp lệ"}), 400
+
+    data = request.get_json()
+    notes = data.get("notes")
+    
+    grade = db.session.get(Grade, grade_uuid)
+    if not grade:
+        return jsonify({"msg": "Không tìm thấy bản ghi điểm"}), 404
+
+    grade.review_notes = notes
+    db.session.commit()
+    
+    return jsonify({"msg": "Đã cập nhật chú thích thành công", "notes": notes}), 200
 
 
 # ================================================================
@@ -142,7 +223,34 @@ def update_grade(grade_id):
 
 
 # ================================================================
-# PATCH /api/khao-thi/grades/<grade_id>/finalize — Chốt điểm
+# PATCH /api/khao-thi/classes/<class_id>/finalize — Chốt điểm cả lớp
+# ================================================================
+
+@bp_khao_thi.route("/classes/<class_id>/finalize", methods=["PATCH"])
+@jwt_required()
+@role_required(Role.KHAO_THI, Role.ADMIN)
+def finalize_class_grades(class_id):
+    """Chốt điểm chính thức cho toàn bộ lớp học"""
+    try:
+        class_uuid = uuid.UUID(class_id)
+    except ValueError:
+        return jsonify({"msg": "ID không hợp lệ"}), 400
+
+    course_class = db.session.get(CourseClass, class_uuid)
+    if not course_class:
+        return jsonify({"msg": "Không tìm thấy lớp học"}), 404
+
+    for grade in course_class.grades:
+        grade.is_finalized = True
+        grade.is_pending_review = False
+        grade.status = "Đã chốt"
+
+    db.session.commit()
+    return jsonify({"msg": "Đã chốt điểm toàn bộ lớp học thành công"}), 200
+
+
+# ================================================================
+# PATCH /api/khao-thi/grades/<grade_id>/finalize — Chốt điểm lẻ
 # ================================================================
 
 @bp_khao_thi.route("/grades/<grade_id>/finalize", methods=["PATCH"])
@@ -155,13 +263,12 @@ def finalize_grade(grade_id):
     except ValueError:
         return jsonify({"msg": "ID không hợp lệ"}), 400
 
-    grade = Grade.query.get(grade_uuid)
+    grade = db.session.get(Grade, grade_uuid)
     if not grade:
         return jsonify({"msg": "Không tìm thấy bản ghi điểm"}), 404
 
-    # Chốt điểm — giảng viên không thể sửa sau khi chốt
-    if hasattr(grade, 'is_finalized'):
-        grade.is_finalized = True
+    grade.is_finalized = True
+    grade.is_pending_review = False
     grade.status = "Đã chốt"
 
     db.session.commit()

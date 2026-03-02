@@ -29,11 +29,18 @@ def upload_students():
 @bp_student_portal.route("/profile", methods=["GET"])
 @jwt_required()
 def get_student_profile():
+    import uuid
     current_account_id = get_jwt_identity()
     
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except Exception as e:
+        print(f"DEBUG: Student Identity Error: {e}")
+        return jsonify({"msg": "Invalid identity format", "error": str(e)}), 401
+
     if not account or not account.student:
-        return jsonify({"msg": "Không tìm thấy thông tin sinh viên"}), 404
+        return jsonify({"msg": "Không tìm thấy hồ sơ sinh viên tương ứng với tài khoản"}), 404
 
     student = account.student
     
@@ -53,6 +60,7 @@ def get_student_profile():
             "national_id": p_info.national_id_number if p_info else "",
             "class_name": p_info.class_name if p_info else "",
             "academic_status": p_info.academic_status if p_info else "",
+            "is_locked": p_info.is_locked if p_info else False,
         },
         
         "contact_info": {
@@ -75,8 +83,14 @@ def get_student_profile():
 @bp_student_portal.route("/profile", methods=["PUT"])
 @jwt_required()
 def update_student_profile():
+    import uuid
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Unauthorized"}), 401
 
@@ -119,6 +133,9 @@ def update_student_profile():
         )
         db.session.add(p_info)
 
+    if p_info.is_locked:
+        return jsonify({"msg": "Hồ sơ đã bị khóa, vui lòng liên hệ phòng QLĐT để mở khóa"}), 403
+
     if "first_name" in data:
         p_info.first_name = data["first_name"]
     if "last_name" in data:
@@ -139,14 +156,21 @@ def update_student_profile():
         except ValueError:
             return jsonify({"msg": "Invalid date format. Use YYYY-MM-DD"}), 400
             
+    p_info.is_locked = True
     db.session.commit()
-    return jsonify({"msg": "Profile updated successfully"}), 200
+    return jsonify({"msg": "Hồ sơ đã được cập nhật và khóa thành công"}), 200
 
 @bp_student_portal.route("/grades", methods=["GET"])
 @jwt_required()
 def get_student_grades():
+    import uuid
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Student not found"}), 404
 
@@ -176,8 +200,14 @@ def get_student_grades():
 @bp_student_portal.route("/grades/<grade_id>/review", methods=["POST"])
 @jwt_required()
 def request_grade_review(grade_id):
+    import uuid
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Student not found"}), 404
 
@@ -209,9 +239,15 @@ def request_grade_review(grade_id):
 @jwt_required()
 def get_available_classes():
     """Lấy danh sách tất cả lớp học phần để đăng ký"""
+    import uuid
     from app.models.course_models import CourseClass
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Student not found"}), 404
 
@@ -241,17 +277,22 @@ def get_available_classes():
 @jwt_required()
 def enroll_class(class_id):
     """Đăng ký học phần"""
+    import uuid
     from app.models.course_models import CourseClass
-    import uuid as _uuid
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Student not found"}), 404
 
     student = account.student
     
     try:
-        class_uuid = _uuid.UUID(class_id)
+        class_uuid = uuid.UUID(class_id)
     except:
         return jsonify({"msg": "Invalid class ID"}), 400
 
@@ -276,15 +317,20 @@ def enroll_class(class_id):
 @jwt_required()
 def drop_class(class_id):
     """Hủy đăng ký học phần"""
-    import uuid as _uuid
+    import uuid
     current_account_id = get_jwt_identity()
-    account = Account.query.get(current_account_id)
+    try:
+        user_uuid = uuid.UUID(current_account_id) if isinstance(current_account_id, str) else current_account_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return jsonify({"msg": "Invalid identity"}), 401
+
     if not account or not account.student:
         return jsonify({"msg": "Student not found"}), 404
 
     student = account.student
     try:
-        class_uuid = _uuid.UUID(class_id)
+        class_uuid = uuid.UUID(class_id)
     except:
         return jsonify({"msg": "Invalid class ID"}), 400
 

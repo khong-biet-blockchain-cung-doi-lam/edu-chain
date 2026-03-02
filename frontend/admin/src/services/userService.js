@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('authToken');
@@ -104,6 +104,20 @@ const userService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching user statistics:', error);
+      throw error;
+    }
+  },
+
+  unlockStudentProfile: async (studentId) => {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/management/students/${studentId}/unlock`,
+        {},
+        getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error unlocking student profile:', error);
       throw error;
     }
   }

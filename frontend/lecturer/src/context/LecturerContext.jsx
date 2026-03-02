@@ -12,16 +12,20 @@ export function LecturerProvider({ children }) {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Initial auth check from URL
         const queryParams = new URLSearchParams(window.location.search);
-        const token = queryParams.get('token');
-        
-        if (token) {
-            localStorage.setItem('access_token', token);
-            window.history.replaceState({}, document.title, window.location.pathname);
+        const tokenFromUrl = queryParams.get('token');
+
+        let token = tokenFromUrl || localStorage.getItem('access_token');
+        console.log("Lecturer Portal Auth Check:", { tokenFromUrl: !!tokenFromUrl, existingToken: !!localStorage.getItem('access_token') });
+
+        if (tokenFromUrl) {
+            localStorage.setItem('access_token', tokenFromUrl);
+            setTimeout(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 100);
         }
 
-        if (localStorage.getItem('access_token')) {
+        if (token) {
             setIsAuthenticated(true);
         }
         setLoading(false);

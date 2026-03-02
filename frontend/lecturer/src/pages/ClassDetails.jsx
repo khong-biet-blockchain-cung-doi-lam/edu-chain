@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axiosClient';
-import { ArrowLeft, Save, Loader2, CheckCircle2, UserCircle } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, CheckCircle2, UserCircle, MessageSquare } from 'lucide-react';
 
 export default function ClassDetails() {
     const { id } = useParams();
@@ -9,7 +9,7 @@ export default function ClassDetails() {
     const [students, setStudents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
-    
+
     // State for tracking inline edits
     const [editingGrades, setEditingGrades] = useState({});
     const [savingId, setSavingId] = useState(null);
@@ -19,11 +19,11 @@ export default function ClassDetails() {
         try {
             const res = await api.get(`/lecturer/classes/${id}`);
             setClassInfo(res.data.class_info);
-            
+
             // Format students and prepare editing state
             const studs = res.data.students || [];
             setStudents(studs);
-            
+
             const initialEdits = {};
             studs.forEach(s => {
                 initialEdits[s.grade_id] = {
@@ -33,7 +33,7 @@ export default function ClassDetails() {
                 };
             });
             setEditingGrades(initialEdits);
-            
+
         } catch (error) {
             console.error("Failed to fetch class details", error);
             setErrorMsg("Không thể tải thông tin lớp học");
@@ -47,7 +47,6 @@ export default function ClassDetails() {
     }, [id]);
 
     const handleScoreChange = (gradeId, field, value) => {
-        // Validate input logic can go here (e.g. 0-10)
         setEditingGrades(prev => ({
             ...prev,
             [gradeId]: {
@@ -60,8 +59,7 @@ export default function ClassDetails() {
     const handleSaveGrade = async (student) => {
         setSavingId(student.grade_id);
         const currentEdit = editingGrades[student.grade_id];
-        
-        // Convert to numbers or null
+
         const payload = {
             grade_id: student.grade_id,
             scores: {
@@ -73,8 +71,7 @@ export default function ClassDetails() {
 
         try {
             const res = await api.post('/lecturer/grades', payload);
-            
-            // Update local state with new total and status
+
             setStudents(prev => prev.map(s => {
                 if (s.grade_id === student.grade_id) {
                     return {
@@ -89,8 +86,6 @@ export default function ClassDetails() {
                 }
                 return s;
             }));
-            
-            // Temporary success highlight could be added here
         } catch (error) {
             console.error("Failed to save grade", error);
             alert("Lỗi khi lưu điểm: " + (error.response?.data?.msg || "Vui lòng thử lại"));
@@ -99,9 +94,27 @@ export default function ClassDetails() {
         }
     };
 
+    const handleRequestReview = async () => {
+        if (!window.confirm("Bạn có chắc chắn muốn gửi yêu cầu xét duyệt cho toàn bộ lớp học? Sau khi gửi, bạn sẽ không thể chỉnh sửa điểm cho đến khi có phản hồi từ phòng Khảo thí.")) return;
+
+        setLoading(true);
+        try {
+            await api.post(`/lecturer/classes/${id}/request-review`);
+            alert("Đã gửi yêu cầu xét duyệt thành công!");
+            fetchClassDetails();
+        } catch (error) {
+            console.error("Failed to request review", error);
+            alert("Lỗi khi gửi yêu cầu: " + (error.response?.data?.msg || "Vui lòng thử lại"));
+        } finally {
+            setLoading(false);
+        }
+    };
+
     if (loading) return <div className="p-8 text-center text-gray-500">Đang tải thông tin lớp học và danh sách sinh viên...</div>;
     if (errorMsg) return <div className="p-8 text-center text-red-500 font-bold">{errorMsg}</div>;
     if (!classInfo) return <div className="p-8 text-center text-gray-500">Không tìm thấy lớp học</div>;
+
+    const isLocked = classInfo.is_pending_review || classInfo.is_finalized;
 
     return (
         <div className="space-y-6">
@@ -117,9 +130,27 @@ export default function ClassDetails() {
                     <h2 className="text-xl font-bold text-gray-800">{classInfo.name}</h2>
                     <p className="text-gray-500 mt-1">Mã lớp: <span className="font-mono bg-gray-100 px-2 py-0.5 rounded text-[#C41212]">{classInfo.code}</span></p>
                 </div>
-                <div className="bg-red-50 px-4 py-2 rounded-lg text-right">
-                    <p className="text-xs text-red-800 font-bold uppercase mb-1">Môn học</p>
-                    <p className="font-bold text-[#C41212]">{classInfo.subject}</p>
+                <div className="flex flex-col items-end gap-2">
+                    <div className="bg-red-50 px-4 py-2 rounded-lg text-right">
+                        <p className="text-xs text-red-800 font-bold uppercase mb-1">Môn học</p>
+                        <p className="font-bold text-[#C41212]">{classInfo.subject}</p>
+                    </div>
+                    {classInfo.is_finalized ? (
+                        <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold flex items-center">
+                            <CheckCircle2 size={14} className="mr-1" /> ĐÃ CHỐT ĐIỂM
+                        </span>
+                    ) : classInfo.is_pending_review ? (
+                        <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold flex items-center">
+                            <Loader2 size={14} className="mr-1 animate-spin" /> ĐANG CHỜ XÉT DUYỆT
+                        </span>
+                    ) : (
+                        <button
+                            onClick={handleRequestReview}
+                            className="px-4 py-2 bg-[#C41212] text-white rounded-lg text-sm font-bold hover:bg-red-800 transition shadow-sm flex items-center gap-2"
+                        >
+                            <Save size={16} /> Gửi yêu cầu xét duyệt
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -147,11 +178,11 @@ export default function ClassDetails() {
                         <tbody className="divide-y divide-gray-100">
                             {students.map((s) => {
                                 const currentScores = editingGrades[s.grade_id] || {};
-                                const isDirty = 
+                                const isDirty =
                                     currentScores.regular !== (s.scores.regular ?? '') ||
                                     currentScores.midterm !== (s.scores.midterm ?? '') ||
                                     currentScores.final !== (s.scores.final ?? '');
-                                
+
                                 const isSaving = savingId === s.grade_id;
 
                                 return (
@@ -160,35 +191,49 @@ export default function ClassDetails() {
                                             <div className="flex items-center space-x-3">
                                                 <UserCircle className="text-gray-400" size={24} />
                                                 <div>
-                                                    <p className="font-bold text-gray-800">{s.full_name}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-bold text-gray-800">{s.full_name}</p>
+                                                        {s.review_notes && (
+                                                            <div className="group relative">
+                                                                <MessageSquare size={14} className="text-amber-500 cursor-help" />
+                                                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-gray-800 text-white text-xs rounded shadow-lg z-50">
+                                                                    {s.review_notes}
+                                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-800"></div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <p className="text-xs text-gray-500 font-mono mt-0.5">{s.student_id}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 text-center">
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 step="0.1" min="0" max="10"
-                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] disabled:bg-gray-50 disabled:text-gray-400"
                                                 value={currentScores.regular}
+                                                disabled={isLocked}
                                                 onChange={(e) => handleScoreChange(s.grade_id, 'regular', e.target.value)}
                                             />
                                         </td>
                                         <td className="px-4 py-4 text-center">
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 step="0.1" min="0" max="10"
-                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] disabled:bg-gray-50 disabled:text-gray-400"
                                                 value={currentScores.midterm}
+                                                disabled={isLocked}
                                                 onChange={(e) => handleScoreChange(s.grade_id, 'midterm', e.target.value)}
                                             />
                                         </td>
                                         <td className="px-4 py-4 text-center">
-                                            <input 
-                                                type="number" 
+                                            <input
+                                                type="number"
                                                 step="0.1" min="0" max="10"
-                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212]"
+                                                className="w-16 px-2 py-1.5 text-center border border-gray-300 rounded focus:outline-none focus:border-[#C41212] focus:ring-1 focus:ring-[#C41212] disabled:bg-gray-50 disabled:text-gray-400"
                                                 value={currentScores.final}
+                                                disabled={isLocked}
                                                 onChange={(e) => handleScoreChange(s.grade_id, 'final', e.target.value)}
                                             />
                                         </td>
@@ -200,13 +245,13 @@ export default function ClassDetails() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
-                                            <button 
+                                            <button
                                                 onClick={() => handleSaveGrade(s)}
-                                                disabled={!isDirty || isSaving}
+                                                disabled={!isDirty || isSaving || isLocked}
                                                 className={`flex items-center justify-center space-x-1 px-3 py-1.5 rounded text-xs font-medium transition w-24 mx-auto 
-                                                    ${isSaving ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : 
-                                                      isDirty ? 'bg-[#C41212] text-white hover:bg-red-800 shadow-sm' : 
-                                                      'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                                                    ${isSaving ? 'bg-gray-100 text-gray-500 cursor-not-allowed' :
+                                                        isDirty ? 'bg-[#C41212] text-white hover:bg-red-800 shadow-sm' :
+                                                            'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
                                             >
                                                 {isSaving ? (
                                                     <><Loader2 size={14} className="animate-spin" /> <span>Lưu...</span></>
@@ -220,7 +265,7 @@ export default function ClassDetails() {
                                     </tr>
                                 );
                             })}
-                            
+
                             {students.length === 0 && (
                                 <tr>
                                     <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
