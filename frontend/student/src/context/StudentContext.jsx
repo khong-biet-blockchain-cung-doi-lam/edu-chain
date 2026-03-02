@@ -27,20 +27,28 @@ export function StudentProvider({ children }) {
     };
 
     useEffect(() => {
-        // Initial auth check from URL
         const queryParams = new URLSearchParams(window.location.search);
-        const token = queryParams.get('token');
-        
-        if (token) {
-            localStorage.setItem('access_token', token);
-            window.history.replaceState({}, document.title, window.location.pathname);
+        const tokenFromUrl = queryParams.get('token');
+
+        console.log("Student Portal - Checking for token...");
+
+        let token = tokenFromUrl || localStorage.getItem('access_token');
+
+        if (tokenFromUrl) {
+            console.log("Token found in URL, updating localStorage");
+            localStorage.setItem('access_token', tokenFromUrl);
+            setTimeout(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 500);
         }
 
-        if (localStorage.getItem('access_token')) {
+        if (token) {
+            console.log("Token found. Fetching student profile...");
             fetchProfile();
         } else {
+            console.error("NO TOKEN FOUND in URL or localStorage");
             setLoading(false);
-            setErrorMsg("Không tìm thấy token xác thực");
+            setErrorMsg("Không tìm thấy token xác thực. Vui lòng đăng nhập lại từ trang http://localhost:3000.");
         }
     }, []);
 

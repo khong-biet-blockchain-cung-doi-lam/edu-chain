@@ -23,6 +23,7 @@ from app.models.student_model import Student
 from app.models.partner_model import Partner
 from app.models.staff_models import Staff, Lecturer
 from app.models.enums import Role, ROLE_EMAIL_DOMAIN, ROLE_CAN_CREATE
+from app.models.student_personal_info_model import StudentPersonalInfo
 from app.decorators import role_required, get_account_from_jwt
 import uuid
 import bcrypt
@@ -155,28 +156,32 @@ def list_accounts():
         return jsonify({"msg": "Không có quyền"}), 403
 
     results = []
-    for acc in accounts:
-        entry = {
-            "id": str(acc.id),
-            "username": acc.username,
-            "email": acc.email,
-            "role": acc.role,
-            "is_active": acc.is_active,
-        }
+    try:
+        for acc in accounts:
+            entry = {
+                "id": str(acc.id),
+                "username": acc.username,
+                "email": acc.email,
+                "role": acc.role,
+                "is_active": acc.is_active,
+            }
 
-        # QL_DAO_TAO: xem thêm thông tin hồ sơ sinh viên (không điểm)
-        if caller_role == Role.QL_DAO_TAO and acc.role == Role.SINH_VIEN:
-            entry.update(_get_student_profile_summary(acc))
+            # QL_DAO_TAO & ADMIN: xem thêm thông tin hồ sơ sinh viên (không điểm)
+            if caller_role in [Role.ADMIN, Role.QL_DAO_TAO] and acc.role == Role.SINH_VIEN:
+                entry.update(_get_student_profile_summary(acc))
 
-        # KHAO_THI: chỉ tên + mã SV (điểm lấy riêng qua /api/khao-thi/grades)
-        elif caller_role == Role.KHAO_THI and acc.role == Role.SINH_VIEN:
-            entry.update(_get_student_minimal(acc))
+            # KHAO_THI: chỉ tên + mã SV (điểm lấy riêng qua /api/khao-thi/grades)
+            elif caller_role == Role.KHAO_THI and acc.role == Role.SINH_VIEN:
+                entry.update(_get_student_minimal(acc))
 
-        # KHOA: xem thêm thông tin GV
-        elif caller_role == Role.KHOA and acc.role == Role.GIANG_VIEN:
-            entry.update(_get_lecturer_summary(acc))
+            # KHOA: xem thêm thông tin GV
+            elif caller_role == Role.KHOA and acc.role == Role.GIANG_VIEN:
+                entry.update(_get_lecturer_summary(acc))
 
-        results.append(entry)
+            results.append(entry)
+    except Exception as e:
+        import traceback
+        return jsonify({"msg": "Lỗi Backend: " + str(e), "trace": traceback.format_exc()}), 500
 
     return jsonify({"accounts": results, "total": len(results)}), 200
 
@@ -344,6 +349,34 @@ def toggle_account_status(account_id):
 
 
 # ================================================================
+# PATCH /api/management/students/<id>/unlock — Mở khóa hồ sơ
+# ================================================================
+
+@bp_management.route("/students/<student_id>/unlock", methods=["PATCH"])
+@jwt_required()
+@role_required(Role.ADMIN, Role.QL_DAO_TAO)
+def unlock_student_profile(student_id):
+    try:
+        student_id = uuid.UUID(student_id)
+    except ValueError:
+        return jsonify({"msg": "ID không hợp lệ"}), 400
+
+    from app.models.student_personal_info_model import StudentPersonalInfo
+    p_info = StudentPersonalInfo.query.get(student_id)
+    
+    if not p_info:
+        # Check if student exists but has no personal info row yet
+        student = Student.query.get(student_id)
+        if not student:
+            return jsonify({"msg": "Không tìm thấy sinh viên"}), 404
+        return jsonify({"msg": "Hồ sơ chưa được tạo, không cần mở khóa"}), 200
+
+    p_info.is_locked = False
+    db.session.commit()
+    return jsonify({"msg": "Đã mở khóa hồ sơ thành công"}), 200
+
+
+# ================================================================
 # HELPERS
 # ================================================================
 
@@ -362,6 +395,7 @@ def _get_student_profile_summary(acc: Account) -> dict:
             "gender": pi.gender,
             "national_id": pi.national_id_number,
             "academic_status": pi.academic_status,
+            "is_locked": pi.is_locked,
         })
     if hasattr(student, 'contact') and student.contact:
         c = student.contact

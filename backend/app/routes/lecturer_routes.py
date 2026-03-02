@@ -9,8 +9,16 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 bp_lecturer = Blueprint("lecturer", __name__, url_prefix="/api/lecturer")
 
 def get_current_lecturer():
+    import uuid
     current_user_id = get_jwt_identity()
-    account = Account.query.get(current_user_id)
+    if not current_user_id:
+        return None
+    try:
+        user_uuid = uuid.UUID(current_user_id) if isinstance(current_user_id, str) else current_user_id
+        account = db.session.get(Account, user_uuid)
+    except:
+        return None
+        
     if not account:
         return None
     return account.lecturer_profile 
@@ -43,14 +51,24 @@ def get_class_details(class_id):
     if not lecturer:
          return jsonify({"msg": "Unauthorized"}), 401
 
-    course_class = CourseClass.query.get(class_id)
+    import uuid
+    try:
+        class_uuid = uuid.UUID(class_id) if isinstance(class_id, str) else class_id
+        course_class = db.session.get(CourseClass, class_uuid)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
     if not course_class:
         return jsonify({"msg": "Class not found"}), 404
         
     if course_class.lecturer_id != lecturer.id:
         return jsonify({"msg": "Access denied"}), 403
 
-    grade_records = Grade.query.filter_by(course_class_id=class_id).all()
+    # Check if whole class is finalized or pending
+    is_class_pending = any(g.is_pending_review for g in course_class.grades)
+    is_class_finalized = all(g.is_finalized for g in course_class.grades) if course_class.grades else False
+
+    grade_records = Grade.query.filter_by(course_class_id=class_uuid).all()
     
     students_list = []
     for g in grade_records:
@@ -75,10 +93,12 @@ def get_class_details(class_id):
             
     return jsonify({
         "class_info": {
-            "id": course_class.id,
+            "id": str(course_class.id),
             "name": course_class.name,
             "code": course_class.class_code,
-            "subject": course_class.subject.name
+            "subject": course_class.subject.name,
+            "is_pending_review": is_class_pending,
+            "is_finalized": is_class_finalized
         },
         "students": students_list
     }), 200
@@ -94,12 +114,21 @@ def update_grade():
     grade_id = data.get("grade_id")
     scores = data.get("scores", {})
     
-    grade = Grade.query.get(grade_id)
+    import uuid
+    try:
+        grade_uuid = uuid.UUID(grade_id) if isinstance(grade_id, str) else grade_id
+        grade = db.session.get(Grade, grade_uuid)
+    except:
+        return jsonify({"msg": "Invalid grade ID"}), 400
+
     if not grade:
         return jsonify({"msg": "Grade record not found"}), 404
         
     if grade.course_class.lecturer_id != lecturer.id:
         return jsonify({"msg": "Access denied"}), 403
+
+    if grade.is_finalized or grade.is_pending_review:
+        return jsonify({"msg": "Grade is locked (pending review or finalized)"}), 403
 
     if "regular" in scores:
         grade.regular_score = scores["regular"]
@@ -114,7 +143,41 @@ def update_grade():
     
     db.session.commit()
     
-    return jsonify({"msg": "Grade updated", "status": grade.status, "total": grade.total_score}), 200
+    return jsonify({
+        "msg": "Grade updated", 
+        "status": grade.status, 
+        "total": grade.total_score,
+        "review_notes": grade.review_notes
+    }), 200
+
+@bp_lecturer.route("/classes/<class_id>/request-review", methods=["POST"])
+@jwt_required()
+def request_class_review(class_id):
+    lecturer = get_current_lecturer()
+    if not lecturer:
+         return jsonify({"msg": "Unauthorized"}), 401
+
+    import uuid
+    try:
+        class_uuid = uuid.UUID(class_id) if isinstance(class_id, str) else class_id
+        course_class = db.session.get(CourseClass, class_uuid)
+    except:
+        return jsonify({"msg": "Invalid class ID"}), 400
+
+    if not course_class:
+        return jsonify({"msg": "Class not found"}), 404
+
+    if course_class.lecturer_id != lecturer.id:
+        return jsonify({"msg": "Access denied"}), 403
+
+    # Mark all grades in this class as pending review
+    for grade in course_class.grades:
+        if not grade.is_finalized:
+            grade.is_pending_review = True
+            grade.status = "Chờ xét duyệt"
+
+    db.session.commit()
+    return jsonify({"msg": "Đã gửi yêu cầu xét duyệt cho toàn bộ lớp học"}), 200
 
 @bp_lecturer.route("/profile", methods=["GET"])
 @jwt_required()
@@ -212,7 +275,7 @@ def claim_class(class_id):
     except:
         return jsonify({"msg": "Invalid class ID"}), 400
 
-    course_class = CourseClass.query.get(class_uuid)
+    course_class = db.session.get(CourseClass, class_uuid)
     if not course_class:
         return jsonify({"msg": "Lớp học phần không tồn tại"}), 404
 
@@ -237,7 +300,7 @@ def release_class(class_id):
     except:
         return jsonify({"msg": "Invalid class ID"}), 400
 
-    course_class = CourseClass.query.get(class_uuid)
+    course_class = db.session.get(CourseClass, class_uuid)
     if not course_class or course_class.lecturer_id != lecturer.id:
         return jsonify({"msg": "Không có quyền với lớp này"}), 403
 

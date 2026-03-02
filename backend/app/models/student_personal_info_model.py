@@ -15,4 +15,5 @@ class StudentPersonalInfo(db.Model):
     religion = db.Column(db.Text)
     class_name = db.Column(db.Text)
     academic_status = db.Column(db.String(13))
+    is_locked = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())

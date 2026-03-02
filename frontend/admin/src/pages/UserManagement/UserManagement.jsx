@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Shield, CheckCircle, XCircle, Building2 } from 'lucide-react';
+import { Search, Plus, Trash2, Shield, CheckCircle, XCircle, Building2, Lock, Unlock } from 'lucide-react';
 import userService from '../../services/userService';
 import { useAdmin } from '../../context/AdminContext';
 import './UserManagement.css';
@@ -10,47 +10,47 @@ import './UserManagement.css';
 
 // Email domain gợi ý tự động
 const ROLE_DOMAIN = {
-  SINH_VIEN:  '@st.neu.edu.vn',
+  SINH_VIEN: '@st.neu.edu.vn',
   GIANG_VIEN: '@lt.neu.edu.vn',
-  PARTNER:    '@tp.neu.edu.vn',
+  PARTNER: '@tp.neu.edu.vn',
   QL_DAO_TAO: '@qldt.neu.edu.vn',
-  KHAO_THI:   '@kt.neu.edu.vn',
-  KHOA:       '@khoa.neu.edu.vn',
+  KHAO_THI: '@kt.neu.edu.vn',
+  KHOA: '@khoa.neu.edu.vn',
 };
 
 // Options tạo tài khoản theo caller-role
 const CREATABLE_ROLES = {
   ADMIN: [
     { value: 'QL_DAO_TAO', label: 'Phòng Quản lý Đào tạo', domain: '@qldt.neu.edu.vn' },
-    { value: 'KHAO_THI',   label: 'Phòng Khảo thí',        domain: '@kt.neu.edu.vn' },
-    { value: 'KHOA',       label: 'Văn phòng Khoa',         domain: '@khoa.neu.edu.vn' },
-    { value: 'PARTNER',    label: 'Đối tác / Doanh nghiệp', domain: '@tp.neu.edu.vn' },
+    { value: 'KHAO_THI', label: 'Phòng Khảo thí', domain: '@kt.neu.edu.vn' },
+    { value: 'KHOA', label: 'Văn phòng Khoa', domain: '@khoa.neu.edu.vn' },
+    { value: 'PARTNER', label: 'Đối tác / Doanh nghiệp', domain: '@tp.neu.edu.vn' },
   ],
   QL_DAO_TAO: [
-    { value: 'SINH_VIEN',  label: 'Sinh viên',              domain: '@st.neu.edu.vn' },
+    { value: 'SINH_VIEN', label: 'Sinh viên', domain: '@st.neu.edu.vn' },
   ],
   KHOA: [
-    { value: 'GIANG_VIEN', label: 'Giảng viên',             domain: '@lt.neu.edu.vn' },
+    { value: 'GIANG_VIEN', label: 'Giảng viên', domain: '@lt.neu.edu.vn' },
   ],
   KHAO_THI: [], // không tạo tài khoản
 };
 
 // Tiêu đề trang theo role
 const PAGE_CONFIG = {
-  ADMIN:      { title: 'Tạo Tài khoản Phòng ban', subtitle: 'Cấp tài khoản cho các phòng ban và đối tác' },
-  QL_DAO_TAO: { title: 'Quản lý Sinh viên',        subtitle: 'Tạo và quản lý tài khoản sinh viên' },
-  KHOA:       { title: 'Quản lý Giảng viên',       subtitle: 'Tạo và quản lý tài khoản giảng viên của khoa' },
-  KHAO_THI:   { title: 'Danh sách Sinh viên',      subtitle: 'Xem danh sách sinh viên (chỉ tên + mã)' },
+  ADMIN: { title: 'Tạo Tài khoản Phòng ban', subtitle: 'Cấp tài khoản cho các phòng ban và đối tác' },
+  QL_DAO_TAO: { title: 'Quản lý Sinh viên', subtitle: 'Tạo và quản lý tài khoản sinh viên' },
+  KHOA: { title: 'Quản lý Giảng viên', subtitle: 'Tạo và quản lý tài khoản giảng viên của khoa' },
+  KHAO_THI: { title: 'Danh sách Sinh viên', subtitle: 'Xem danh sách sinh viên (chỉ tên + mã)' },
 };
 
 const ROLE_NAME = {
-  SINH_VIEN:  'Sinh viên',
+  SINH_VIEN: 'Sinh viên',
   GIANG_VIEN: 'Giảng viên',
-  PARTNER:    'Đối tác',
+  PARTNER: 'Đối tác',
   QL_DAO_TAO: 'Phòng QLĐT',
-  KHAO_THI:   'Phòng Khảo thí',
-  KHOA:       'Văn phòng Khoa',
-  ADMIN:      'Quản trị viên',
+  KHAO_THI: 'Phòng Khảo thí',
+  KHOA: 'Văn phòng Khoa',
+  ADMIN: 'Quản trị viên',
 };
 
 export default function UserManagement() {
@@ -80,11 +80,11 @@ export default function UserManagement() {
       setLoading(true);
       const data = await userService.getAllUsers();
       // Ensure backend array mapping
-      setUsers(data || []);
+      setUsers(data.accounts || []);
       setErrorMsg('');
     } catch (err) {
       console.error(err);
-      setErrorMsg('Không thể tải danh sách người dùng.');
+      setErrorMsg(err.response?.data?.msg || 'Không thể tải danh sách người dùng.');
     } finally {
       setLoading(false);
     }
@@ -126,23 +126,32 @@ export default function UserManagement() {
 
   const handleDeleteUser = async (id) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
-        try {
-            await userService.deleteUser(id);
-            fetchUsers();
-        } catch (err) {
-            alert("Lỗi khi xóa người dùng.");
-        }
+      try {
+        await userService.deleteUser(id);
+        fetchUsers();
+      } catch (err) {
+        alert("Lỗi khi xóa người dùng.");
+      }
     }
   };
 
   const handleToggleStatus = async (id) => {
-      try {
-          await userService.toggleUserStatus(id);
-          fetchUsers();
-      } catch (err) {
-          alert("Lỗi khi đổi trạng thái.");
-      }
+    try {
+      await userService.toggleUserStatus(id);
+      fetchUsers();
+    } catch (err) {
+      alert("Lỗi khi đổi trạng thái.");
+    }
   }
+
+  const handleUnlockProfile = async (id) => {
+    try {
+      await userService.unlockStudentProfile(id);
+      fetchUsers();
+    } catch (err) {
+      alert("Lỗi khi mở khóa hồ sơ.");
+    }
+  };
 
   // Dynamic stats + tabs based on what this role can see
   const visibleRoleKeys = [...new Set(users.map(u => u.role))];
@@ -166,7 +175,7 @@ export default function UserManagement() {
 
   const filteredUsers = users.filter(user => {
     const matchesRole = selectedRole === 'all' || user.role === selectedRole;
-    const matchesSearch = 
+    const matchesSearch =
       (user.username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (user.email || '').toLowerCase().includes(searchTerm.toLowerCase());
     return matchesRole && matchesSearch;
@@ -188,7 +197,7 @@ export default function UserManagement() {
   };
 
   const getStatusText = (isActive) => {
-      return isActive ? 'Hoạt động' : 'Đã khóa';
+    return isActive ? 'Hoạt động' : 'Đã khóa';
   }
 
   const getStatusIcon = (isActive) => {
@@ -258,17 +267,18 @@ export default function UserManagement() {
               <th>Tài khoản</th>
               <th>Vai trò</th>
               <th>Trạng thái</th>
+              <th>Hồ sơ</th>
               <th>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-                 <tr><td colSpan="4" style={{textAlign:'center', padding: '20px'}}>Đang tải dữ liệu...</td></tr>
+              <tr><td colSpan="4" style={{ textAlign: 'center', padding: '20px' }}>Đang tải dữ liệu...</td></tr>
             ) : filteredUsers.map((user) => (
               <tr key={user.id}>
                 <td>
                   <div className="user-cell">
-                    <div className="user-avatar" style={{backgroundColor: '#e2e8f0', color: '#475569', fontWeight: 'bold'}}>{user.username.substring(0,2).toUpperCase()}</div>
+                    <div className="user-avatar" style={{ backgroundColor: '#e2e8f0', color: '#475569', fontWeight: 'bold' }}>{user.username.substring(0, 2).toUpperCase()}</div>
                     <div className="user-info">
                       <div className="user-name">{user.username}</div>
                       <div className="user-email">{user.email}</div>
@@ -287,7 +297,20 @@ export default function UserManagement() {
                   </span>
                 </td>
                 <td>
+                  {user.role === 'SINH_VIEN' && (
+                    <span className={`status-badge ${user.is_locked ? 'status-inactive' : 'status-active'}`}>
+                      {user.is_locked ? <Lock size={14} /> : <Unlock size={14} />}
+                      {user.is_locked ? 'Đã khóa HS' : 'Đang mở HS'}
+                    </span>
+                  )}
+                </td>
+                <td>
                   <div className="action-buttons">
+                    {user.role === 'SINH_VIEN' && user.is_locked && (
+                      <button className="action-btn" title="Mở khóa hồ sơ" onClick={() => handleUnlockProfile(user.id)} style={{ color: '#6366f1', borderColor: '#6366f1' }}>
+                        <Unlock size={16} />
+                      </button>
+                    )}
                     <button className="action-btn" title="Khóa/Mở Khóa" onClick={() => handleToggleStatus(user.id)}>
                       <Shield size={16} />
                     </button>
@@ -316,7 +339,7 @@ export default function UserManagement() {
           <div style={modalContentStyle}>
             <div style={modalHeaderStyle}>
               <h2 style={{ margin: 0, fontSize: '1.25rem', color: '#1e293b' }}>Thêm Người Dùng Mới</h2>
-              <button 
+              <button
                 onClick={() => setIsModalOpen(false)}
                 style={{ background: 'none', border: 'none', fontSize: '1.5rem', cursor: 'pointer', color: '#64748b' }}
               >×</button>
@@ -334,48 +357,48 @@ export default function UserManagement() {
               </div>
               <div>
                 <label style={labelStyle}>Tên đăng nhập (Mã User)</label>
-                <input 
-                  type="text" 
-                  name="username" 
-                  value={formData.username} 
-                  onChange={handleInputChange} 
+                <input
+                  type="text"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
                   style={inputStyle}
-                  required 
+                  required
                   placeholder="VD: SV002, GV002..."
                 />
               </div>
               <div>
                 <label style={labelStyle}>Email</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  value={formData.email} 
-                  onChange={handleInputChange} 
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                   style={inputStyle}
-                  required 
+                  required
                 />
               </div>
               <div>
                 <label style={labelStyle}>Họ và Tên</label>
-                <input 
-                  type="text" 
-                  name="full_name" 
-                  value={formData.full_name} 
-                  onChange={handleInputChange} 
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
                   style={inputStyle}
-                  required 
+                  required
                   placeholder="Họ và tên hoặc Tên tổ chức"
                 />
               </div>
               <div>
                 <label style={labelStyle}>Mật khẩu</label>
-                <input 
-                  type="password" 
-                  name="password" 
-                  value={formData.password} 
-                  onChange={handleInputChange} 
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
                   style={inputStyle}
-                  required 
+                  required
                 />
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
@@ -392,66 +415,66 @@ export default function UserManagement() {
 }
 
 const modalOverlayStyle = {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
+  position: 'fixed',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 1000
 };
 
 const modalContentStyle = {
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    width: '100%',
-    maxWidth: '500px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+  backgroundColor: 'white',
+  borderRadius: '8px',
+  width: '100%',
+  maxWidth: '500px',
+  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
 };
 
 const modalHeaderStyle = {
-    padding: '20px',
-    borderBottom: '1px solid #e2e8f0',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+  padding: '20px',
+  borderBottom: '1px solid #e2e8f0',
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center'
 };
 
 const labelStyle = {
-    display: 'block',
-    marginBottom: '5px',
-    fontWeight: '500',
-    color: '#334155',
-    fontSize: '0.875rem'
+  display: 'block',
+  marginBottom: '5px',
+  fontWeight: '500',
+  color: '#334155',
+  fontSize: '0.875rem'
 };
 
 const inputStyle = {
-    width: '100%',
-    padding: '10px',
-    border: '1px solid #cbd5e1',
-    borderRadius: '4px',
-    fontSize: '0.875rem'
+  width: '100%',
+  padding: '10px',
+  border: '1px solid #cbd5e1',
+  borderRadius: '4px',
+  fontSize: '0.875rem'
 };
 
 const cancelBtnStyle = {
-    padding: '8px 16px',
-    backgroundColor: '#f1f5f9',
-    color: '#475569',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: '500'
+  padding: '8px 16px',
+  backgroundColor: '#f1f5f9',
+  color: '#475569',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontWeight: '500'
 };
 
 const submitBtnStyle = {
-    padding: '8px 16px',
-    backgroundColor: '#3b82f6',
-    color: 'white',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    fontWeight: '500'
+  padding: '8px 16px',
+  backgroundColor: '#3b82f6',
+  color: 'white',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  fontWeight: '500'
 };

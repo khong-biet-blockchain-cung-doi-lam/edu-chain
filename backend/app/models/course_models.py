@@ -37,9 +37,7 @@ class CourseClass(db.Model):
     # Relationships
     subject = db.relationship('Subject', backref='classes')
     semester = db.relationship('Semester', backref='classes')
-    # lecturer relationship will be defined in staff_models or via backref there to avoid circular imports if possible, 
-    # but here is safer if we just use string reference or import carefully. 
-    # For now leaving lecturer relation definition for later or using string 'Lecturer' if needed.
+    lecturer = db.relationship('Lecturer', backref='classes')
 
 class Grade(db.Model):
     __tablename__ = 'grades'
@@ -50,6 +48,9 @@ class Grade(db.Model):
     final_score = db.Column(db.Float)
     total_score = db.Column(db.Float)
     status = db.Column(db.Text) # e.g. 'PASSED', 'FAILED'
+    is_finalized = db.Column(db.Boolean, default=False)
+    is_pending_review = db.Column(db.Boolean, default=False)
+    review_notes = db.Column(db.Text)
     onchain_hash = db.Column(db.Text)
     
     student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'))
