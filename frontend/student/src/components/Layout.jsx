@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { useStudent } from '../context/StudentContext';
-import { 
-    LayoutDashboard, 
-    UserCircle, 
-    Award, 
+import {
+    LayoutDashboard,
+    UserCircle,
+    Award,
     FileBadge,
     LogOut,
     GraduationCap,
@@ -19,19 +19,19 @@ export default function Layout() {
     const { profile, loading, errorMsg, logout } = useStudent();
     const [isOpen, setIsOpen] = useState(true);
 
-    if (loading) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',color:'#8b5cf6',fontWeight:'bold'}}>Đang tải dữ liệu...</div>;
-    
+    if (loading) return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#8b5cf6', fontWeight: 'bold' }}>Đang tải dữ liệu...</div>;
+
     if (!profile) return (
-        <div style={{display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',height:'100vh',background:'#f8fafc'}}>
-            <div style={{background:'white',padding:'2rem',borderRadius:'12px',boxShadow:'0 4px 24px rgba(0,0,0,0.08)',textAlign:'center',maxWidth:'400px',borderTop:'4px solid #ef4444'}}>
-                <div style={{width:'64px',height:'64px',background:'#fef2f2',color:'#ef4444',borderRadius:'50%',display:'flex',justifyContent:'center',alignItems:'center',margin:'0 auto 1rem',fontSize:'2rem',fontWeight:'bold'}}>!</div>
-                <h2 style={{fontSize:'1.25rem',fontWeight:'bold',color:'#0f172a',marginBottom:'0.5rem'}}>Lỗi Xác Thực</h2>
-                <p style={{color:'#64748b',marginBottom:'1.5rem',fontSize:'0.875rem'}}>{errorMsg || "Không thể tải thông tin sinh viên"}</p>
-                <button 
+        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc' }}>
+            <div style={{ background: 'white', padding: '2rem', borderRadius: '12px', boxShadow: '0 4px 24px rgba(0,0,0,0.08)', textAlign: 'center', maxWidth: '400px', borderTop: '4px solid #ef4444' }}>
+                <div style={{ width: '64px', height: '64px', background: '#fef2f2', color: '#ef4444', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', margin: '0 auto 1rem', fontSize: '2rem', fontWeight: 'bold' }}>!</div>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a', marginBottom: '0.5rem' }}>Lỗi Xác Thực</h2>
+                <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.875rem' }}>{errorMsg || "Không thể tải thông tin sinh viên"}</p>
+                <button
                     onClick={logout}
-                    style={{width:'100%',background:'#8b5cf6',color:'white',fontWeight:'600',padding:'0.75rem 1rem',borderRadius:'8px',border:'none',cursor:'pointer',transition:'background 0.2s'}}
-                    onMouseOver={e => e.target.style.background='#7c3aed'}
-                    onMouseOut={e => e.target.style.background='#8b5cf6'}
+                    style={{ width: '100%', background: '#8b5cf6', color: 'white', fontWeight: '600', padding: '0.75rem 1rem', borderRadius: '8px', border: 'none', cursor: 'pointer', transition: 'background 0.2s' }}
+                    onMouseOver={e => e.target.style.background = '#7c3aed'}
+                    onMouseOut={e => e.target.style.background = '#8b5cf6'}
                 >
                     Quay lại Trang Đăng Nhập
                 </button>
@@ -45,6 +45,7 @@ export default function Layout() {
             items: [
                 { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
                 { path: '/profile', label: 'Hồ sơ Sinh viên', icon: UserCircle },
+                { path: '/grades', label: 'Kết quả học tập', icon: Award },
                 { path: '/certificates', label: 'Chứng chỉ', icon: FileBadge },
                 { path: '/course-registration', label: 'Đăng ký Học phần', icon: ClipboardEdit },
             ]
@@ -63,13 +64,13 @@ export default function Layout() {
             <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
                 <div className="sidebar-header">
                     <div className="sidebar-logo">
-                        <div className="logo-icon" style={{background: 'linear-gradient(135deg, #8b5cf6, #ec4899)'}}>
+                        <div className="logo-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #ec4899)' }}>
                             <GraduationCap size={22} />
                         </div>
                         {isOpen && <span className="logo-text">Cổng Sinh Viên</span>}
                     </div>
                     <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
-                        {isOpen ? <X size={18}/> : <Menu size={18}/>}
+                        {isOpen ? <X size={18} /> : <Menu size={18} />}
                     </button>
                 </div>
 
@@ -95,7 +96,7 @@ export default function Layout() {
                 <div className="sidebar-footer">
                     {isOpen && profile && (
                         <div className="user-info">
-                            <div className="user-avatar" style={{background:'linear-gradient(135deg,#8b5cf6,#ec4899)'}}>
+                            <div className="user-avatar" style={{ background: 'linear-gradient(135deg,#8b5cf6,#ec4899)' }}>
                                 {(profile.personal_info?.first_name?.[0] || 'S')}
                             </div>
                             <div className="user-details">

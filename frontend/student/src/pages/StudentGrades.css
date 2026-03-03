@@ -1,0 +1,253 @@
+.sv-grades-page {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.grades-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.grades-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: #1e293b;
+    letter-spacing: -0.025em;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.grades-subtitle {
+    color: #64748b;
+    margin-top: 0.25rem;
+}
+
+.overall-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.overall-stat-card {
+    background: white;
+    padding: 1.25rem;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.stat-content .stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.stat-content .stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+/* Semester Section */
+.semester-section {
+    margin-bottom: 2.5rem;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
+}
+
+.semester-header {
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(to right, #f8fafc, #ffffff);
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.semester-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.semester-summary {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #64748b;
+}
+
+.summary-item .value {
+    color: #8b5cf6;
+}
+
+/* Table Design */
+.grades-table-container {
+    overflow-x: auto;
+}
+
+.grades-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.grades-table th {
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.grades-table td {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #f8fafc;
+    font-size: 0.875rem;
+    color: #334155;
+}
+
+.grades-table tr:last-child td {
+    border-bottom: none;
+}
+
+.grades-table tr:hover {
+    background-color: #fbfcfe;
+}
+
+.subject-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.subject-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.subject-id {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.score-cell {
+    font-weight: 500;
+    text-align: center;
+}
+
+.final-score {
+    font-weight: 700;
+    color: #8b5cf6;
+    background: #f5f3ff;
+    padding: 0.25rem 0.75rem;
+    border-radius: 8px;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.status-badge.pass {
+    background: #ecfdf5;
+    color: #10b981;
+}
+
+.status-badge.fail {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.status-badge.pending {
+    background: #fffbeb;
+    color: #f59e0b;
+}
+
+/* ZKP Hash Cell */
+.hash-cell {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: help;
+}
+
+.no-grades {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 20px;
+    color: #94a3b8;
+}
+
+.no-grades p {
+    margin-top: 1rem;
+    font-size: 1.125rem;
+}
+
+@media (max-width: 768px) {
+    .overall-stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .semester-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+}
