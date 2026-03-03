@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify, render_template
 from app.extensions import db
-from app.models.course_models import CourseClass, Grade, Subject
-from app.models.student_model import Student
-from app.models.staff_models import Lecturer
+from app.models.course_models import CourseClass, Grade
 from app.models.account_model import Account
+from app.services.grade_service import GradeService
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 bp_lecturer = Blueprint("lecturer", __name__, url_prefix="/api/lecturer")
@@ -114,35 +113,10 @@ def update_grade():
     grade_id = data.get("grade_id")
     scores = data.get("scores", {})
     
-    import uuid
-    try:
-        grade_uuid = uuid.UUID(grade_id) if isinstance(grade_id, str) else grade_id
-        grade = db.session.get(Grade, grade_uuid)
-    except:
-        return jsonify({"msg": "Invalid grade ID"}), 400
+    grade, error = GradeService.update_grade_score(grade_id, scores, lecturer_id=lecturer.id)
+    if error:
+        return jsonify({"msg": error}), 400 if "ID" in error else 403
 
-    if not grade:
-        return jsonify({"msg": "Grade record not found"}), 404
-        
-    if grade.course_class.lecturer_id != lecturer.id:
-        return jsonify({"msg": "Access denied"}), 403
-
-    if grade.is_finalized or grade.is_pending_review:
-        return jsonify({"msg": "Grade is locked (pending review or finalized)"}), 403
-
-    if "regular" in scores:
-        grade.regular_score = scores["regular"]
-    if "midterm" in scores:
-        grade.midterm_score = scores["midterm"]
-    if "final" in scores:
-        grade.final_score = scores["final"]
-        
-    if grade.regular_score is not None and grade.midterm_score is not None and grade.final_score is not None:
-         grade.total_score = (grade.regular_score * 0.1) + (grade.midterm_score * 0.4) + (grade.final_score * 0.5)
-         grade.status = "PASSED" if grade.total_score >= 4.0 else "FAILED"
-    
-    db.session.commit()
-    
     return jsonify({
         "msg": "Grade updated", 
         "status": grade.status, 
@@ -170,7 +144,6 @@ def request_class_review(class_id):
     if course_class.lecturer_id != lecturer.id:
         return jsonify({"msg": "Access denied"}), 403
 
-    # Mark all grades in this class as pending review
     for grade in course_class.grades:
         if not grade.is_finalized:
             grade.is_pending_review = True
@@ -187,7 +160,6 @@ def get_profile():
          return jsonify({"msg": "Unauthorized"}), 401
 
     account = lecturer.account
-    
     return jsonify({
         "lecturer_code": lecturer.lecturer_code,
         "full_name": lecturer.full_name,
@@ -203,36 +175,26 @@ def update_profile():
          return jsonify({"msg": "Unauthorized"}), 401
 
     data = request.get_json()
-    
-    # Update Lecturer specifics
     if "full_name" in data:
         lecturer.full_name = data["full_name"]
-        
-    # Update Account email if provided
     if "email" in data:
         lecturer.account.email = data["email"]
 
     db.session.commit()
-    
     return jsonify({"msg": "Profile updated successfully"}), 200
 
 @bp_lecturer.route("/dashboard", methods=["GET"])
 def dashboard():
     return render_template("lecturer/dashboard.html")
 
-# ==================== CLASS ASSIGNMENT ====================
-
 @bp_lecturer.route("/available-classes", methods=["GET"])
 @jwt_required()
 def get_available_classes():
-    """Lấy danh sách các lớp học phần chưa có giảng viên"""
     lecturer = get_current_lecturer()
     if not lecturer:
         return jsonify({"msg": "Unauthorized"}), 401
 
-    # Get all unassigned classes
     unassigned = CourseClass.query.filter(CourseClass.lecturer_id == None).all()
-    # Also get classes assigned to THIS lecturer (so they can see their claimed ones)
     my_classes = CourseClass.query.filter_by(lecturer_id=lecturer.id).all()
 
     results = []
@@ -258,13 +220,11 @@ def get_available_classes():
             "student_count": len(c.grades),
             "claimed": True
         })
-
     return jsonify(results), 200
 
 @bp_lecturer.route("/claim-class/<class_id>", methods=["POST"])
 @jwt_required()
 def claim_class(class_id):
-    """Giảng viên nhận lớp học phần"""
     import uuid as _uuid
     lecturer = get_current_lecturer()
     if not lecturer:
@@ -289,7 +249,6 @@ def claim_class(class_id):
 @bp_lecturer.route("/claim-class/<class_id>", methods=["DELETE"])
 @jwt_required()
 def release_class(class_id):
-    """Giảng viên trả lại lớp học phần"""
     import uuid as _uuid
     lecturer = get_current_lecturer()
     if not lecturer:
