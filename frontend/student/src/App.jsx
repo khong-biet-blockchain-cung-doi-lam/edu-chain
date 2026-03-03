@@ -7,6 +7,7 @@ import StudentProfile from './pages/StudentProfile';
 import StudentCertificates from './pages/StudentCertificates';
 import StudentScholarships from './pages/StudentScholarships';
 import CourseRegistration from './pages/CourseRegistration';
+import StudentGrades from './pages/StudentGrades';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<StudentDashboard />} />
             <Route path="profile" element={<StudentProfile />} />
+            <Route path="grades" element={<StudentGrades />} />
             <Route path="certificates" element={<StudentCertificates />} />
             <Route path="scholarships" element={<StudentScholarships />} />
             <Route path="course-registration" element={<CourseRegistration />} />
