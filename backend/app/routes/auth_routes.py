@@ -18,7 +18,6 @@ def login():
         print("DEBUG LOGIN: Missing fields")
         return jsonify({"msg": "Thiếu username/email hoặc password"}), 400
 
-    # Check by username OR email
     print(f"DEBUG LOGIN: Querying for '{username}'")
     account = Account.query.filter((Account.username == username) | (Account.email == username)).first()
 

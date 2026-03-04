@@ -11,7 +11,6 @@ import uuid
 
 bp_partner = Blueprint('partner', __name__, url_prefix='/api/partners')
 
-# Helper to check if user is a partner
 def get_current_partner():
     user_id = get_jwt_identity()
     if isinstance(user_id, str):
@@ -23,13 +22,9 @@ def get_current_partner():
 @jwt_required()
 def create_scholarship():
     partner = get_current_partner()
-    # In a real app, you'd check Role.PARTNER in JWT or DB
-    # For now assuming the logged in user is a partner or checking DB
-    
+                                                          
     if not partner:
-        # Fallback: Check if user is ADMIN or STAFF acting as partner? 
-        # But Requirement says Partner posts scholarship.
-        # Let's assume the user IS the partner account.
+                                                                       
         return jsonify({"msg": "Partner profile not found."}), 403
 
     data = request.json
@@ -51,9 +46,6 @@ def create_scholarship():
     db.session.add(new_scholarship)
     db.session.commit()
     
-    # TRIGGER "ZKP" MATCHING (Simplified)
-    # For now, we can just trigger it here or let it be a separate process.
-    # Let's do a simple synchronous match for demo purposes.
     match_students_to_scholarship(new_scholarship)
     
     return jsonify({"msg": "Scholarship created successfully", "id": str(new_scholarship.id)}), 201
@@ -82,9 +74,6 @@ def get_candidates(scholarship_id):
     if not scholarship:
         return jsonify({"msg": "Scholarship not found or access denied"}), 404
         
-    # Only return candidates who have APPLIED (Consented)
-    # Sort by some criteria? For now just return list.
-    
     applications = ScholarshipApplication.query.filter_by(
         scholarship_id=scholarship.id, 
         status="APPLIED"
@@ -93,19 +82,17 @@ def get_candidates(scholarship_id):
     results = []
     for app in applications:
         stu = app.student
-        # Reveal data
-        # Calculate matching score if possible
+                     
         results.append({
             "application_id": str(app.id),
             "student_id": str(stu.id),
             "student_name": f"{stu.personal_info.first_name} {stu.personal_info.last_name}" if stu.personal_info else "N/A",
-            "gpa": stu.gpa, # Assuming gpa is used
-            # Include Certificates?
+            "gpa": stu.gpa,                       
+                                   
             "applied_at": app.applied_at.isoformat() if app.applied_at else None
         })
         
     return jsonify(results), 200
-
 
 @bp_partner.route("/scholarships/<scholarship_id>", methods=["GET"])
 @jwt_required()
@@ -180,7 +167,6 @@ def get_scholarship_stats():
         "closed": closed
     }), 200
 
-
 def match_students_to_scholarship(scholarship):
     """
     Simulates ZKP matching locally.
@@ -188,28 +174,17 @@ def match_students_to_scholarship(scholarship):
     """
     criteria = scholarship.criteria or {}
     min_gpa = criteria.get("min_gpa")
-    # expected_certs = criteria.get("required_certificates", []) # List of {name, min_score}
-    
-    # 1. Filter by GPA
+                                                                                            
     query = Student.query
-    # if min_gpa:
-       # In a real app, complex query. For demo, iterate or basic filter.
-       # Assuming 'total_grade' is GPA.
-       # query = query.filter(Student.total_grade >= min_gpa)
-       
+                 
     students = query.all()
     
     matched_count = 0
     for stu in students:
-        # Check GPA
+                   
         if min_gpa and (stu.gpa is None or stu.gpa < float(min_gpa)):
             continue
             
-        # Check Certificates (if implemented)
-        # matches_certs = check_certificates(stu, expected_certs)
-        # if not matches_certs: continue
-        
-        # Create Application Invite
         existing = ScholarshipApplication.query.filter_by(
             scholarship_id=scholarship.id, 
             student_id=stu.id
@@ -227,8 +202,6 @@ def match_students_to_scholarship(scholarship):
     db.session.commit()
     print(f"Matched {matched_count} students for Scholarship {scholarship.title}")
 
-# --- Application Endpoints ---
-
 @bp_partner.route("/applications", methods=["GET"])
 @jwt_required()
 def list_applications():
@@ -241,7 +214,7 @@ def list_applications():
     results = []
     for app in apps:
         if app.status == "ELIGIBLE_PENDING_CONSENT":
-            continue # Don't show students who haven't consented
+            continue                                            
             
         stu = app.student
         results.append({
@@ -347,5 +320,5 @@ def get_application_stats():
 @bp_partner.route("/applications/<app_id>/documents/<doc_type>", methods=["GET"])
 @jwt_required()
 def download_document(app_id, doc_type):
-    # Mocking a document download feature
+                                         
     return jsonify({"msg": "Document not found."}), 404

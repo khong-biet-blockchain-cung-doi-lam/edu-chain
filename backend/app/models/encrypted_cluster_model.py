@@ -1,16 +1,14 @@
-"""
-encrypted_cluster_model.py
-Model lưu trữ dữ liệu mã hóa theo cụm trên Supabase.
-
-Mỗi cluster = 1 bộ dữ liệu thuộc về 1 đối tượng (student)
-được mã hóa và quản lý bởi 1 phòng ban.
-"""
-
+\
+\
+\
+\
+\
+\
+   
 from app.extensions import db
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
-
 
 class EncryptedCluster(db.Model):
     """
@@ -24,41 +22,27 @@ class EncryptedCluster(db.Model):
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     
-    # Loại cụm dữ liệu
     cluster_type = db.Column(db.String(50), nullable=False, index=True)
-    # VD: 'student_profile', 'student_grades'
-    
-    # ID đối tượng gốc (student.id)
+                                             
     subject_id = db.Column(UUID(as_uuid=True), nullable=False, index=True)
-    # subject_code để dễ tìm kiếm (VD: mã sinh viên)
+                                                    
     subject_code = db.Column(db.String(50), nullable=True)
     
-    # === DỮ LIỆU MÃ HÓA ===
-    # AES-256-GCM encrypted JSON data (base64)
     ciphertext = db.Column(db.Text, nullable=False)
-    # AES IV / nonce (base64, 12 bytes)
+                                       
     iv = db.Column(db.String(50), nullable=False)
-    # AES key đã được mã hóa bởi RSA Public Key (base64)
+                                                        
     encrypted_aes_key = db.Column(db.Text, nullable=False)
     
-    # === QUẢN LÝ CLUSTER ===
-    # Phòng ban có thẩm quyền
     managed_by_role = db.Column(db.String(30), nullable=False)
-    # VD: 'QL_DAO_TAO', 'KHAO_THI'
-    
-    # Trạng thái cluster
+                                  
     status = db.Column(db.String(20), nullable=False, default='ENCRYPTED')
-    # ENCRYPTED   → đã mã hóa, đang chờ
-    # COMPLETE    → đủ dữ liệu, sẵn sàng giải mã
-    # DECRYPTED   → đã giải mã, sẵn sàng blockchain
-    # SENT        → đã gửi cho blockchain team
-    
-    # Phiên bản dữ liệu (phục vụ rollback)
+                                       
     version = db.Column(db.Integer, nullable=False, default=1)
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    # Người thực hiện giải mã (account_id)
+                                          
     decrypted_by = db.Column(UUID(as_uuid=True), nullable=True)
     decrypted_at = db.Column(db.DateTime, nullable=True)
 
