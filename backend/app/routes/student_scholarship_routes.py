@@ -27,7 +27,7 @@ def add_certificate():
         code=data.get("code"),
         score=data.get("score"),
         image_url=data.get("image_url"),
-        status="PENDING" # Needs verification
+        status="PENDING"                     
     )
     
     if data.get("issued_date"):
@@ -56,12 +56,6 @@ def get_eligible_scholarships():
     student_id = get_jwt_identity()
     if isinstance(student_id, str):
         student_id = uuid.UUID(student_id)
-    
-    # Logic: Show scholarships where
-    # 1. Application exists (ELIGIBLE or APPLIED)
-    # OR 
-    # 2. Check open scholarships and match manually if not pre-calculated?
-    # For now, rely on pre-calculated applications (ZKP Matching Service Logic)
     
     applications = ScholarshipApplication.query.filter(
         ScholarshipApplication.student_id == student_id,
@@ -93,7 +87,6 @@ def apply_scholarship(scholarship_id):
     if isinstance(scholarship_id, str):
         scholarship_id = uuid.UUID(scholarship_id)
     
-    # Check if application exists (invite)
     application = ScholarshipApplication.query.filter_by(
         scholarship_id=scholarship_id,
         student_id=student_id
@@ -105,8 +98,6 @@ def apply_scholarship(scholarship_id):
     if application.status != 'ELIGIBLE_PENDING_CONSENT':
         return jsonify({"msg": f"Application status is already {application.status}"}), 400
         
-    # Consent Logic
-    # Update status to APPLIED
     application.status = 'APPLIED'
     application.applied_at = datetime.utcnow()
     

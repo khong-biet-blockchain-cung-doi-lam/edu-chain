@@ -10,20 +10,18 @@ class Gender:
 
 class Role:
     ADMIN      = "ADMIN"
-    QL_DAO_TAO = "QL_DAO_TAO"    # Phòng Quản lý Đào tạo → cluster: student_profile
-    KHAO_THI   = "KHAO_THI"      # Phòng Khảo thí → cluster: student_grades
-    KHOA       = "KHOA"           # Văn phòng khoa → quản lý giảng viên
+    QL_DAO_TAO = "QL_DAO_TAO"                                                      
+    KHAO_THI   = "KHAO_THI"                                                
+    KHOA       = "KHOA"                                                
     GIANG_VIEN = "GIANG_VIEN"
     SINH_VIEN  = "SINH_VIEN"
     PARTNER    = "PARTNER"
 
-# Mapping: Role → cluster_type mà phòng đó quản lý
 ROLE_CLUSTER_MAP = {
     Role.QL_DAO_TAO: "student_profile",
     Role.KHAO_THI:   "student_grades",
 }
 
-# Mapping: Role → email domain bắt buộc
 ROLE_EMAIL_DOMAIN = {
     Role.ADMIN:      "@admin.neu.edu.vn",
     Role.QL_DAO_TAO: "@qldt.neu.edu.vn",
@@ -34,10 +32,8 @@ ROLE_EMAIL_DOMAIN = {
     Role.PARTNER:    "@tp.neu.edu.vn",
 }
 
-# Mapping: Caller role → roles được phép tạo
 ROLE_CAN_CREATE = {
     Role.ADMIN:      [Role.QL_DAO_TAO, Role.KHAO_THI, Role.KHOA, Role.PARTNER],
     Role.QL_DAO_TAO: [Role.SINH_VIEN],
     Role.KHOA:       [Role.GIANG_VIEN],
 }
-

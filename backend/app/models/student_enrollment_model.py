@@ -12,7 +12,6 @@ class StudentEnrollment(db.Model):
     curriculum_id = db.Column(UUID(as_uuid=True), db.ForeignKey('curriculums.id'))
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    # Relationships
     major = db.relationship('Major')
     cohort = db.relationship('Cohort')
     curriculum = db.relationship('Curriculum')

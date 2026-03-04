@@ -63,7 +63,6 @@ def get_class_details(class_id):
     if course_class.lecturer_id != lecturer.id:
         return jsonify({"msg": "Access denied"}), 403
 
-    # Check if whole class is finalized or pending
     is_class_pending = any(g.is_pending_review for g in course_class.grades)
     is_class_finalized = all(g.is_finalized for g in course_class.grades) if course_class.grades else False
 

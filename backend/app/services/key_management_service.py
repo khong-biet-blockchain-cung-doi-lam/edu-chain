@@ -1,20 +1,18 @@
-"""
-key_management_service.py
-Quản lý RSA key pair cho từng phòng ban.
-
-Mỗi phòng ban có 1 cặp key RSA-2048:
-- PUBLIC KEY: lưu trong .env, dùng để mã hóa AES key khi lưu dữ liệu  
-- PRIVATE KEY: lưu trong .env, chỉ phòng ban đó dùng để giải mã
-
-Phòng ban:
-- QL_DAO_TAO: quản lý cụm 'student_profile'
-- KHAO_THI:   quản lý cụm 'student_grades'
-"""
-
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+   
 import os
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
-
 
 ROLE_KEY_MAP = {
     "QL_DAO_TAO": {
@@ -26,7 +24,6 @@ ROLE_KEY_MAP = {
         "private_env": "RSA_PRIVATE_KEY_KHAOTHI",
     },
 }
-
 
 def generate_rsa_keypair(key_size: int = 2048) -> tuple[str, str]:
     """
@@ -54,7 +51,6 @@ def generate_rsa_keypair(key_size: int = 2048) -> tuple[str, str]:
 
     return public_pem, private_pem
 
-
 def get_public_key(role: str) -> str:
     """Lấy RSA public key của phòng ban từ env"""
     if role not in ROLE_KEY_MAP:
@@ -65,9 +61,7 @@ def get_public_key(role: str) -> str:
     if not key:
         raise EnvironmentError(f"Chưa cấu hình {env_var} trong .env")
     
-    # Env thường không giữ newline → cần khôi phục
     return _restore_pem_newlines(key)
-
 
 def get_private_key(role: str) -> str:
     """Lấy RSA private key của phòng ban từ env"""
@@ -81,14 +75,12 @@ def get_private_key(role: str) -> str:
     
     return _restore_pem_newlines(key)
 
-
 def _restore_pem_newlines(pem_one_line: str) -> str:
     """
     Khôi phục newline trong PEM vì .env không giữ newline.
     Trong .env lưu dạng: \\n thay cho newline thật.
     """
     return pem_one_line.replace("\\n", "\n")
-
 
 def initialize_keys_if_missing():
     """
@@ -107,7 +99,6 @@ def initialize_keys_if_missing():
             needs_generation = True
             pub, priv = generate_rsa_keypair()
             
-            # Chuyển multiline PEM → single line (thay \n bằng \\n để lưu .env)
             pub_single = pub.replace("\n", "\\n")
             priv_single = priv.replace("\n", "\\n")
             

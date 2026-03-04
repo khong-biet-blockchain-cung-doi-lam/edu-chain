@@ -62,7 +62,7 @@ def get_student_grades():
 @bp_student_portal.route("/grades/<grade_id>/review", methods=["POST"])
 @jwt_required()
 def request_grade_review(grade_id):
-    # This remains simple enough, but could be moved to GradeService later
+                                                                          
     from app.models.course_models import Grade
     from app.extensions import db
     import uuid

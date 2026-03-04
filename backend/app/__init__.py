@@ -12,9 +12,8 @@ from app.models import (
     enterprise_model,
     scholarship_model,
     student_certificate_model,
-    encrypted_cluster_model   # đảm bảo table được tạo khi db.create_all()
+    encrypted_cluster_model                                               
 )
-
 
 def create_app(config_object=None):
     app = Flask(__name__)
@@ -49,9 +48,8 @@ def create_app(config_object=None):
     app.register_blueprint(bp_student_scholarship)
     app.register_blueprint(bp_management)
     app.register_blueprint(bp_organization)
-    app.register_blueprint(bp_encrypt)     # Mã hóa
-    app.register_blueprint(bp_decrypt)     # Giải mã
-    app.register_blueprint(bp_khao_thi)    # Phòng Khảo thí
+    app.register_blueprint(bp_encrypt)             
+    app.register_blueprint(bp_decrypt)              
+    app.register_blueprint(bp_khao_thi)                    
 
     return app
-

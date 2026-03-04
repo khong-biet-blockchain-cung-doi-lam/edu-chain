@@ -1,3 +1,4 @@
+import logging
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models.course_models import Subject, Semester, CourseClass
@@ -7,7 +8,11 @@ from app.models.student_model import Student
 from app.models.student_personal_info_model import StudentPersonalInfo
 from app.models.enums import Role
 from app.decorators import staff_required
+from app.services.wallet_service import create_custodial_wallet
+from app.services.blockchain_service import BlockchainService
 import bcrypt
+
+logger = logging.getLogger(__name__)
 
 bp_academic = Blueprint("academic", __name__, url_prefix="/api/academic")
 
@@ -60,7 +65,7 @@ def list_classes():
             "name": c.name,
             "subject": {"id": str(c.subject.id), "name": c.subject.name} if c.subject else None,
             "semester": {"id": str(c.semester.id), "code": c.semester.code} if c.semester else None,
-            "lecturer": {"id": str(c.lecturer.id), "name": c.lecturer.account.login_id} if c.lecturer else None # Mocking name via login_id for now or personal_info
+            "lecturer": {"id": str(c.lecturer.id), "name": c.lecturer.account.username} if c.lecturer else None
         })
     return jsonify(results), 200
 
@@ -124,20 +129,28 @@ def create_student():
 
     try:
         hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-        
-        new_acc = Account(login_id=student_code, password_hash=hashed, role_type='student')
+
+        wallet_address, encrypted_pk = create_custodial_wallet()
+
+        new_acc = Account(
+            login_id=student_code,
+            password_hash=hashed,
+            role_type='student',
+            wallet_address=wallet_address,
+            encrypted_private_key=encrypted_pk,
+        )
         db.session.add(new_acc)
         db.session.flush()
 
         new_stu = Student(student_code=student_code, account_id=new_acc.id)
         db.session.add(new_stu)
         db.session.flush()
-        
+
         if full_name:
             parts = full_name.strip().split()
             first_name = parts[-1] if parts else ""
             last_name = " ".join(parts[:-1]) if len(parts) > 1 else ""
-            
+
             info = StudentPersonalInfo(
                 id=new_stu.id,
                 first_name=first_name,
@@ -147,15 +160,23 @@ def create_student():
                 academic_status='ENROLLED'
             )
             db.session.add(info)
-        
+
         db.session.commit()
-        return jsonify({"msg": "Student created successfully", "id": new_stu.id}), 201
+
+        try:
+            BlockchainService().grant_role(wallet_address, "SINH_VIEN")
+        except Exception as bc_err:
+            logger.warning("Blockchain grant_role failed for %s: %s", wallet_address, bc_err)
+
+        return jsonify({
+            "msg": "Student created successfully",
+            "id": new_stu.id,
+            "wallet_address": wallet_address,
+        }), 201
 
     except Exception as e:
         db.session.rollback()
         return jsonify({"msg": str(e)}), 500
-
-# --- Subject Endpoints ---
 
 @bp_academic.route("/subjects", methods=["GET"])
 @staff_required(required_role_code=Role.QL_DAO_TAO)
@@ -212,12 +233,11 @@ def get_subject_statistics():
 @bp_academic.route("/subjects/department/<dept>", methods=["GET"])
 @staff_required(required_role_code=Role.QL_DAO_TAO)
 def get_subjects_by_department(dept):
-    # Mock return all since department isn't on Subject model
+                                                             
     subjects = Subject.query.all()
     results = [{"id": str(s.id), "subject_code": s.subject_code, "name": s.name, "credits": s.credits} for s in subjects]
     return jsonify(results), 200
 
-# --- Program Endpoints (Mapping to Major) ---
 from app.models.academic_models import Major
 
 @bp_academic.route("/programs", methods=["GET"])
@@ -282,5 +302,5 @@ def delete_program(program_id):
 @staff_required(required_role_code=Role.QL_DAO_TAO)
 def get_program_statistics():
     total = Major.query.count()
-    active = total # mock active
+    active = total              
     return jsonify({"total": total, "active": active}), 200

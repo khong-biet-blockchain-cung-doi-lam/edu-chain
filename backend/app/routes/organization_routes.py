@@ -29,7 +29,7 @@ def get_profile():
         "id": str(partner.id),
         "full_name": partner.full_name,
         "enterprise_id": str(partner.enterprise_id) if partner.enterprise_id else None,
-        # Mock other fields expected by frontend
+                                                
         "industry": "Education / Technology",
         "description": "Mocked Organization Description",
         "website": "https://example.com"
@@ -70,8 +70,8 @@ def get_statistics():
     scholarships = Scholarship.query.filter_by(partner_id=partner.id).count()
     return jsonify({
         "total_scholarships": scholarships,
-        "total_applications": 0, # Mocked
-        "total_approved": 0 # Mocked
+        "total_applications": 0,         
+        "total_approved": 0         
     }), 200
 
 @bp_organization.route("/settings", methods=["PUT"])

@@ -1,245 +1,84 @@
+# ===== Node =====
 node_modules/
 
-backend/venv/
-
+# ===== Python =====
 __pycache__/
-.pyc
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+.eggs/
 
-dist/
-build/
+# ===== Virtual Environments =====
+backend/venv/
+testing/security/.venv/
+testing/security/.mythril-venv/
+*/.venv/
+*/.mythril-venv/
 
-backend/.env
-
-.DS_Store
-
-node_modules/
-*/node_modules/
-**/node_modules/
-frontend/login-signup/node_modules/
-frontend/organizations/node_modules/
-frontend/admin/node_modules/
-frontend/students/node_modules/
-frontend/teachers/node_modules/
-
-
-dist/
-build/
-*/dist/
-*/build/
-**/dist/
-**/build/
-frontend/*/dist/
-frontend/*/build/
-.output/
-.vercel/
-.netlify/
-
-
-package-lock.json
-*/package-lock.json
-**/package-lock.json
-yarn.lock
-pnpm-lock.yaml
-.pnpm-store/
-
+# ===== Environment & Secrets =====
 .env
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-*/.env
-*/.env.local
-**/.env
-**/.env.local
+.env.*
+*.key
+*.pem
 
-.vite/
-*/node_modules/.vite/
-**/node_modules/.vite/
-.vite-inspect/
+# ===== Databases =====
+backend/app.db
+*.db
+*.sqlite
 
+# ===== Build Artifacts =====
+dist/
+build/
+blockchain/cache/
+blockchain/types/
+blockchain/coverage/
 
-logs/
+# ===== Test Files =====
+testing/
+backend/tests/
+blockchain/test/
+blockchain/foundry-tests/
+backend/test_logs.txt
+backend/test_token.py
+
+# ===== Debug / Utility Scripts =====
+backend/add_lock_column.py
+backend/add_notes_column.py
+backend/check_schema.py
+backend/diagnostic.py
+backend/dump_accounts.py
+backend/find_user.py
+backend/setup_demo_data.py
+backend/setup_test_accounts.py
+backend/caliper/
+
+# ===== Blockchain Gas Reports =====
+blockchain/gas-report.txt
+
+# ===== Logs =====
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-pnpm-debug.log*
-.pnpm-debug.log*
+logs/
 
-
-.vscode/
-.vscode/*
-!.vscode/extensions.json
-!.vscode/settings.json
-*.code-workspace
-
-
-.idea/
-*.iml
-*.ipr
-*.iws
-.idea/*
-
-
-*.sublime-project
-*.sublime-workspace
-
-
-*.swp
-*.swo
-*~
-.*.sw[a-z]
-
-
-*~
-\#*\#
-.\#*
-
-
+# ===== macOS =====
 .DS_Store
-.DS_Store?
 .AppleDouble
 .LSOverride
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
 
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-Desktop.ini
-$RECYCLE.BIN/
-*.cab
-*.msi
-*.msix
-*.msm
-*.msp
-*.lnk
+# ===== Images / Media at root =====
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.tiff
+*.ico
 
+# ===== Supabase =====
+supabase/
 
-.directory
-.Trash-*
-.nfs*
-
-.cache/
-.parcel-cache/
-.npm/
-.eslintcache
-.stylelintcache
+# ===== Misc =====
 *.tmp
-*.temp
-.temp/
-.tmp/
-*.bak
-*.backup
-
-
-coverage/
-*.lcov
-.nyc_output/
-lib-cov/
-*.test.js.snap
-
-.vscode-test/
-chrome-profile/
-firefox-profile/
-
-
-pids
-*.pid
-*.seed
-*.pid.lock
-
-
-*.tsbuildinfo
-next-env.d.ts
-
-.npm
-
-
-.eslintcache
-
-
-.stylelintcache
-
-
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-
-.node_repl_history
-
-
-.yarn-integrity
-
-
-.vscode-test
-
-
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
-
-
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-*.egg-info/
-.pytest_cache/
-.mypy_cache/
-.dmypy.json
-dmypy.json
-.pytype/
-.pyre/
-.coverage
-htmlcov/
-*.cover
-.hypothesis/
-
-
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
-*.db-shm
-*.db-wal
-
-
-.dockerignore
-docker-compose.override.yml
-
-
-.git/
-.gitattributes
-
-
-# !.vscode/settings.json
-# !.vscode/extensions.json
-# !package-lock.json
-# !yarn.lock
+*.swp
+*.swo

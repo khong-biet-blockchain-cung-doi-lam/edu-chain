@@ -30,8 +30,6 @@ class GradeService:
                 "class_name": g.course_class.name if g.course_class else "Unknown",
                 "subject_name": g.course_class.subject.name if (g.course_class and g.course_class.subject) else "Unknown",
                 "credits": g.course_class.subject.credits if (g.course_class and g.course_class.subject) else 0,
-                "semester_name": g.course_class.semester.name if (g.course_class and g.course_class.semester) else "Học kỳ unknown",
-                "semester_id": str(g.course_class.semester.id) if (g.course_class and g.course_class.semester) else None,
                 "scores": {
                     "regular": g.regular_score,
                     "midterm": g.midterm_score,
@@ -54,25 +52,21 @@ class GradeService:
         if not grade:
             return None, "Không tìm thấy bản ghi điểm"
 
-        # Permission check for lecturer
         if lecturer_id and grade.course_class.lecturer_id != lecturer_id:
             return None, "Access denied"
 
-        # Finalized check
         if grade.is_finalized and not caller_is_khao_thi:
             return None, "Điểm đã chốt, không thể chỉnh sửa"
         
         if grade.is_pending_review and not caller_is_khao_thi:
              return None, "Điểm đang chờ duyệt, không thể chỉnh sửa"
 
-        # Apply updates
         if "regular" in scores: grade.regular_score = scores["regular"]
         if "midterm" in scores: grade.midterm_score = scores["midterm"]
         if "final" in scores: grade.final_score = scores["final"]
         if "total" in scores and caller_is_khao_thi: grade.total_score = scores["total"]
         if "status" in scores and caller_is_khao_thi: grade.status = scores["status"]
 
-        # Recalculate if all scores present (unless manually overridden by khao thi)
         if not ("total" in scores and caller_is_khao_thi):
             total = GradeService.calculate_total_score(grade.regular_score, grade.midterm_score, grade.final_score)
             if total is not None:
