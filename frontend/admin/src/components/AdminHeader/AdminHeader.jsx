@@ -4,10 +4,10 @@ import { useAdmin, ROLE_DISPLAY } from '../../context/AdminContext';
 import './AdminHeader.css';
 
 const ROLE_COLOR = {
-  ADMIN:      '#6366f1',
-  QL_DAO_TAO: '#0ea5e9',
-  KHAO_THI:   '#10b981',
-  KHOA:       '#f59e0b',
+  ADMIN: 'var(--neu-navy-deep)',
+  QL_DAO_TAO: 'var(--neu-azure)',
+  KHAO_THI: '#10b981',
+  KHOA: '#f59e0b',
 };
 
 export default function AdminHeader({ toggleSidebar }) {
@@ -15,12 +15,12 @@ export default function AdminHeader({ toggleSidebar }) {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const displayName = admin?.username || admin?.name || 'Admin';
-  const roleLabel   = ROLE_DISPLAY[currentRole] || currentRole || 'Quản trị Hệ thống';
-  const roleColor   = ROLE_COLOR[currentRole] || '#6366f1';
-  const initials    = displayName.substring(0, 2).toUpperCase();
+  const roleLabel = ROLE_DISPLAY[currentRole] || currentRole || 'Quản trị Hệ thống';
+  const roleColor = ROLE_COLOR[currentRole] || 'var(--neu-navy-deep)';
+  const initials = displayName.substring(0, 2).toUpperCase();
 
   return (
-    <header className="admin-header">
+    <header className="admin-header card-neu">
       <div className="header-left">
         <button onClick={toggleSidebar} className="menu-btn">
           <Menu size={24} />
@@ -51,9 +51,9 @@ export default function AdminHeader({ toggleSidebar }) {
         </button>
 
         <div className="user-menu">
-          <div 
-            className="user-avatar admin-avatar" 
-            style={{ background: `${roleColor}22`, color: roleColor, border: `2px solid ${roleColor}` }}
+          <div
+            className="user-avatar admin-avatar"
+            style={{ background: 'var(--neu-azure-light)', color: 'var(--neu-azure)', border: `2px solid var(--neu-azure-light)` }}
           >
             {initials}
           </div>

@@ -1,23 +1,23 @@
 import React from 'react';
-import { 
-  Users, 
-  GraduationCap, 
-  BookOpen, 
+import {
+  Users,
+  GraduationCap,
+  BookOpen,
   TrendingUp,
   ArrowUp,
   ArrowDown,
   Activity
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
+import {
+  LineChart,
+  Line,
   BarChart,
   Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
 } from 'recharts';
 import './Dashboard.css';
 
@@ -57,7 +57,7 @@ export default function Dashboard() {
     }
   ];
 
- 
+
   const activityData = [
     { day: 'T2', logins: 2400, registrations: 145 },
     { day: 'T3', logins: 2800, registrations: 198 },
@@ -175,7 +175,7 @@ export default function Dashboard() {
           const Icon = stat.icon;
           const colors = getStatColor(stat.color);
           return (
-            <div key={index} className="stat-card">
+            <div key={index} className="stat-card card-neu">
               <div className="stat-header">
                 <div className="stat-info">
                   <div className="stat-title">{stat.title}</div>
@@ -196,9 +196,9 @@ export default function Dashboard() {
 
       {/* Charts Section */}
       <div className="charts-section">
-        
 
-        <div className="chart-card chart-medium">
+
+        <div className="chart-card chart-medium card-neu">
           <div className="chart-header">
             <div>
               <h3 className="chart-title">Hoạt động trong Tuần</h3>
@@ -229,7 +229,7 @@ export default function Dashboard() {
 
       {/* Activity and Alerts */}
       <div className="bottom-section">
-        <div className="activity-panel">
+        <div className="activity-panel card-neu">
           <div className="panel-header">
             <h3 className="panel-title">Hoạt động Gần đây</h3>
           </div>
@@ -253,7 +253,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="alerts-panel">
+        <div className="alerts-panel card-neu">
           <div className="panel-header">
             <h3 className="panel-title">Cảnh báo Hệ thống</h3>
           </div>

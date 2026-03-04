@@ -28,18 +28,17 @@ const LoginSignup = () => {
     setErrorMsg("");
     try {
       const data = await login(username, password);
-      
+
       if (data.access_token) {
         const role = data.user.role;
         const token = data.access_token;
-        const userData = encodeURIComponent(JSON.stringify({ ...data.user, fullName: data.user.username })); // Ensure fullName exists so admin bar doesn't error out
+        const userData = encodeURIComponent(JSON.stringify({ ...data.user, fullName: data.user.username }));
 
         // Cổng chia luồng (SSO Router)
         const roleNormalized = role.toUpperCase();
         const ADMIN_ROLES = ["ADMIN", "QL_DAO_TAO", "KHAO_THI", "KHOA", "STAFF", "staff"];
 
         if (ADMIN_ROLES.includes(roleNormalized)) {
-          // Tất cả nhân viên phòng ban → cổng Admin (port 5004)
           window.location.href = `http://localhost:5004/?token=${token}&userData=${userData}`;
         } else if (roleNormalized === "PARTNER") {
           window.location.href = `http://localhost:5003/?token=${token}&userData=${userData}`;
@@ -48,7 +47,7 @@ const LoginSignup = () => {
         } else if (roleNormalized === "GIANG_VIEN" || role === "lecturer") {
           window.location.href = `http://localhost:5006/?token=${token}&userData=${userData}`;
         } else {
-           alert("Đăng nhập thành công nhưng chưa có portal cho quyền này: " + role);
+          alert("Đăng nhập thành công nhưng chưa có portal cho quyền này: " + role);
         }
 
       } else {
@@ -60,57 +59,73 @@ const LoginSignup = () => {
   };
 
   return (
-    <div className="container">
-      <div className="header">
-        <div className="text">{action}</div>
-        <div className="underline"></div>
+    <div className="login-wrapper">
+      <div className="login-left">
+        <div className="login-branding">
+          <img src={logo_neu} alt="NEU Logo" className="login-logo-img" />
+          <h1>EDU-CHAIN</h1>
+          <p>Hệ thống quản lý đào tạo và chứng chỉ trên nền tảng Blockchain - Đại học Kinh tế Quốc dân</p>
+        </div>
       </div>
-      <div className="logo">
-        <img src={logo_neu} alt="NEU Logo" />
-      </div>
-      
-      {errorMsg && <div style={{ color: "red", textAlign: "center", marginBottom: "10px" }}>{errorMsg}</div>}
 
-      <div className="inputs">
-        <div className="input">
-          <img src={user_icon} alt="User" />
-          <input 
-            type="text" 
-            placeholder="Tên đăng nhập hoặc Email" 
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
+      <div className="login-right">
+        <div className="login-header">
+          <h2>Đăng nhập</h2>
+          <div className="subtitle">Chào mừng bạn quay trở lại. Hãy đăng nhập để tiếp tục.</div>
         </div>
-        <div className="input">
-          <img src={password_icon} alt="Password" />
-          <input 
-            type="password" 
-            placeholder="Mật khẩu" 
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleAction("Login");
-              }
-            }}
-          />
+
+        {errorMsg && <div className="error-msg">{errorMsg}</div>}
+
+        <div className="inputs-group">
+          <div className="input-field">
+            <label>Tên đăng nhập</label>
+            <div className="input-wrapper">
+              <img src={user_icon} alt="User" />
+              <input
+                type="text"
+                placeholder="Tên đăng nhập hoặc Email"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="input-field">
+            <label>Mật khẩu</label>
+            <div className="input-wrapper">
+              <img src={password_icon} alt="Password" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleAction("Login");
+                  }
+                }}
+              />
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="forgot-password">
-        Quên mật khẩu? <span>Nhấn vào đây!</span>
-      </div>
-      <div className="submit-container">
-        <div
-          className={action === "Login" ? "submit gray" : "submit"}
-          onClick={() => handleAction("Sign Up")}
-        >
-          Sign Up
+
+        <div className="forgot-link">
+          <span>Quên mật khẩu?</span>
         </div>
-        <div
-          className={action === "Sign Up" ? "submit gray" : "submit"}
-          onClick={() => handleAction("Login")}
-        >
-          Login
+
+        <div className="actions">
+          <button
+            className="btn-submit btn-login"
+            onClick={() => handleAction("Login")}
+          >
+            Đăng nhập
+          </button>
+          <button
+            className="btn-submit btn-signup"
+            onClick={() => handleAction("Sign Up")}
+          >
+            Đăng ký
+          </button>
         </div>
       </div>
     </div>

@@ -1,23 +1,20 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
+import {
   LayoutDashboard, Users, GraduationCap, BookOpen,
-  BarChart3, Settings, LogOut, Shield, ClipboardList,
-  Lock, ClipboardCheck, UserCheck, Building2
+  Settings, LogOut, Shield, ClipboardList,
+  Lock, ClipboardCheck, UserCheck
 } from 'lucide-react';
 import { useAdmin } from '../../context/AdminContext';
 import './AdminSidebar.css';
 
-// =============================================
-// Menu theo từng role
-// =============================================
 const MENU_BY_ROLE = {
   ADMIN: [
     {
       section: 'QUẢN TRỊ',
       items: [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
-        { path: '/users',     icon: Users,           label: 'Tạo tài khoản phòng ban' },
+        { path: '/users', icon: Users, label: 'Tạo tài khoản phòng ban' },
       ]
     },
     {
@@ -33,7 +30,7 @@ const MENU_BY_ROLE = {
       section: 'SINH VIÊN',
       items: [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
-        { path: '/users',     icon: Users,           label: 'Quản lý Sinh viên' },
+        { path: '/users', icon: Users, label: 'Quản lý Sinh viên' },
       ]
     },
     {
@@ -46,8 +43,8 @@ const MENU_BY_ROLE = {
       section: 'QUẢN LÝ HỌC TẬP',
       items: [
         { path: '/programs', icon: GraduationCap, label: 'Ngành học' },
-        { path: '/courses',  icon: BookOpen,       label: 'Học phần' },
-        { path: '/classes',  icon: ClipboardList,  label: 'Lớp học phần' },
+        { path: '/courses', icon: BookOpen, label: 'Học phần' },
+        { path: '/classes', icon: ClipboardList, label: 'Lớp học phần' },
       ]
     },
     {
@@ -62,8 +59,8 @@ const MENU_BY_ROLE = {
     {
       section: 'ĐIỂM SỐ',
       items: [
-        { path: '/dashboard',    icon: LayoutDashboard, label: 'Tổng quan' },
-        { path: '/grade-mgmt',   icon: ClipboardCheck,  label: 'Quản lý Điểm' },
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/grade-mgmt', icon: ClipboardCheck, label: 'Quản lý Điểm' },
       ]
     },
     {
@@ -85,7 +82,7 @@ const MENU_BY_ROLE = {
       section: 'GIẢNG VIÊN',
       items: [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
-        { path: '/users',     icon: UserCheck,       label: 'Quản lý Giảng viên' },
+        { path: '/users', icon: UserCheck, label: 'Quản lý Giảng viên' },
       ]
     },
     {
@@ -103,17 +100,15 @@ const MENU_BY_ROLE = {
   ],
 };
 
-// Fallback — không rõ role
 const DEFAULT_MENU = [
   { section: 'QUẢN LÝ', items: [{ path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' }] }
 ];
 
-// Nhãn phòng ban
 const ROLE_LABEL = {
-  ADMIN:      'Quản trị hệ thống',
+  ADMIN: 'Quản trị hệ thống',
   QL_DAO_TAO: 'Phòng QLĐT',
-  KHAO_THI:   'Phòng Khảo thí',
-  KHOA:       'Văn phòng Khoa',
+  KHAO_THI: 'Phòng Khảo thí',
+  KHOA: 'Văn phòng Khoa',
 };
 
 export default function AdminSidebar({ isOpen }) {
@@ -122,18 +117,12 @@ export default function AdminSidebar({ isOpen }) {
 
   return (
     <aside className={`admin-sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <div className="logo-icon"><Shield size={24} /></div>
-          {isOpen && (
-            <div>
-              <span className="logo-text">{ROLE_LABEL[currentRole] || 'Admin'}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
       <nav className="sidebar-nav">
+        <div className="sidebar-role-badge">
+          <Shield size={16} />
+          {isOpen && <span>{ROLE_LABEL[currentRole] || 'Admin'}</span>}
+        </div>
+
         {menuItems.map((section, idx) => (
           <div key={idx} className="nav-section">
             {isOpen && <div className="nav-section-title">{section.section}</div>}

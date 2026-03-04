@@ -14,7 +14,7 @@ export default function ApplicationTrend() {
   ];
 
   return (
-    <div className="application-trend">
+    <div className="application-trend card-neu">
       <div className="trend-header">
         <h3 className="trend-title">Biểu đồ Đơn đăng ký</h3>
         <div className="trend-actions">
@@ -27,14 +27,14 @@ export default function ApplicationTrend() {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3}/>
-                <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
             <XAxis dataKey="month" stroke="#94a3b8" />
             <YAxis stroke="#94a3b8" />
-            <Tooltip 
+            <Tooltip
               contentStyle={{
                 backgroundColor: 'white',
                 border: '1px solid #e2e8f0',
@@ -42,13 +42,13 @@ export default function ApplicationTrend() {
                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="applications" 
-              stroke="#2563eb" 
+            <Area
+              type="monotone"
+              dataKey="applications"
+              stroke="#2563eb"
               strokeWidth={2}
-              fillOpacity={1} 
-              fill="url(#colorApplications)" 
+              fillOpacity={1}
+              fill="url(#colorApplications)"
             />
           </AreaChart>
         </ResponsiveContainer>

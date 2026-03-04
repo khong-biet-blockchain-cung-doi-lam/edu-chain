@@ -4,9 +4,9 @@ import './StatsCard.css';
 
 export default function StatsCard({ title, value, change, icon: Icon, color }) {
   const isPositive = change?.startsWith('+');
-  
+
   return (
-    <div className="stats-card">
+    <div className="stats-card card-neu">
       <div className="stats-card-content">
         <div className="stats-info">
           <div className="stats-title">{title}</div>
