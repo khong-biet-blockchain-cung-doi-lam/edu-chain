@@ -1,29 +1,39 @@
-/* frontend/organizations/src/components/layout/MainLayout.css */
-.main-layout {
-  display: flex;
-  min-height: 100vh;
-  background: #f8fafc;
-}
-
-.main-content {
-  flex: 1;
-  margin-left: 280px;
-  transition: margin-left 0.3s ease;
+.portal-wrapper {
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
 }
 
-.main-content.sidebar-closed {
-  margin-left: 80px;
+.portal-layout {
+  display: flex;
+  flex: 1;
+  background: var(--bg-page);
+  font-family: 'Inter', sans-serif;
 }
 
-.content-area {
+.portal-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+}
+
+.portal-content {
   flex: 1;
   padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
+  .portal-sidebar {
+    position: fixed;
+    height: 100vh;
+    left: -260px;
+  }
+
+  .portal-sidebar.open {
+    left: 0;
   }
 }

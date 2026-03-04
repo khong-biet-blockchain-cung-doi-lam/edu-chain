@@ -57,7 +57,7 @@ export default function RecentActivity() {
   };
 
   return (
-    <div className="recent-activity">
+    <div className="recent-activity card-neu">
       <div className="activity-header">
         <h3 className="activity-title">Hoạt động Gần đây</h3>
         <button className="view-all-btn">Xem tất cả hoạt động →</button>

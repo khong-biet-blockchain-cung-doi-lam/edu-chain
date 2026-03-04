@@ -1,24 +1,26 @@
-// frontend/organizations/src/components/OrgSidebar/OrgSidebar.jsx
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  GraduationCap, 
-  Users, 
-  FileText, 
+import {
+  LayoutDashboard,
+  GraduationCap,
+  Users,
+  FileText,
   BarChart3,
   Building2,
   Settings,
-  LogOut
+  LogOut,
+  X,
+  Menu
 } from 'lucide-react';
 import { useOrganization } from '../../context/OrganizationContext';
 import './OrgSidebar.css';
 
 export default function OrgSidebar({ isOpen }) {
   const { organization, logout } = useOrganization();
+  // Since toggle logic is usually in Layout, we keep this simple or pass it down
 
   const menuItems = [
-    { 
+    {
       section: 'NỀN TẢNG',
       items: [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
@@ -43,15 +45,13 @@ export default function OrgSidebar({ isOpen }) {
   ];
 
   return (
-    <aside className={`org-sidebar ${isOpen ? 'open' : 'closed'}`}>
-      <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <div className="logo-icon">EC</div>
-          {isOpen && <span className="logo-text">Cổng Đối tác</span>}
-        </div>
-      </div>
-
+    <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
       <nav className="sidebar-nav">
+        <div className="sidebar-org-badge">
+          <Building2 size={16} />
+          {isOpen && <span>{organization?.name || 'Đối tác'}</span>}
+        </div>
+
         {menuItems.map((section, idx) => (
           <div key={idx} className="nav-section">
             {isOpen && <div className="nav-section-title">{section.section}</div>}
@@ -59,9 +59,7 @@ export default function OrgSidebar({ isOpen }) {
               <NavLink
                 key={item.path}
                 to={item.path}
-                className={({ isActive }) => 
-                  `nav-item ${isActive ? 'active' : ''}`
-                }
+                className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
               >
                 <item.icon size={20} className="nav-icon" />
                 {isOpen && <span className="nav-label">{item.label}</span>}

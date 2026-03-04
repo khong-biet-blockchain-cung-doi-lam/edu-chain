@@ -1,0 +1,62 @@
+:root {
+  /* NEU Brand Colors */
+  --neu-navy-deep: #002147;
+  --neu-navy-light: #003366;
+  --neu-white: #FFFFFF;
+  --neu-red-crimson: #D71920;
+  --neu-azure: #007FFF;
+  --neu-azure-light: #EBF5FF;
+
+  /* Semantic Colors */
+  --primary: var(--neu-navy-deep);
+  --secondary: var(--neu-azure);
+  --accent: var(--neu-red-crimson);
+  --success: #10b981;
+  --danger: var(--neu-red-crimson);
+  --warning: #f59e0b;
+  --info: var(--neu-azure);
+
+  /* Text Colors */
+  --text-primary: #001A33;
+  --text-secondary: #5F7D95;
+  --text-muted: #94a3b8;
+  --text-on-navy: #FFFFFF;
+
+  /* Backgrounds */
+  --bg-page: #f8fafc;
+  --bg-card: #FFFFFF;
+  --bg-navy: var(--neu-navy-deep);
+
+  /* Grays */
+  --gray-50: #f8fafc;
+  --gray-100: #f1f5f9;
+  --gray-200: #e2e8f0;
+  --gray-300: #cbd5e1;
+  --gray-400: #94a3b8;
+  --gray-500: #64748b;
+
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+
+  /* Borders & Radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --border-light: 1px solid var(--neu-azure-light);
+
+  /* Shadows & Effects */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 33, 71, 0.08);
+  --shadow-lg: 0 10px 25px rgba(0, 33, 71, 0.12);
+  --glass: rgba(255, 255, 255, 0.8);
+
+  /* Gradients */
+  --grad-navy: linear-gradient(135deg, var(--neu-navy-deep) 0%, var(--neu-navy-light) 100%);
+  --grad-azure: linear-gradient(135deg, var(--neu-azure) 0%, #3399FF 100%);
+}
