@@ -11,12 +11,11 @@ class Scholarship(db.Model):
     
     title = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
-    criteria = db.Column(db.JSON)  # Stores criteria like {"min_gpa": 3.2, "certificates": [...]}
-    status = db.Column(db.String(50), default='OPEN') # OPEN, CLOSED
+    criteria = db.Column(db.JSON)                                                                
+    status = db.Column(db.String(50), default='OPEN')               
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
-    # Relationships
     partner = db.relationship('Partner', backref=db.backref('scholarships', lazy=True))
 
     def to_dict(self):
@@ -38,15 +37,10 @@ class ScholarshipApplication(db.Model):
     student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'), nullable=False)
     
     status = db.Column(db.String(50), default='ELIGIBLE_PENDING_CONSENT') 
-    # ELIGIBLE_PENDING_CONSENT: System matched, waiting for student
-    # APPLIED: Student consented
-    # REJECTED: Partner rejected
-    # AWARDED: Partner accepted
-    
-    applied_at = db.Column(db.DateTime, nullable=True) # Set when status becomes APPLIED
-    created_at = db.Column(db.DateTime, default=datetime.utcnow) # When system matched
+                                                                   
+    applied_at = db.Column(db.DateTime, nullable=True)                                  
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)                      
 
-    # Relationships
     scholarship = db.relationship('Scholarship', backref=db.backref('applications', lazy=True))
     student = db.relationship('Student', backref=db.backref('scholarship_applications', lazy=True))
 

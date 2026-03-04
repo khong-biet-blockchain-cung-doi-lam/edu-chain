@@ -20,7 +20,7 @@ class Subject(db.Model):
     subject_code = db.Column(db.Text, nullable=False, unique=True)
     name = db.Column(db.Text, nullable=False)
     credits = db.Column(db.Integer, nullable=False)
-    organization_id = db.Column(UUID(as_uuid=True)) # Optional based on usage
+    organization_id = db.Column(UUID(as_uuid=True))                          
 
 class CourseClass(db.Model):
     __tablename__ = 'course_classes'
@@ -34,7 +34,6 @@ class CourseClass(db.Model):
     semester_id = db.Column(UUID(as_uuid=True), db.ForeignKey('semesters.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     subject = db.relationship('Subject', backref='classes')
     semester = db.relationship('Semester', backref='classes')
     lecturer = db.relationship('Lecturer', backref='classes')
@@ -47,7 +46,7 @@ class Grade(db.Model):
     midterm_score = db.Column(db.Float)
     final_score = db.Column(db.Float)
     total_score = db.Column(db.Float)
-    status = db.Column(db.Text) # e.g. 'PASSED', 'FAILED'
+    status = db.Column(db.Text)                          
     is_finalized = db.Column(db.Boolean, default=False)
     is_pending_review = db.Column(db.Boolean, default=False)
     review_notes = db.Column(db.Text)
@@ -57,6 +56,5 @@ class Grade(db.Model):
     course_class_id = db.Column(UUID(as_uuid=True), db.ForeignKey('course_classes.id'))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     student = db.relationship('Student', backref='grades')
     course_class = db.relationship('CourseClass', backref='grades')

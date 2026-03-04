@@ -8,26 +8,24 @@ class Lecturer(db.Model):
 
     id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
     lecturer_code = db.Column(db.Text, unique=True)
-    full_name = db.Column(db.String(255)) # Added for consistency
+    full_name = db.Column(db.String(255))                        
     organization_id = db.Column(UUID(as_uuid=True))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationship to Account
     account = db.relationship('Account', backref=db.backref('lecturer_profile', uselist=False))
 
 class Staff(db.Model):
     __tablename__ = 'staffs'
 
     id = db.Column(UUID(as_uuid=True), db.ForeignKey('account.id'), primary_key=True)
-    # account_id removed
+                        
     full_name = db.Column(db.Text)
     organization_id = db.Column(UUID(as_uuid=True))
-    # role_id removed
-    staff_code = db.Column(db.Text) # added based on inspection
-    can_sign_documents = db.Column(db.Boolean) # added based on inspection
-    position = db.Column(db.Text) # added based on inspection
+                     
+    staff_code = db.Column(db.Text)                            
+    can_sign_documents = db.Column(db.Boolean)                            
+    position = db.Column(db.Text)                            
 
-    # Relationship to Account
     account = db.relationship('Account', backref=db.backref('staff_profile', uselist=False))
 
 class LecturerSubject(db.Model):

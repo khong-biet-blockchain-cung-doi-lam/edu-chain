@@ -65,7 +65,6 @@ class StudentService:
 
         student = account.student
         
-        # 1. Update Contact
         contact = student.contact
         if not contact:
             contact = StudentContact(id=student.id)
@@ -76,7 +75,6 @@ class StudentService:
         if "address" in data: contact.contact_address = data["address"]
         if "permanent_address" in data: contact.permanent_address = data["permanent_address"]
 
-        # 2. Update Personal Info
         p_info = db.session.get(StudentPersonalInfo, student.id)
         if not p_info:
             p_info = StudentPersonalInfo(id=student.id, academic_status=AcademicStatus.STUDYING)

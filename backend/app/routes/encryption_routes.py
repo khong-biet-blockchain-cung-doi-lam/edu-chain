@@ -1,20 +1,19 @@
-"""
-encryption_routes.py
-API mã hóa / giải mã dữ liệu theo cụm (cluster).
-
-Phân quyền:
-  - QL_DAO_TAO: quản lý cluster 'student_profile'
-  - KHAO_THI:   quản lý cluster 'student_grades'
-  - ADMIN:      xem tất cả (chỉ đọc)
-
-Endpoints:
-  GET  /api/encrypt/clusters              → danh sách tất cả clusters của role hiện tại
-  POST /api/encrypt/student-profile/<id> → mã hóa profile 1 sinh viên
-  POST /api/encrypt/student-grades/<id>  → mã hóa điểm 1 sinh viên
-  POST /api/decrypt/cluster/<cluster_id> → giải mã 1 cluster (cần private key)
-  GET  /api/encrypt/clusters/stats       → thống kê trạng thái clusters
-"""
-
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+\
+   
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from datetime import datetime
@@ -35,15 +34,13 @@ from app.services.key_management_service import get_public_key, get_private_key
 bp_encrypt = Blueprint("encrypt", __name__, url_prefix="/api/encrypt")
 bp_decrypt = Blueprint("decrypt", __name__, url_prefix="/api/decrypt")
 
-
 def get_current_account_role():
     """Lấy account và role của người dùng hiện tại"""
     account_id = get_jwt_identity()
     account = Account.query.get(account_id)
     if not account:
         return None, None
-    return account, account.role_type
-
+    return account, account.role
 
 def require_roles(*allowed_roles):
     """Kiểm tra người dùng có role phù hợp không"""
@@ -59,11 +56,6 @@ def require_roles(*allowed_roles):
             return f(*args, **kwargs)
         return wrapper
     return decorator
-
-
-# ==========================================================
-# GET /api/encrypt/clusters — Danh sách clusters
-# ==========================================================
 
 @bp_encrypt.route("/clusters", methods=["GET"])
 @jwt_required()
@@ -81,7 +73,6 @@ def list_clusters():
         ).order_by(EncryptedCluster.created_at.desc()).all()
 
     return jsonify([c.to_safe_dict() for c in clusters]), 200
-
 
 @bp_encrypt.route("/clusters/stats", methods=["GET"])
 @jwt_required()
@@ -108,12 +99,6 @@ def cluster_stats():
         "cluster_type": ROLE_CLUSTER_MAP.get(role, "all") if role != Role.ADMIN else "all"
     }), 200
 
-
-# ==========================================================
-# POST /api/encrypt/student-profile/<student_id>
-# Phòng QL_DAO_TAO mã hóa hồ sơ sinh viên
-# ==========================================================
-
 @bp_encrypt.route("/student-profile/<student_id>", methods=["POST"])
 @jwt_required()
 @require_roles(Role.QL_DAO_TAO, Role.ADMIN)
@@ -131,19 +116,15 @@ def encrypt_student_profile(student_id):
     if not student:
         return jsonify({"msg": "Không tìm thấy sinh viên"}), 404
 
-    # Thu thập dữ liệu gốc
     profile_data = _collect_student_profile(student)
     
-    # Lấy RSA public key của phòng QL_DAO_TAO
     try:
         public_key = get_public_key(Role.QL_DAO_TAO)
     except EnvironmentError as e:
         return jsonify({"msg": str(e), "hint": "Chạy /api/encrypt/init-keys để tạo key"}), 500
 
-    # Mã hóa hybrid
     encrypted = hybrid_encrypt(profile_data, public_key)
 
-    # Kiểm tra cluster đã tồn tại chưa
     existing = EncryptedCluster.query.filter_by(
         cluster_type="student_profile",
         subject_id=student_uuid
@@ -173,12 +154,6 @@ def encrypt_student_profile(student_id):
         "status": "ENCRYPTED"
     }), 201
 
-
-# ==========================================================
-# POST /api/encrypt/student-grades/<student_id>
-# Phòng KHAO_THI mã hóa điểm sinh viên
-# ==========================================================
-
 @bp_encrypt.route("/student-grades/<student_id>", methods=["POST"])
 @jwt_required()
 @require_roles(Role.KHAO_THI, Role.ADMIN)
@@ -199,10 +174,8 @@ def encrypt_student_grades(student_id):
     if not grades:
         return jsonify({"msg": "Sinh viên chưa có dữ liệu điểm"}), 404
 
-    # Thu thập dữ liệu điểm
     grades_data = _collect_student_grades(student, grades)
 
-    # Lấy RSA public key của phòng KHAO_THI
     try:
         public_key = get_public_key(Role.KHAO_THI)
     except EnvironmentError as e:
@@ -240,12 +213,6 @@ def encrypt_student_grades(student_id):
         "status": "ENCRYPTED"
     }), 201
 
-
-# ==========================================================
-# POST /api/decrypt/cluster/<cluster_id>
-# Phòng ban giải mã cluster để chuẩn bị blockchain
-# ==========================================================
-
 @bp_decrypt.route("/cluster/<cluster_id>", methods=["POST"])
 @jwt_required()
 @require_roles(Role.QL_DAO_TAO, Role.KHAO_THI, Role.ADMIN)
@@ -267,13 +234,11 @@ def decrypt_cluster(cluster_id):
     if not cluster:
         return jsonify({"msg": "Cluster không tồn tại"}), 404
 
-    # Kiểm tra quyền: chỉ phòng quản lý cluster đó mới được giải mã
     if role != Role.ADMIN and cluster.managed_by_role != role:
         return jsonify({
             "msg": f"Cluster này thuộc phòng '{cluster.managed_by_role}', không phải '{role}'"
         }), 403
 
-    # Lấy private key
     data = request.get_json(silent=True) or {}
     provided_key = data.get("private_key_pem")
     
@@ -286,7 +251,6 @@ def decrypt_cluster(cluster_id):
             "hint": "Cung cấp private_key_pem trong body hoặc cấu hình .env"
         }), 400
 
-    # Giải mã
     try:
         decrypted_data = hybrid_decrypt(
             ciphertext_b64=cluster.ciphertext,
@@ -297,7 +261,6 @@ def decrypt_cluster(cluster_id):
     except Exception as e:
         return jsonify({"msg": "Giải mã thất bại", "detail": str(e)}), 400
 
-    # Cập nhật trạng thái cluster
     cluster.status = "DECRYPTED"
     cluster.decrypted_by = account.id
     cluster.decrypted_at = datetime.utcnow()
@@ -310,13 +273,8 @@ def decrypt_cluster(cluster_id):
         "subject_code": cluster.subject_code,
         "status": "DECRYPTED",
         "decrypted_at": cluster.decrypted_at.isoformat(),
-        "data": decrypted_data  # ← dữ liệu rõ cho blockchain team
+        "data": decrypted_data                                    
     }), 200
-
-
-# ==========================================================
-# POST /api/encrypt/init-keys — Tạo RSA key pair lần đầu
-# ==========================================================
 
 @bp_encrypt.route("/init-keys", methods=["POST"])
 @jwt_required()
@@ -338,11 +296,6 @@ def init_keys():
             "action": "Vui lòng copy nội dung file 'generated_keys.env' vào .env rồi restart server",
             "warning": "Xóa file generated_keys.env sau khi đã copy để bảo mật"
         }), 201
-
-
-# ==========================================================
-# HELPER FUNCTIONS — Thu thập dữ liệu gốc
-# ==========================================================
 
 def _collect_student_profile(student: Student) -> dict:
     """Thu thập tất cả thông tin hồ sơ sinh viên thành 1 dict"""
@@ -385,7 +338,6 @@ def _collect_student_profile(student: Student) -> dict:
         }
     
     return data
-
 
 def _collect_student_grades(student: Student, grades: list) -> dict:
     """Thu thập tất cả điểm số sinh viên thành 1 dict"""

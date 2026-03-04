@@ -24,7 +24,6 @@ class AccountService:
         db.session.add(new_account)
         db.session.flush()
 
-        # Create Profile
         if role == Role.SINH_VIEN:
             db.session.add(Student(id=new_account.id, student_id=code or username))
         elif role == Role.GIANG_VIEN:

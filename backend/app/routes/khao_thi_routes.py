@@ -1,12 +1,16 @@
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.course_models import Grade, CourseClass
 from app.models.student_model import Student
+from app.models.account_model import Account
 from app.models.enums import Role
 from app.decorators import role_required
 from app.services.grade_service import GradeService
 import uuid
+import logging
+
+_log = logging.getLogger(__name__)
 
 bp_khao_thi = Blueprint("khao_thi", __name__, url_prefix="/api/khao-thi")
 

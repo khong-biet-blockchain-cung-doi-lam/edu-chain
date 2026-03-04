@@ -9,18 +9,17 @@ class StudentCertificate(db.Model):
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     student_id = db.Column(UUID(as_uuid=True), db.ForeignKey('student.id'), nullable=False)
     
-    name = db.Column(db.String(255), nullable=False) # e.g., "IELTS"
-    code = db.Column(db.String(100)) # Certificate Number
-    score = db.Column(db.String(50)) # e.g., "7.5"
+    name = db.Column(db.String(255), nullable=False)                
+    code = db.Column(db.String(100))                     
+    score = db.Column(db.String(50))              
     issued_date = db.Column(db.Date)
     expiry_date = db.Column(db.Date, nullable=True)
-    image_url = db.Column(db.String(500)) # URL to proof image
+    image_url = db.Column(db.String(500))                     
     
-    status = db.Column(db.String(50), default='PENDING') # PENDING, VERIFIED, REJECTED
+    status = db.Column(db.String(50), default='PENDING')                              
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Relationships
     student = db.relationship('Student', backref=db.backref('certificates', lazy=True))
 
     def to_dict(self):
