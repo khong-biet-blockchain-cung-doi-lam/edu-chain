@@ -1,4 +1,5 @@
 require("@nomicfoundation/hardhat-toolbox");
+require("dotenv").config();
 
 module.exports = {
   solidity: {
@@ -29,10 +30,12 @@ module.exports = {
     timeout: 40000
   },
   gasReporter: {
-    enabled: true,
+    enabled: process.env.REPORT_GAS !== "false",
     currency: "USD",
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY || undefined,
     outputFile: "gas-report.txt",
     noColors: true,
-    reportFormat: "legacy"
+    reportFormat: "legacy",
+    excludeContracts: []
   }
 };
