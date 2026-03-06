@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api';
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('access_token');
   return {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -35,10 +35,15 @@ const encryptionService = {
     return res.data;
   },
 
-  // ===== DECRYPT =====
+  // ===== DECRYPT & SEND =====
   decryptCluster: async (clusterId, privateKeyPem = null) => {
     const body = privateKeyPem ? { private_key_pem: privateKeyPem } : {};
     const res = await axios.post(`${API_URL}/decrypt/cluster/${clusterId}`, body, getAuthHeader());
+    return res.data;
+  },
+
+  sendToBlockchain: async (clusterId, decryptedData) => {
+    const res = await axios.post(`${API_URL}/encrypt/send-to-blockchain/${clusterId}`, { data: decryptedData }, getAuthHeader());
     return res.data;
   },
 

@@ -3,13 +3,13 @@ import { Outlet, NavLink } from 'react-router-dom';
 import { useStudent } from '../context/StudentContext';
 import {
     LayoutDashboard,
-    UserCircle,
+    User,
     Award,
-    FileBadge,
+    CheckSquare,
     LogOut,
     Menu,
     X,
-    ClipboardEdit
+    BookOpen
 } from 'lucide-react';
 import './Sidebar.css';
 import NEUHeader from '@shared/components/layout/NEUHeader';
@@ -41,12 +41,13 @@ export default function Layout() {
 
     const menuItems = [
         {
-            section: 'HỌC TẬP',
+            section: 'Học tập', // Changed case
             items: [
                 { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
-                { path: '/profile', label: 'Hồ sơ Sinh viên', icon: UserCircle },
-                { path: '/certificates', label: 'Chứng chỉ', icon: FileBadge },
-                { path: '/course-registration', label: 'Đăng ký Học phần', icon: ClipboardEdit },
+                { path: '/grades', label: 'Kết quả học tập', icon: CheckSquare }, // Added new item
+                { path: '/profile', label: 'Hồ sơ Sinh viên', icon: User }, // Changed icon
+                { path: '/certificates', label: 'Chứng chỉ', icon: Award }, // Changed icon
+                { path: '/course-registration', label: 'Đăng ký Học phần', icon: BookOpen }, // Changed icon
             ]
         },
         {
@@ -58,63 +59,63 @@ export default function Layout() {
     ];
 
     return (
-        <div className="portal-wrapper">
-            <NEUHeader />
-            <div className="portal-layout student-portal">
-                {/* Sidebar */}
-                <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
-                    <div className="sidebar-header">
-                        <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
-                            {isOpen ? <X size={18} /> : <Menu size={18} />}
-                        </button>
-                    </div>
+        <div className="portal-layout student-portal">
+            {/* Sidebar - Now Full Height */}
+            <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
+                <div className="sidebar-header">
+                    <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
+                        {isOpen ? <X size={18} /> : <Menu size={18} />}
+                    </button>
+                </div>
 
-                    <nav className="sidebar-nav">
-                        {menuItems.map((section, idx) => (
-                            <div key={idx} className="nav-section">
-                                {isOpen && <div className="nav-section-title">{section.section}</div>}
-                                {section.items.map((item) => (
-                                    <NavLink
-                                        key={item.path}
-                                        to={item.path}
-                                        end={item.path === '/'}
-                                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                                    >
-                                        <item.icon size={20} className="nav-icon" />
-                                        {isOpen && <span className="nav-label">{item.label}</span>}
-                                    </NavLink>
-                                ))}
+                <nav className="sidebar-nav">
+                    {menuItems.map((section, idx) => (
+                        <div key={idx} className="nav-section">
+                            {isOpen && <div className="nav-section-title">{section.section}</div>}
+                            {section.items.map((item) => (
+                                <NavLink
+                                    key={item.path}
+                                    to={item.path}
+                                    end={item.path === '/'}
+                                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                                >
+                                    <item.icon size={20} className="nav-icon" />
+                                    {isOpen && <span className="nav-label">{item.label}</span>}
+                                </NavLink>
+                            ))}
+                        </div>
+                    ))}
+                </nav>
+
+                <div className="sidebar-footer">
+                    {isOpen && profile && (
+                        <div className="user-info">
+                            <div className="user-avatar" style={{ background: 'var(--neu-azure)' }}>
+                                {(profile.personal_info?.first_name?.[0] || 'S')}
                             </div>
-                        ))}
-                    </nav>
-
-                    <div className="sidebar-footer">
-                        {isOpen && profile && (
-                            <div className="user-info">
-                                <div className="user-avatar" style={{ background: 'var(--grad-azure)' }}>
-                                    {(profile.personal_info?.first_name?.[0] || 'S')}
-                                </div>
-                                <div className="user-details">
-                                    <div className="user-name">{profile.personal_info?.first_name} {profile.personal_info?.last_name}</div>
-                                    <div className="user-role">{profile.student_id}</div>
-                                </div>
+                            <div className="user-details">
+                                <div className="user-name">{profile.personal_info?.first_name} {profile.personal_info?.last_name}</div>
+                                <div className="user-role">{profile.student_id}</div>
                             </div>
-                        )}
-                        <button onClick={logout} className="logout-btn">
-                            <LogOut size={20} />
-                            {isOpen && <span>Đăng xuất</span>}
-                        </button>
-                    </div>
-                </aside>
+                        </div>
+                    )}
+                    <button onClick={logout} className="logout-btn">
+                        <LogOut size={20} />
+                        {isOpen && <span>Đăng xuất</span>}
+                    </button>
+                </div>
+            </aside>
 
-                {/* Main Content */}
-                <main className={`portal-main ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+            {/* Main Wrapper - Header & Content & Footer */}
+            <div className={`portal-main-wrapper ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+                <NEUHeader />
+                <main className="portal-main">
                     <div className="portal-content">
                         <Outlet />
                     </div>
                 </main>
+                <NEUFooter />
             </div>
-            <NEUFooter />
         </div>
     );
 }

@@ -1,5 +1,6 @@
 .neu-footer {
-    background: var(--neu-navy-deep);
+    background: #1e293b;
+    /* Fallback to standard dark navy slate */
     color: white;
     padding: 4rem 0 2rem;
     margin-top: auto;

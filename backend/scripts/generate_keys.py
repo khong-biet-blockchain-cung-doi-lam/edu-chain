@@ -49,7 +49,7 @@ def main():
     existing_content = "".join(existing_lines)
     append_lines = []
     
-    print("🔑 Tạo RSA key pair cho các phòng ban...\n")
+    print("Tao RSA key pair cho cac phong ban...\n")
     
     for dept, keys in DEPARTMENTS.items():
         pub_env = keys["public_env"]
@@ -59,7 +59,7 @@ def main():
             print(f"✅ {dept}: Key đã tồn tại, bỏ qua")
             continue
         
-        print(f"🔨 Đang tạo key cho {dept}...")
+        print(f"Dang tao key cho {dept}...")
         pub, priv = generate_keypair()
         
         # Chuyển sang single-line (thay \n bằng \\n) cho .env
@@ -69,15 +69,15 @@ def main():
         append_lines.append(f"\n# === RSA Keys: {dept} ===\n")
         append_lines.append(f'{pub_env}="{pub_single}"\n')
         append_lines.append(f'{priv_env}="{priv_single}"\n')
-        print(f"  ✅ Tạo thành công!")
+        print(f"  Tao thanh cong!")
     
     if append_lines:
         with open(env_path, 'a', encoding='utf-8') as f:
             f.writelines(append_lines)
-        print(f"\n✅ Đã ghi key vào: {os.path.abspath(env_path)}")
-        print("⚠️  Hãy restart backend server để load key mới!")
+        print(f"\nDa ghi key vao: {os.path.abspath(env_path)}")
+        print("Hay restart backend server de load key moi!")
     else:
-        print("\n✅ Tất cả key đã tồn tại. Không cần tạo mới.")
+        print("\nTat ca key da ton tai. Khong can tao moi.")
 
 
 if __name__ == "__main__":

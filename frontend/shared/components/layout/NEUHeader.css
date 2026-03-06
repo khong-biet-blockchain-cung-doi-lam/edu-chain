@@ -1,18 +1,20 @@
 .neu-header {
     width: 100%;
-    z-index: 1000;
+    z-index: 10;
 }
 
 .header-top-bar {
-    background: var(--neu-navy-deep);
-    padding: 0.75rem 0;
+    background: #002147;
+    padding: 0.5rem 0;
     color: white;
+    border-bottom: 2px solid #FFC101;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
+    width: 100%;
+    margin: 0;
+    padding: 0 2.5rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -25,8 +27,8 @@
 }
 
 .neu-logo-circle {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
     background: white;
     border-radius: 50%;
     display: flex;
@@ -37,11 +39,10 @@
 }
 
 .map-red {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
     background: var(--neu-red-crimson);
     clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-    /* Simplified map shape */
 }
 
 .brand-text {
@@ -50,13 +51,13 @@
 }
 
 .brand-name {
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 700;
     letter-spacing: 0.5px;
 }
 
 .brand-tagline {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
     opacity: 0.8;
 }
 
@@ -67,11 +68,19 @@
 }
 
 .nav-link {
-    color: white;
+    color: #ffffff;
     text-decoration: none;
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: color 0.3s;
+    font-weight: 800;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.nav-link:hover {
+    color: #FFC101;
+    transform: translateY(-2px);
 }
 
 .nav-link:hover {

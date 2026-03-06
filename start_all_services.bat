@@ -6,7 +6,7 @@ for %%p in (5001 5003 5004 5005 5006 3000) do (
 )
 
 echo Dang khoi dong Backend (Cong 5001)...
-start "EduChain Backend" cmd /c "cd backend && ..\.venv\Scripts\activate && python run.py"
+start "EduChain Backend" cmd /c "cd backend && ..\venv\Scripts\activate && python run.py"
 timeout /t 2 /nobreak >nul
 
 echo Dang khoi dong Admin (Cong 5004)...

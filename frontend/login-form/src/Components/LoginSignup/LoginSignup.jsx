@@ -36,16 +36,20 @@ const LoginSignup = () => {
 
         // Cổng chia luồng (SSO Router)
         const roleNormalized = role.toUpperCase();
-        const ADMIN_ROLES = ["ADMIN", "QL_DAO_TAO", "KHAO_THI", "KHOA", "STAFF", "staff"];
+        const ADMIN_ROLES = ["ADMIN", "QL_DAO_TAO", "KHAO_THI", "KHOA", "STAFF"];
 
         if (ADMIN_ROLES.includes(roleNormalized)) {
-          window.location.href = `http://localhost:5004/?token=${token}&userData=${userData}`;
+          // Admin Portal - Port 5004
+          window.location.href = `http://127.0.0.1:5004/?token=${token}&userData=${userData}`;
         } else if (roleNormalized === "PARTNER") {
-          window.location.href = `http://localhost:5003/?token=${token}&userData=${userData}`;
-        } else if (roleNormalized === "SINH_VIEN" || role === "student") {
-          window.location.href = `http://localhost:5005/?token=${token}&userData=${userData}`;
-        } else if (roleNormalized === "GIANG_VIEN" || role === "lecturer") {
-          window.location.href = `http://localhost:5006/?token=${token}&userData=${userData}`;
+          // Organizations Portal - Port 5003
+          window.location.href = `http://127.0.0.1:5003/?token=${token}&userData=${userData}`;
+        } else if (roleNormalized === "SINH_VIEN" || roleNormalized === "STUDENT") {
+          // Student Portal - Port 5005
+          window.location.href = `http://127.0.0.1:5005/?token=${token}&userData=${userData}`;
+        } else if (roleNormalized === "GIANG_VIEN" || roleNormalized === "LECTURER") {
+          // Lecturer Portal - Port 5006
+          window.location.href = `http://127.0.0.1:5006/?token=${token}&userData=${userData}`;
         } else {
           alert("Đăng nhập thành công nhưng chưa có portal cho quyền này: " + role);
         }

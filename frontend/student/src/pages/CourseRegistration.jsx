@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../api/axiosClient";
-import { 
-    Search, BookOpen, Users, CheckCircle, XCircle, 
+import {
+    Search, BookOpen, Users, CheckCircle, XCircle,
     Plus, Trash2, Filter, Clock
 } from "lucide-react";
 import "./CourseRegistration.css";
@@ -66,12 +66,12 @@ export default function CourseRegistration() {
 
     const filtered = classes.filter(c => {
         const matchSearch = c.name.toLowerCase().includes(search.toLowerCase()) ||
-                           c.subject.toLowerCase().includes(search.toLowerCase()) ||
-                           c.code.toLowerCase().includes(search.toLowerCase());
+            c.subject.toLowerCase().includes(search.toLowerCase()) ||
+            c.code.toLowerCase().includes(search.toLowerCase());
         const matchSem = filterSem === "all" || c.semester === filterSem;
-        const matchStatus = filterStatus === "all" || 
-                           (filterStatus === "enrolled" && c.enrolled) ||
-                           (filterStatus === "available" && !c.enrolled);
+        const matchStatus = filterStatus === "all" ||
+            (filterStatus === "enrolled" && c.enrolled) ||
+            (filterStatus === "available" && !c.enrolled);
         return matchSearch && matchSem && matchStatus;
     });
 
@@ -83,8 +83,8 @@ export default function CourseRegistration() {
             {/* Toast */}
             {toast && (
                 <div className={`cr-toast ${toast.type}`}>
-                    {toast.type === "success" ? <CheckCircle size={16} /> : <XCircle size={16} />}
-                    {toast.msg}
+                    {toast.type === "success" ? <CheckCircle size={20} /> : <XCircle size={20} />}
+                    <span style={{ fontWeight: 700 }}>{toast.msg}</span>
                 </div>
             )}
 
@@ -96,11 +96,11 @@ export default function CourseRegistration() {
                 </div>
                 <div className="cr-summary-badges">
                     <div className="cr-badge blue">
-                        <BookOpen size={14} />
+                        <BookOpen size={16} />
                         <span>{enrolledCount} lớp đã đăng ký</span>
                     </div>
                     <div className="cr-badge green">
-                        <CheckCircle size={14} />
+                        <CheckCircle size={16} />
                         <span>{totalCreditEnrolled} tín chỉ</span>
                     </div>
                 </div>
@@ -109,8 +109,8 @@ export default function CourseRegistration() {
             {/* Filters */}
             <div className="cr-filters">
                 <div className="cr-search">
-                    <Search size={16} className="cr-search-icon" />
-                    <input 
+                    <Search size={18} className="cr-search-icon" />
+                    <input
                         placeholder="Tìm theo tên lớp, môn học, mã lớp..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
@@ -132,62 +132,64 @@ export default function CourseRegistration() {
 
             {/* Class Grid */}
             {loading ? (
-                <div className="cr-loading">Đang tải danh sách lớp học phần...</div>
+                <div className="cr-loading" style={{ background: 'white', padding: '4rem', borderRadius: '24px', textAlign: 'center', color: 'var(--p-text-muted)' }}>
+                    Đang tải danh sách lớp học phần...
+                </div>
             ) : filtered.length === 0 ? (
-                <div className="cr-empty">
+                <div className="cr-empty" style={{ background: 'white', padding: '4rem', borderRadius: '24px', textAlign: 'center', color: 'var(--p-text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                     <BookOpen size={48} />
-                    <p>Không tìm thấy lớp học phần phù hợp</p>
+                    <p style={{ fontWeight: 700 }}>Không tìm thấy lớp học phần phù hợp</p>
                 </div>
             ) : (
                 <div className="cr-grid">
                     {filtered.map(cls => (
-                        <div key={cls.id} className={`cr-card ${cls.enrolled ? 'enrolled' : ''}`}>
+                        <div key={cls.id} className={`cr-card glass-card ${cls.enrolled ? 'enrolled' : ''}`}>
                             {cls.enrolled && <div className="cr-enrolled-badge">✓ Đã đăng ký</div>}
-                            <div className="cr-card-header">
-                                <div className="cr-card-icon">
-                                    <BookOpen size={18} />
-                                </div>
-                                <span className="cr-card-code">{cls.code}</span>
-                            </div>
                             <div className="cr-card-body">
+                                <div className="cr-card-header">
+                                    <div className="cr-card-icon">
+                                        <BookOpen size={20} />
+                                    </div>
+                                    <span className="cr-card-code">{cls.code}</span>
+                                </div>
                                 <h3 className="cr-card-name">{cls.name}</h3>
                                 <div className="cr-card-details">
                                     <div className="cr-detail">
-                                        <BookOpen size={12} />
+                                        <Filter size={14} />
                                         <span>{cls.subject}</span>
                                     </div>
                                     <div className="cr-detail">
-                                        <Clock size={12} />
-                                        <span>{cls.semester}</span>
+                                        <Clock size={14} />
+                                        <span>Học kỳ: {cls.semester}</span>
                                     </div>
                                     <div className="cr-detail">
-                                        <Users size={12} />
-                                        <span>{cls.student_count} sinh viên</span>
+                                        <Users size={14} />
+                                        <span>Sĩ số: {cls.student_count}</span>
                                     </div>
                                 </div>
                                 <div className="cr-credits">
-                                    <span className="cr-credit-badge">{cls.credits} tín chỉ</span>
-                                    <span className="cr-lecturer">{cls.lecturer}</span>
+                                    <span className="cr-credit-badge">{cls.credits} TÍN CHỈ</span>
+                                    <span className="cr-lecturer">GV: {cls.lecturer}</span>
                                 </div>
                             </div>
                             <div className="cr-card-footer">
                                 {cls.enrolled ? (
-                                    <button 
+                                    <button
                                         className="cr-btn-drop"
                                         onClick={() => handleDrop(cls.id)}
                                         disabled={processingId === cls.id}
                                     >
-                                        <Trash2 size={14} />
+                                        <Trash2 size={16} />
                                         {processingId === cls.id ? "Đang xử lý..." : "Hủy đăng ký"}
                                     </button>
                                 ) : (
-                                    <button 
-                                        className="cr-btn-enroll"
+                                    <button
+                                        className="cr-btn-enroll btn-primary"
                                         onClick={() => handleEnroll(cls.id)}
                                         disabled={processingId === cls.id}
                                     >
-                                        <Plus size={14} />
-                                        {processingId === cls.id ? "Đang xử lý..." : "Đăng ký"}
+                                        <Plus size={16} />
+                                        {processingId === cls.id ? "Đang xử lý..." : "Đăng ký ngay"}
                                     </button>
                                 )}
                             </div>
@@ -198,3 +200,4 @@ export default function CourseRegistration() {
         </div>
     );
 }
+

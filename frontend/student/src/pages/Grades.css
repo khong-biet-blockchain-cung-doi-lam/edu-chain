@@ -1,0 +1,22 @@
+/* Reuse table styles from Dashboard.css or move them here if shared */
+/* For now, I'll define essential overrides if needed, assuming Dashboard.css is shared/imported */
+@import "./Dashboard.css";
+
+.sv-grades-page {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.sv-table-card {
+    padding: 0px !important;
+    /* The wrap handles padding usually */
+    overflow: hidden;
+}
+
+.sv-table-wrap {
+    padding: 1.5rem;
+}
+
+/* Ensure dedicated specific styles for grades if they differ */

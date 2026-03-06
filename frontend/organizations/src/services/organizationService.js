@@ -1,10 +1,10 @@
 // frontend/organizations/src/services/organizationService.js
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api';
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('access_token');
   return {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -45,13 +45,13 @@ const organizationService = {
     try {
       const formData = new FormData();
       formData.append('logo', file);
-      
+
       const response = await axios.post(
         `${API_URL}/organization/logo`,
         formData,
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
             'Content-Type': 'multipart/form-data'
           }
         }

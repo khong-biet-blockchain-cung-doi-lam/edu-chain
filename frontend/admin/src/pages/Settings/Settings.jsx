@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  Save, 
-  Database, 
-  Shield, 
-  Bell, 
+import {
+  Save,
+  Database,
+  Shield,
+  Bell,
   Mail,
   Server,
   Globe,
@@ -94,7 +94,7 @@ export default function Settings() {
 
       <div className="settings-layout">
         {/* Sidebar */}
-        <div className="settings-sidebar">
+        <div className="settings-sidebar glass-card">
           {tabs.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -111,7 +111,7 @@ export default function Settings() {
         </div>
 
         {/* Content */}
-        <div className="settings-content">
+        <div className="settings-content glass-card">
           {/* General Settings */}
           {activeTab === 'general' && (
             <div className="settings-section">

@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { Search, Bell, Menu } from 'lucide-react';
-import { useAdmin, ROLE_DISPLAY } from '../../context/AdminContext';
+import { useLocation } from 'react-router-dom';
+import { useAdmin, ROLE_DISPLAY, MENU_BY_ROLE, ROLE_COLOR } from '../../context/AdminContext';
 import './AdminHeader.css';
-
-const ROLE_COLOR = {
-  ADMIN: 'var(--neu-navy-deep)',
-  QL_DAO_TAO: 'var(--neu-azure)',
-  KHAO_THI: '#10b981',
-  KHOA: '#f59e0b',
-};
 
 export default function AdminHeader({ toggleSidebar }) {
   const { admin, currentRole } = useAdmin();
+  const location = useLocation();
   const [showNotifications, setShowNotifications] = useState(false);
 
   const displayName = admin?.username || admin?.name || 'Admin';
@@ -19,16 +14,24 @@ export default function AdminHeader({ toggleSidebar }) {
   const roleColor = ROLE_COLOR[currentRole] || 'var(--neu-navy-deep)';
   const initials = displayName.substring(0, 2).toUpperCase();
 
+  // Dynamic breadcrumb logic
+  const currentPath = location.pathname;
+  const menuSections = MENU_BY_ROLE[currentRole] || [];
+  const allItems = menuSections.flatMap(section => section.items);
+  const currentItem = allItems.find(item => item.path === currentPath) ||
+    allItems.find(item => currentPath.startsWith(item.path) && item.path !== '/dashboard') ||
+    { label: 'Tổng quan' };
+
+  const safeRoleLabel = String(roleLabel || 'Quản trị');
+  const departmentShortName = safeRoleLabel.replace('Phòng ', '').replace('Văn phòng ', '');
+
   return (
     <header className="admin-header card-neu">
       <div className="header-left">
-        <button onClick={toggleSidebar} className="menu-btn">
-          <Menu size={24} />
-        </button>
         <div className="header-breadcrumb">
-          <span className="breadcrumb-text">Cổng Quản trị</span>
+          <span className="breadcrumb-text">{departmentShortName}</span>
           <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">Tổng quan</span>
+          <span className="breadcrumb-current">{currentItem.label}</span>
         </div>
       </div>
 

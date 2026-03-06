@@ -63,10 +63,6 @@ export default function LecturerDashboard() {
 
     return (
         <div className="lec-dashboard">
-            <HeroSection
-                subtitle="Chào mừng Giảng viên quay trở lại! Chúc thầy/cô một ngày làm việc hiệu quả tại NEU."
-            />
-
             {/* Header */}
             <div className="lec-header card-neu" style={{ marginBottom: '2rem' }}>
                 <div>

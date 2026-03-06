@@ -1,20 +1,112 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import {
+  LayoutDashboard, Users, GraduationCap, BookOpen,
+  Settings, Shield, ClipboardList, Lock,
+  ClipboardCheck, UserCheck
+} from 'lucide-react';
 
 const AdminContext = createContext();
 
 export const ROLE_DISPLAY = {
-  ADMIN:      'Quản trị hệ thống',
+  ADMIN: 'Quản trị hệ thống',
   QL_DAO_TAO: 'Phòng Quản lý Đào tạo',
-  KHAO_THI:   'Phòng Khảo thí',
-  KHOA:       'Văn phòng Khoa',
+  KHAO_THI: 'Phòng Khảo thí',
+  KHOA: 'Văn phòng Khoa',
+};
+
+export const ROLE_COLOR = {
+  ADMIN: 'var(--neu-navy-deep)',
+  QL_DAO_TAO: 'var(--neu-azure)',
+  KHAO_THI: '#10b981',
+  KHOA: '#f59e0b',
+};
+
+export const MENU_BY_ROLE = {
+  ADMIN: [
+    {
+      section: 'QUẢN TRỊ',
+      items: [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/users', icon: Users, label: 'Tạo tài khoản phòng ban' },
+      ]
+    },
+    {
+      section: 'HỆ THỐNG',
+      items: [
+        { path: '/settings', icon: Settings, label: 'Cài đặt' }
+      ]
+    }
+  ],
+
+  QL_DAO_TAO: [
+    {
+      section: 'SINH VIÊN',
+      items: [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/users', icon: Users, label: 'Quản lý Sinh viên' },
+      ]
+    },
+    {
+      section: 'MÃ HÓA DỮ LIỆU',
+      items: [
+        { path: '/profile-clusters', icon: Lock, label: 'Cụm Hồ sơ (Blockchain)' },
+      ]
+    },
+    {
+      section: 'QUẢN LÝ HỌC TẬP',
+      items: [
+        { path: '/programs', icon: GraduationCap, label: 'Ngành học' },
+        { path: '/courses', icon: BookOpen, label: 'Học phần' },
+        { path: '/classes', icon: ClipboardList, label: 'Lớp học phần' },
+      ]
+    }
+  ],
+
+  KHAO_THI: [
+    {
+      section: 'ĐIỂM SỐ',
+      items: [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/grade-mgmt', icon: ClipboardCheck, label: 'Quản lý Điểm' },
+      ]
+    },
+    {
+      section: 'MÃ HÓA DỮ LIỆU',
+      items: [
+        { path: '/grade-clusters', icon: Lock, label: 'Cụm Điểm (Blockchain)' },
+      ]
+    },
+    {
+      section: 'HỆ THỐNG',
+      items: [
+        { path: '/settings', icon: Settings, label: 'Cài đặt' }
+      ]
+    }
+  ],
+
+  KHOA: [
+    {
+      section: 'GIẢNG VIÊN',
+      items: [
+        { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
+        { path: '/users', icon: UserCheck, label: 'Quản lý Giảng viên' },
+      ]
+    },
+    {
+      section: 'HỌC VỤ',
+      items: [
+        { path: '/classes', icon: ClipboardList, label: 'Phân công giảng viên' },
+      ]
+    }
+  ],
 };
 
 const LEGACY_ROLE_MAP = {
-  'staff':    'QL_DAO_TAO',
-  'STAFF':    'QL_DAO_TAO',
-  'student':  'SINH_VIEN',
+  'staff': 'QL_DAO_TAO',
+  'STAFF': 'QL_DAO_TAO',
+  'student': 'SINH_VIEN',
   'lecturer': 'GIANG_VIEN',
-  'partner':  'PARTNER',
+  'partner': 'PARTNER',
 };
 
 function normalizeRole(rawRole) {
@@ -30,7 +122,7 @@ function readInitialState() {
   try {
     const params = new URLSearchParams(window.location.search);
     const urlToken = params.get('token');
-    const urlUser  = params.get('userData');
+    const urlUser = params.get('userData');
 
     if (urlToken && urlUser) {
       // Đến từ redirect sau login
@@ -38,7 +130,7 @@ function readInitialState() {
       const role = normalizeRole(parsedUser.role);
 
       // Lưu ngay vào localStorage
-      localStorage.setItem('authToken', urlToken);
+      localStorage.setItem('access_token', urlToken);
       localStorage.setItem('userData', urlUser);
       localStorage.setItem('userRole', role || '');
 
@@ -47,11 +139,11 @@ function readInitialState() {
 
       return { admin: parsedUser, role };
     }
-    
+
     // Từ localStorage (F5 / mở lại trang)
-    const savedUser  = localStorage.getItem('userData');
-    const savedToken = localStorage.getItem('authToken');
-    const savedRole  = localStorage.getItem('userRole');
+    const savedUser = localStorage.getItem('userData');
+    const savedToken = localStorage.getItem('access_token');
+    const savedRole = localStorage.getItem('userRole');
 
     if (savedUser && savedToken) {
       const parsed = JSON.parse(savedUser);
@@ -73,7 +165,7 @@ export function AdminProvider({ children }) {
   // Đọc ngay đồng bộ — không cần useEffect mới có role
   const { admin: initAdmin, role: initRole } = readInitialState();
 
-  const [admin, setAdmin]           = useState(initAdmin);
+  const [admin, setAdmin] = useState(initAdmin);
   const [currentRole, setCurrentRole] = useState(initRole);
 
   const updateAdmin = (data) => {
@@ -82,7 +174,7 @@ export function AdminProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('userData');
     localStorage.removeItem('userRole');
     const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';

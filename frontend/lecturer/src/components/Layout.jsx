@@ -2,13 +2,9 @@ import React, { useState } from 'react';
 import { Outlet, NavLink } from 'react-router-dom';
 import { useLecturer } from '../context/LecturerContext';
 import {
-    LayoutDashboard,
-    User,
-    LogOut,
-    BookOpen,
-    Menu,
-    X,
-    ClipboardCheck
+    LayoutDashboard, User, BookOpen,
+    ClipboardList, GraduationCap, X, Menu,
+    ClipboardCheck, BookOpenCheck, LogOut
 } from 'lucide-react';
 import './Sidebar.css';
 import NEUHeader from '@shared/components/layout/NEUHeader';
@@ -42,75 +38,76 @@ export default function Layout() {
             section: 'GIẢNG DẠY',
             items: [
                 { path: '/', label: 'Tổng quan', icon: LayoutDashboard },
+                { path: '/grade-management', label: 'Quản lý điểm', icon: ClipboardCheck },
                 { path: '/profile', label: 'Thông tin cá nhân', icon: User },
             ]
         },
         {
             section: 'HỌC PHẦN',
             items: [
-                { path: '/class-assignment', label: 'Nhận Lớp Học phần', icon: ClipboardCheck },
+                { path: '/class-assignment', label: 'Nhận Lớp Học phần', icon: BookOpenCheck },
             ]
         }
     ];
 
     return (
-        <div className="portal-wrapper">
-            <NEUHeader />
-            <div className="portal-layout lecturer-portal">
-                {/* Sidebar */}
-                <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
-                    <div className="sidebar-header">
-                        <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
-                            {isOpen ? <X size={18} /> : <Menu size={18} />}
-                        </button>
-                    </div>
+        <div className="portal-layout lecturer-portal">
+            {/* Sidebar - Now Full Height & Fixed */}
+            <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
+                <div className="sidebar-header">
+                    <button className="sidebar-toggle" onClick={() => setIsOpen(!isOpen)}>
+                        {isOpen ? <X size={18} /> : <Menu size={18} />}
+                    </button>
+                </div>
 
-                    <nav className="sidebar-nav">
-                        {menuItems.map((section, idx) => (
-                            <div key={idx} className="nav-section">
-                                {isOpen && <div className="nav-section-title">{section.section}</div>}
-                                {section.items.map((item) => (
-                                    <NavLink
-                                        key={item.path + idx}
-                                        to={item.path}
-                                        end={item.path === '/'}
-                                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-                                    >
-                                        <item.icon size={20} className="nav-icon" />
-                                        {isOpen && <span className="nav-label">{item.label}</span>}
-                                    </NavLink>
-                                ))}
+                <nav className="sidebar-nav">
+                    {menuItems.map((section, idx) => (
+                        <div key={idx} className="nav-section">
+                            {isOpen && <div className="nav-section-title">{section.section}</div>}
+                            {section.items.map((item) => (
+                                <NavLink
+                                    key={item.path + idx}
+                                    to={item.path}
+                                    end={item.path === '/'}
+                                    className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                                >
+                                    <item.icon size={20} className="nav-icon" />
+                                    {isOpen && <span className="nav-label">{item.label}</span>}
+                                </NavLink>
+                            ))}
+                        </div>
+                    ))}
+                </nav>
+
+                <div className="sidebar-footer">
+                    {isOpen && (
+                        <div className="user-info">
+                            <div className="user-avatar" style={{ background: 'var(--neu-azure)' }}>
+                                GV
                             </div>
-                        ))}
-                    </nav>
-
-                    <div className="sidebar-footer">
-                        {isOpen && (
-                            <div className="user-info">
-                                <div className="user-avatar" style={{ background: 'var(--grad-azure)' }}>
-                                    GV
-                                </div>
-                                <div className="user-details">
-                                    <div className="user-name">Giảng viên</div>
-                                    <div className="user-role">NEU Portal</div>
-                                </div>
+                            <div className="user-details">
+                                <div className="user-name">Giảng viên</div>
+                                <div className="user-role">NEU Portal</div>
                             </div>
-                        )}
-                        <button onClick={logout} className="logout-btn">
-                            <LogOut size={20} />
-                            {isOpen && <span>Đăng xuất</span>}
-                        </button>
-                    </div>
-                </aside>
+                        </div>
+                    )}
+                    <button onClick={logout} className="logout-btn">
+                        <LogOut size={20} />
+                        {isOpen && <span>Đăng xuất</span>}
+                    </button>
+                </div>
+            </aside>
 
-                {/* Main Content */}
-                <main className={`portal-main ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+            {/* Main Wrapper - Header & Content & Footer */}
+            <div className={`portal-main-wrapper ${isOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+                <NEUHeader roleLabel="GIẢNG VIÊN" />
+                <main className="portal-main">
                     <div className="portal-content">
                         <Outlet />
                     </div>
                 </main>
+                <NEUFooter />
             </div>
-            <NEUFooter />
         </div>
     );
 }
