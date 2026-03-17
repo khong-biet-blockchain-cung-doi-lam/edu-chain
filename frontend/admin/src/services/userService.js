@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api';
 
 const getAuthHeader = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('access_token');
   return {
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -95,6 +95,34 @@ const userService = {
     }
   },
 
+  withdrawStudent: async (id) => {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/management/students/${id}/withdraw`,
+        {},
+        getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error withdrawing student:', error);
+      throw error;
+    }
+  },
+
+  unlockStudentProfile: async (id) => {
+    try {
+      const response = await axios.patch(
+        `${API_URL}/management/students/${id}/unlock`,
+        {},
+        getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error unlocking student profile:', error);
+      throw error;
+    }
+  },
+
   getUserStats: async () => {
     try {
       const response = await axios.get(
@@ -104,6 +132,28 @@ const userService = {
       return response.data;
     } catch (error) {
       console.error('Error fetching user statistics:', error);
+      throw error;
+    }
+  },
+
+  uploadStudents: async (file) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await axios.post(
+        `${API_URL}/staff/upload-students`,
+        formData,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading students:', error);
       throw error;
     }
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Lock, Unlock, Shield, Users, Search, 
+import {
+    Lock, Unlock, Shield, Users, Search,
     RefreshCw, CheckCircle, XCircle, Info, Copy
 } from 'lucide-react';
 import encryptionService from '../../services/encryptionService';
@@ -8,9 +8,9 @@ import './ClusterManagement.css';
 
 const STATUS_LABELS = {
     ENCRYPTED: 'Đã mã hóa',
-    COMPLETE:  'Đủ dữ liệu',
+    COMPLETE: 'Đủ dữ liệu',
     DECRYPTED: 'Đã giải mã',
-    SENT:      'Đã gửi Blockchain',
+    SENT: 'Đã gửi Blockchain',
 };
 
 export default function ProfileClusters() {
@@ -109,6 +109,19 @@ export default function ProfileClusters() {
         }
     };
 
+    const handleSendToBlockchain = async () => {
+        if (!decryptModal || !decryptResult?.data) return;
+        try {
+            const res = await encryptionService.sendToBlockchain(decryptModal.id, decryptResult.data);
+            showToast(`✅ Đã gửi thành công! TxHash: ${res.tx_hash.substring(0, 10)}...`);
+            setDecryptModal(null);
+            setDecryptResult(null);
+            fetchData();
+        } catch (e) {
+            showToast(e.response?.data?.msg || 'Lỗi khi gửi lên Blockchain', 'error');
+        }
+    };
+
     const copyToClipboard = () => {
         navigator.clipboard.writeText(JSON.stringify(decryptResult?.data, null, 2));
         showToast('Đã copy dữ liệu vào clipboard!', 'info');
@@ -116,7 +129,7 @@ export default function ProfileClusters() {
 
     const filtered = clusters.filter(c => {
         const matchSearch = (c.subject_code || '').toLowerCase().includes(search.toLowerCase()) ||
-                            c.status.toLowerCase().includes(search.toLowerCase());
+            c.status.toLowerCase().includes(search.toLowerCase());
         const matchStatus = filterStatus === 'all' || c.status === filterStatus;
         return matchSearch && matchStatus;
     });
@@ -130,9 +143,9 @@ export default function ProfileClusters() {
         <div className="cluster-page">
             {toast && (
                 <div className={`cluster-toast ${toast.type}`}>
-                    {toast.type === 'success' && <CheckCircle size={16}/>}
-                    {toast.type === 'error'   && <XCircle size={16}/>}
-                    {toast.type === 'info'    && <Info size={16}/>}
+                    {toast.type === 'success' && <CheckCircle size={16} />}
+                    {toast.type === 'error' && <XCircle size={16} />}
+                    {toast.type === 'info' && <Info size={16} />}
                     {toast.msg}
                 </div>
             )}
@@ -167,7 +180,7 @@ export default function ProfileClusters() {
             {/* Toolbar */}
             <div className="cluster-toolbar">
                 <div className="cluster-search">
-                    <Search size={15} className="cluster-search-icon"/>
+                    <Search size={15} className="cluster-search-icon" />
                     <input
                         className="cluster-search-input"
                         placeholder="Tìm theo mã SV, trạng thái..."
@@ -182,21 +195,21 @@ export default function ProfileClusters() {
                     <option value="SENT">Đã gửi Blockchain</option>
                 </select>
                 <button className="cluster-btn-encrypt" onClick={fetchData}>
-                    <RefreshCw size={15}/> Làm mới
+                    <RefreshCw size={15} /> Làm mới
                 </button>
                 <button className="cluster-btn-encrypt" onClick={openEncryptModal}>
-                    <Lock size={15}/> Mã hóa hồ sơ mới
+                    <Lock size={15} /> Mã hóa hồ sơ mới
                 </button>
             </div>
 
             {/* Table */}
             {loading ? (
-                <div className="cluster-loading"><RefreshCw size={18}/> Đang tải dữ liệu...</div>
+                <div className="cluster-loading"><RefreshCw size={18} /> Đang tải dữ liệu...</div>
             ) : (
                 <div className="cluster-table-wrap">
                     {filtered.length === 0 ? (
                         <div className="cluster-empty">
-                            <Shield size={48}/>
+                            <Shield size={48} />
                             <p>Chưa có cluster nào. Bấm "Mã hóa hồ sơ mới" để bắt đầu.</p>
                         </div>
                     ) : (
@@ -221,24 +234,33 @@ export default function ProfileClusters() {
                                                 {STATUS_LABELS[c.status] || c.status}
                                             </span>
                                         </td>
-                                        <td style={{fontSize:'0.8rem', color:'#64748b'}}>
+                                        <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
                                             {c.created_at ? new Date(c.created_at).toLocaleDateString('vi-VN') : '—'}
                                         </td>
-                                        <td style={{fontSize:'0.8rem', color:'#64748b'}}>
+                                        <td style={{ fontSize: '0.8rem', color: '#64748b' }}>
                                             {c.decrypted_at ? new Date(c.decrypted_at).toLocaleDateString('vi-VN') : '—'}
                                         </td>
                                         <td>
                                             {(c.status === 'ENCRYPTED' || c.status === 'COMPLETE') && (
-                                                <button 
+                                                <button
                                                     className="cluster-action-btn decrypt"
                                                     onClick={() => openDecryptModal(c)}
                                                 >
-                                                    <Unlock size={13}/> Giải mã
+                                                    <Unlock size={13} /> Giải mã
                                                 </button>
                                             )}
                                             {c.status === 'DECRYPTED' && (
-                                                <span style={{fontSize:'0.78rem', color:'#10b981', fontWeight:'600'}}>
-                                                    ✓ Sẵn sàng Blockchain
+                                                <button
+                                                    className="cluster-action-btn encrypt"
+                                                    style={{ background: '#10b981', borderColor: '#059669', color: 'white' }}
+                                                    onClick={() => openDecryptModal(c)}
+                                                >
+                                                    Gửi Blockchain
+                                                </button>
+                                            )}
+                                            {c.status === 'SENT' && (
+                                                <span style={{ fontSize: '0.78rem', color: '#10b981', fontWeight: '600' }}>
+                                                    ✓ Đã lưu Blockchain
                                                 </span>
                                             )}
                                         </td>
@@ -270,12 +292,12 @@ export default function ProfileClusters() {
                         </select>
                         <div className="cluster-modal-actions">
                             <button className="cluster-modal-cancel" onClick={() => setEncryptModal(false)}>Hủy</button>
-                            <button 
+                            <button
                                 className="cluster-modal-confirm"
                                 onClick={handleEncrypt}
                                 disabled={!selectedStudentId || encrypting}
                             >
-                                <Lock size={14}/> {encrypting ? 'Đang mã hóa...' : 'Mã hóa ngay'}
+                                <Lock size={14} /> {encrypting ? 'Đang mã hóa...' : 'Mã hóa ngay'}
                             </button>
                         </div>
                     </div>
@@ -290,7 +312,7 @@ export default function ProfileClusters() {
                             <>
                                 <h3>🔓 Giải mã Cluster — {decryptModal.subject_code}</h3>
                                 <p>
-                                    Nhập RSA Private Key của Phòng Quản lý Đào tạo (PEM format). 
+                                    Nhập RSA Private Key của Phòng Quản lý Đào tạo (PEM format).
                                     Nếu bỏ trống, hệ thống sẽ dùng key đã cấu hình trong .env.
                                 </p>
                                 <textarea
@@ -301,25 +323,32 @@ export default function ProfileClusters() {
                                 />
                                 <div className="cluster-modal-actions">
                                     <button className="cluster-modal-cancel" onClick={() => setDecryptModal(null)}>Hủy</button>
-                                    <button 
+                                    <button
                                         className="cluster-modal-confirm"
                                         onClick={handleDecrypt}
                                         disabled={decrypting}
                                     >
-                                        <Unlock size={14}/> {decrypting ? 'Đang giải mã...' : 'Giải mã & Chuẩn bị Blockchain'}
+                                        <Unlock size={14} /> {decrypting ? 'Đang giải mã...' : 'Giải mã & Chuẩn bị Blockchain'}
                                     </button>
                                 </div>
                             </>
                         ) : (
                             <>
                                 <h3>✅ Giải mã thành công!</h3>
-                                <p>Dữ liệu bên dưới đã sẵn sàng để gửi cho đội Blockchain:</p>
+                                <p>Dữ liệu bên dưới đã sẵn sàng để gửi lên Blockchain:</p>
                                 <div className="cluster-result-box">
                                     {JSON.stringify(decryptResult.data, null, 2)}
                                 </div>
                                 <div className="cluster-modal-actions">
                                     <button className="cluster-copy-btn" onClick={copyToClipboard}>
-                                        <Copy size={13}/> Copy JSON
+                                        <Copy size={13} /> Copy JSON
+                                    </button>
+                                    <button
+                                        className="cluster-modal-confirm"
+                                        style={{ background: '#10b981' }}
+                                        onClick={handleSendToBlockchain}
+                                    >
+                                        Gửi lên Blockchain
                                     </button>
                                     <button className="cluster-modal-cancel" onClick={() => { setDecryptModal(null); setDecryptResult(null); }}>
                                         Đóng

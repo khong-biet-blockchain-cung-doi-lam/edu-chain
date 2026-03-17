@@ -12,14 +12,14 @@ from app.models import (
     enterprise_model,
     scholarship_model,
     student_certificate_model,
-    encrypted_cluster_model                                               
+    encrypted_cluster_model
 )
 
 def create_app(config_object=None):
     app = Flask(__name__)
     app.config.from_object(config_object or "config.Config")
 
-    cors.init_app(app)
+    cors.init_app(app, resources={r"/api/*": {"origins": "*"}})
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
@@ -48,8 +48,8 @@ def create_app(config_object=None):
     app.register_blueprint(bp_student_scholarship)
     app.register_blueprint(bp_management)
     app.register_blueprint(bp_organization)
-    app.register_blueprint(bp_encrypt)             
-    app.register_blueprint(bp_decrypt)              
-    app.register_blueprint(bp_khao_thi)                    
+    app.register_blueprint(bp_encrypt)
+    app.register_blueprint(bp_decrypt)
+    app.register_blueprint(bp_khao_thi)
 
     return app

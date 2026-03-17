@@ -13,7 +13,7 @@ export function OrganizationProvider({ children }) {
     const urlUser = params.get('userData');
 
     if (urlToken && urlUser) {
-      localStorage.setItem('authToken', urlToken);
+      localStorage.setItem('access_token', urlToken);
       localStorage.setItem('userData', urlUser);
       let parsedUser = JSON.parse(urlUser);
       localStorage.setItem('userRole', parsedUser.role);
@@ -22,13 +22,13 @@ export function OrganizationProvider({ children }) {
       window.history.replaceState({}, document.title, window.location.pathname);
     } else {
       const orgData = localStorage.getItem('userData');
-      const token = localStorage.getItem('authToken');
-      
+      const token = localStorage.getItem('access_token');
+
       if (orgData && token) {
         setOrganization(JSON.parse(orgData));
       }
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -38,7 +38,7 @@ export function OrganizationProvider({ children }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('authToken');
+    localStorage.removeItem('access_token');
     localStorage.removeItem('userData');
     localStorage.removeItem('userRole');
     const loginUrl = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';

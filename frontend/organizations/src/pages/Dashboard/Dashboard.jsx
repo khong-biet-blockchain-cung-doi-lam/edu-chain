@@ -1,9 +1,9 @@
 // frontend/organizations/src/pages/Dashboard/Dashboard.jsx
 import React from 'react';
-import { 
-  TrendingUp, 
-  Users, 
-  FileText, 
+import {
+  TrendingUp,
+  Users,
+  FileText,
   DollarSign,
   Download,
   Plus
@@ -33,7 +33,7 @@ export default function Dashboard() {
       color: 'green'
     },
     {
-      title: 'Lượt sinh viên xem',
+      title: 'Lượt ứng viên xem',
       value: '45.2k',
       change: '+18% so với tháng trước',
       trend: 'up',

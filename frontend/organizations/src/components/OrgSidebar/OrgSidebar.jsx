@@ -15,7 +15,7 @@ import {
 import { useOrganization } from '../../context/OrganizationContext';
 import './OrgSidebar.css';
 
-export default function OrgSidebar({ isOpen }) {
+export default function OrgSidebar({ isOpen, toggleSidebar }) {
   const { organization, logout } = useOrganization();
   // Since toggle logic is usually in Layout, we keep this simple or pass it down
 
@@ -25,7 +25,7 @@ export default function OrgSidebar({ isOpen }) {
       items: [
         { path: '/dashboard', icon: LayoutDashboard, label: 'Tổng quan' },
         { path: '/scholarships', icon: GraduationCap, label: 'Học bổng' },
-        { path: '/students', icon: Users, label: 'Hồ sơ Ứng viên' },
+        { path: '/candidates', icon: Users, label: 'Hồ sơ Ứng viên' },
         { path: '/applications', icon: FileText, label: 'Đơn đăng ký' }
       ]
     },
@@ -46,11 +46,13 @@ export default function OrgSidebar({ isOpen }) {
 
   return (
     <aside className={`portal-sidebar ${isOpen ? 'open' : 'closed'}`}>
+      <div className="sidebar-header">
+        <button className="sidebar-toggle" onClick={toggleSidebar}>
+          {isOpen ? <X size={18} /> : <Menu size={18} />}
+        </button>
+      </div>
+
       <nav className="sidebar-nav">
-        <div className="sidebar-org-badge">
-          <Building2 size={16} />
-          {isOpen && <span>{organization?.name || 'Đối tác'}</span>}
-        </div>
 
         {menuItems.map((section, idx) => (
           <div key={idx} className="nav-section">

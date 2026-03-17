@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosClient';
-import { Plus, Clock, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Clock, CheckCircle2, XCircle, Award, Calendar, Hash, ExternalLink } from 'lucide-react';
+import "./Certificates.css";
 
 export default function StudentCertificates() {
     const [certificates, setCertificates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [msg, setMsg] = useState({ text: "", type: "" });
     const [showModal, setShowModal] = useState(false);
-    
+
     const [formData, setFormData] = useState({
         name: "",
         code: "",
@@ -45,7 +46,7 @@ export default function StudentCertificates() {
             fetchCertificates();
             setShowModal(false);
             setFormData({ name: "", code: "", score: "", issued_date: "", image_url: "" });
-            
+
             setTimeout(() => setMsg({ text: "", type: "" }), 3000);
         } catch (error) {
             console.error(error);
@@ -54,130 +55,149 @@ export default function StudentCertificates() {
     };
 
     const StatusBadge = ({ status }) => {
-        if (status === 'VERIFIED') return <span className="flex items-center space-x-1 text-green-600 bg-green-50 px-2 py-1 rounded-full text-xs font-bold"><CheckCircle2 size={14} /><span>Đã Xác Thực</span></span>;
-        if (status === 'REJECTED') return <span className="flex items-center space-x-1 text-red-600 bg-red-50 px-2 py-1 rounded-full text-xs font-bold"><XCircle size={14} /><span>Bị Từ Chối</span></span>;
-        return <span className="flex items-center space-x-1 text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full text-xs font-bold"><Clock size={14} /><span>Chờ Duyệt</span></span>;
+        if (status === 'VERIFIED') return <span className="grade-badge pass"><CheckCircle2 size={14} style={{ marginRight: '4px' }} /> Đã Xác Thực</span>;
+        if (status === 'REJECTED') return <span className="grade-badge fail"><XCircle size={14} style={{ marginRight: '4px' }} /> Bị Từ Chối</span>;
+        return <span className="grade-badge" style={{ background: 'rgba(245, 158, 11, 0.1)', color: '#d97706' }}><Clock size={14} style={{ marginRight: '4px' }} /> Chờ Duyệt</span>;
     };
 
     return (
-        <div className="max-w-6xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Quản lý Chứng chỉ</h1>
-                <button 
+        <div className="ce-page">
+            <div className="ce-header">
+                <div>
+                    <h1 className="ce-title">Chứng chỉ & Văn bằng</h1>
+                    <p style={{ color: 'var(--p-text-muted)', fontWeight: 500 }}>Quản lý và cập nhật hồ sơ năng lực của bạn</p>
+                </div>
+                <button
                     onClick={() => setShowModal(true)}
-                    className="bg-[#00528C] hover:bg-blue-800 text-white px-4 py-2 rounded text-sm font-medium transition flex items-center shadow-sm"
+                    className="btn btn-primary"
                 >
-                    <Plus size={16} className="mr-2" /> Thêm Chứng chỉ
+                    <Plus size={18} /> Thêm Chứng chỉ mới
                 </button>
             </div>
 
             {msg.text && (
-                <div className={`p-4 rounded-lg font-medium text-sm ${msg.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {msg.text}
+                <div className={`cr-toast ${msg.type}`} style={{ position: 'static', animation: 'fadeIn 0.3s ease' }}>
+                    {msg.type === 'success' ? <CheckCircle2 size={20} /> : <XCircle size={20} />}
+                    <span style={{ fontWeight: 700 }}>{msg.text}</span>
                 </div>
             )}
 
-            <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-                <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-                    <h2 className="font-bold text-gray-700">Danh sách Chứng chỉ của bạn</h2>
+            {loading ? (
+                <div className="cr-loading" style={{ background: 'white', padding: '4rem', borderRadius: '24px', textAlign: 'center', color: 'var(--p-text-muted)' }}>
+                    Đang tải danh sách chứng chỉ...
                 </div>
+            ) : certificates.length === 0 ? (
+                <div className="cr-empty" style={{ background: 'white', padding: '4rem', borderRadius: '24px', textAlign: 'center', color: 'var(--p-text-muted)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <Award size={48} />
+                    <p style={{ fontWeight: 700 }}>Chưa có chứng chỉ nào được ghi nhận</p>
+                    <button onClick={() => setShowModal(true)} className="btn" style={{ background: 'var(--p-bg-sidebar)' }}>Khai báo ngay</button>
+                </div>
+            ) : (
+                <div className="ce-grid">
+                    {certificates.map((cert) => (
+                        <div key={cert.id} className="ce-card glass-card">
+                            <div className="ce-card-header">
+                                <div className="ce-card-icon">
+                                    <Award size={24} />
+                                </div>
+                                <StatusBadge status={cert.status} />
+                            </div>
 
-                {loading ? (
-                    <div className="p-8 text-center text-gray-500">Đang tải chứng chỉ...</div>
-                ) : certificates.length === 0 ? (
-                    <div className="p-8 text-center text-gray-500">Không có chứng chỉ nào hệ thống ghi nhận. Hãy tự khai báo bằng nút "Thêm Chứng chỉ".</div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm">
-                            <thead className="bg-[#f8fafc] text-gray-600">
-                                <tr>
-                                    <th className="px-6 py-3 font-medium">Tên Chứng chỉ</th>
-                                    <th className="px-6 py-3 font-medium text-center">Mã số (Code)</th>
-                                    <th className="px-6 py-3 font-medium text-center">Điểm số/Xếp loại</th>
-                                    <th className="px-6 py-3 font-medium text-center">Ngày cấp</th>
-                                    <th className="px-6 py-3 font-medium text-center">Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {certificates.map((cert) => (
-                                    <tr key={cert.id} className="hover:bg-gray-50/50 transition-colors">
-                                        <td className="px-6 py-4 font-bold text-gray-800">{cert.name}</td>
-                                        <td className="px-6 py-4 text-center text-gray-600 font-mono">{cert.code || '-'}</td>
-                                        <td className="px-6 py-4 text-center font-medium text-[#00528C]">{cert.score || '-'}</td>
-                                        <td className="px-6 py-4 text-center text-gray-600">{cert.issued_date ? new Date(cert.issued_date).toLocaleDateString('vi-VN') : '-'}</td>
-                                        <td className="px-6 py-4 flex justify-center">
-                                            <StatusBadge status={cert.status} />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                )}
-            </div>
+                            <h3 className="ce-card-title">{cert.name}</h3>
 
-            {/* Modal Thêm Chứng Chỉ */}
-            {showModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                        <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                            <h3 className="font-bold text-lg text-gray-800">Thêm Chứng chỉ mới</h3>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <XCircle size={20} />
-                            </button>
+                            <div className="ce-card-info">
+                                <div className="ce-info-row">
+                                    <Hash size={14} />
+                                    <span>Mã số: <strong>{cert.code || 'N/A'}</strong></span>
+                                </div>
+                                <div className="ce-info-row">
+                                    <Calendar size={14} />
+                                    <span>Ngày cấp: {cert.issued_date ? new Date(cert.issued_date).toLocaleDateString('vi-VN') : 'N/A'}</span>
+                                </div>
+                            </div>
+
+                            <div className="ce-score-badge">
+                                {cert.score || 'Đang cập nhật'}
+                            </div>
+
+                            {cert.image_url && (
+                                <a
+                                    href={cert.image_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="btn"
+                                    style={{ marginTop: 'auto', background: 'rgba(241, 245, 249, 0.5)', width: '100%', fontSize: '0.8rem' }}
+                                >
+                                    <ExternalLink size={14} /> Xem minh chứng
+                                </a>
+                            )}
                         </div>
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Tên Chứng chỉ *</label>
-                                <input 
-                                    type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="Ví dụ: IELTS, TOEIC..."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00528C]/50 focus:border-[#00528C] transition"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Mã xác nhận (Code)</label>
-                                    <input 
-                                        type="text" name="code" value={formData.code} onChange={handleChange} placeholder="Mã tra cứu"
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00528C]/50 focus:border-[#00528C] transition"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Điểm / Kết quả</label>
-                                    <input 
-                                        type="text" name="score" value={formData.score} onChange={handleChange} placeholder="Chuyên môn, IELTS 7.5..."
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00528C]/50 focus:border-[#00528C] transition"
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Ngày cấp</label>
-                                <input 
-                                    type="date" name="issued_date" value={formData.issued_date} onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00528C]/50 focus:border-[#00528C] transition"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Link ảnh chụp minh chứng</label>
-                                <input 
-                                    type="url" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://..."
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00528C]/50 focus:border-[#00528C] transition"
-                                />
-                            </div>
+                    ))}
+                </div>
+            )}
 
-                            <div className="pt-4 flex space-x-3">
-                                <button 
-                                    type="button" onClick={() => setShowModal(false)}
-                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition"
-                                >
-                                    Hủy
-                                </button>
-                                <button 
-                                    type="submit"
-                                    className="flex-1 px-4 py-2 bg-[#00528C] text-white rounded-lg hover:bg-blue-800 font-medium transition shadow-sm"
-                                >
-                                    Nộp Chứng Chỉ
-                                </button>
+            {/* Modal Form */}
+            {showModal && (
+                <div className="modal-overlay" onClick={() => setShowModal(false)}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+                        <div className="modal-header">
+                            <h3 className="modal-title">Thêm Chứng chỉ mới</h3>
+                            <p style={{ color: 'var(--p-text-muted)', fontSize: '0.9rem', marginTop: '0.4rem' }}>
+                                Vui lòng cung cấp thông tin chính xác để hệ thống xác thực.
+                            </p>
+                        </div>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="modal-body">
+                                <div style={{ marginBottom: '1.5rem' }}>
+                                    <label className="ce-label">Tên Chứng chỉ/Văn bằng *</label>
+                                    <input
+                                        className="form-input"
+                                        type="text" name="name" required value={formData.name} onChange={handleChange} placeholder="Ví dụ: IELTS, TOEIC, Google Cloud Certified..."
+                                        style={{ width: '100%' }}
+                                    />
+                                </div>
+
+                                <div className="ce-form-grid" style={{ marginBottom: '1.5rem' }}>
+                                    <div>
+                                        <label className="ce-label">Mã xác nhận (Code)</label>
+                                        <input
+                                            className="form-input"
+                                            type="text" name="code" value={formData.code} onChange={handleChange} placeholder="Mã tra cứu"
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="ce-label">Điểm / Xếp loại</label>
+                                        <input
+                                            className="form-input"
+                                            type="text" name="score" value={formData.score} onChange={handleChange} placeholder="7.5, Distinction..."
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="ce-form-grid" style={{ marginBottom: '1.5rem' }}>
+                                    <div>
+                                        <label className="ce-label">Ngày cấp</label>
+                                        <input
+                                            className="form-input"
+                                            type="date" name="issued_date" value={formData.issued_date} onChange={handleChange}
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="ce-label">Link ảnh minh chứng</label>
+                                        <input
+                                            className="form-input"
+                                            type="url" name="image_url" value={formData.image_url} onChange={handleChange} placeholder="https://..."
+                                            style={{ width: '100%' }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn" onClick={() => setShowModal(false)}>Hủy bỏ</button>
+                                <button type="submit" className="btn btn-primary">Lưu chứng chỉ</button>
                             </div>
                         </form>
                     </div>
@@ -186,3 +206,4 @@ export default function StudentCertificates() {
         </div>
     );
 }
+

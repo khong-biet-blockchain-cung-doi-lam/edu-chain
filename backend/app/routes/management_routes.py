@@ -12,6 +12,17 @@ import bcrypt
 bp_management = Blueprint('management', __name__, url_prefix='/api/management')
 ADMIN_ROLES = [Role.ADMIN, Role.QL_DAO_TAO, Role.KHAO_THI, Role.KHOA]
 
+@bp_management.route("/accounts/<account_id>", methods=["DELETE"])
+@jwt_required()
+@role_required(Role.ADMIN)
+def delete_account(account_id):
+    acc = db.session.get(Account, uuid.UUID(account_id))
+    if not acc:
+        return jsonify({"msg": "Không tìm thấy tài khoản"}), 404
+    db.session.delete(acc)
+    db.session.commit()
+    return jsonify({"msg": "Đã xóa tài khoản"}), 200
+
 @bp_management.route("/accounts", methods=["POST"])
 @jwt_required()
 @role_required(Role.ADMIN, Role.QL_DAO_TAO, Role.KHOA)
@@ -118,6 +129,31 @@ def unlock_student_profile(student_id):
     if error: return jsonify({"msg": error}), 404
     msg = "Đã mở khóa hồ sơ thành công" if success is True else success
     return jsonify({"msg": msg}), 200
+
+@bp_management.route("/students/<student_id>/withdraw", methods=["PATCH"])
+@jwt_required()
+@role_required(Role.ADMIN, Role.QL_DAO_TAO)
+def withdraw_student(student_id):
+    acc = db.session.get(Account, uuid.UUID(student_id))
+    if not acc or acc.role != Role.SINH_VIEN:
+        return jsonify({"msg": "Không tìm thấy sinh viên"}), 404
+        
+    student = acc.student
+    if not student:
+        return jsonify({"msg": "Không tìm thấy hồ sơ sinh viên"}), 404
+        
+    from app.models.enums import AcademicStatus
+    from app.models.student_personal_info_model import StudentPersonalInfo
+    
+    pi = student.personal_info
+    if not pi:
+        pi = StudentPersonalInfo(id=student.id, academic_status=AcademicStatus.WITHDRAWN)
+        db.session.add(pi)
+    else:
+        pi.academic_status = AcademicStatus.WITHDRAWN
+        
+    db.session.commit()
+    return jsonify({"msg": "Đã chuyển trạng thái sinh viên thành Thôi học"}), 200
 
 def _get_student_profile_summary(acc):
     student = acc.student

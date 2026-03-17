@@ -1,5 +1,5 @@
 /* frontend/organizations/src/pages/StudentDirectory/StudentDirectory.css */
-.student-directory-page {
+.candidate-directory-page {
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -109,13 +109,13 @@
   background: #f8fafc;
 }
 
-.student-info {
+.candidate-info {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-.student-avatar {
+.candidate-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -152,7 +152,7 @@
   background: linear-gradient(135deg, #06b6d4, #8b5cf6);
 }
 
-.student-name {
+.candidate-name {
   font-weight: 600;
   color: #0f172a;
 }

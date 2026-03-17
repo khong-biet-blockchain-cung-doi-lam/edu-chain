@@ -1,92 +1,67 @@
-// frontend/organizations/src/pages/StudentDirectory/StudentDirectory.jsx
-import React, { useState } from 'react';
-import { Search, Filter, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Filter, Download, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import applicationService from '../../services/applicationService';
 import './StudentDirectory.css';
 
 export default function StudentDirectory() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const students = [
-    {
-      id: 1,
-      name: 'Emily Martinez',
-      initials: 'EM',
-      program: 'Computer Science',
-      year: 'Junior',
-      gpa: '3.92',
-      status: 'Active',
-      gradient: 'gradient-blue'
-    },
-    {
-      id: 2,
-      name: 'James Chen',
-      initials: 'JC',
-      program: 'Electrical Engineering',
-      year: 'Senior',
-      gpa: '3.85',
-      status: 'Applied',
-      gradient: 'gradient-purple'
-    },
-    {
-      id: 3,
-      name: 'Sophia Patel',
-      initials: 'SP',
-      program: 'Mathematics',
-      year: 'Sophomore',
-      gpa: '4.00',
-      status: 'Active',
-      gradient: 'gradient-green'
-    },
-    {
-      id: 4,
-      name: 'Michael Johnson',
-      initials: 'MJ',
-      program: 'Mechanical Engineering',
-      year: 'Junior',
-      gpa: '3.78',
-      status: 'Shortlisted',
-      gradient: 'gradient-orange'
-    },
-    {
-      id: 5,
-      name: 'Aisha Lopez',
-      initials: 'AL',
-      program: 'Data Science',
-      year: 'Senior',
-      gpa: '3.95',
-      status: 'Active',
-      gradient: 'gradient-pink'
-    },
-    {
-      id: 6,
-      name: 'David Kim',
-      initials: 'DK',
-      program: 'Computer Science',
-      year: 'Sophomore',
-      gpa: '3.88',
-      status: 'Applied',
-      gradient: 'gradient-cyan'
+  const fetchApplicants = async () => {
+    try {
+      setLoading(true);
+      const data = await applicationService.getAllApplications();
+      // Map applicants to the directory structure
+      const mapped = data.map((app, index) => ({
+        id: app.id,
+        name: app.student_name || 'N/A',
+        initials: (app.student_name || '??').split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2),
+        program: app.program || 'N/A',
+        year: app.year || 'N/A',
+        gpa: app.gpa || 'N/A',
+        status: app.status === 'APPLIED' ? 'Chờ duyệt' : app.status,
+        gradient: ['gradient-blue', 'gradient-purple', 'gradient-green', 'gradient-orange', 'gradient-pink', 'gradient-cyan'][index % 6]
+      }));
+      setStudents(mapped);
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError('Không thể tải danh sách ứng viên.');
+    } finally {
+      setLoading(false);
     }
-  ];
-
-  const getStatusClass = (status) => {
-    const statusMap = {
-      'Active': 'status-active',
-      'Applied': 'status-applied',
-      'Shortlisted': 'status-shortlisted'
-    };
-    return statusMap[status] || 'status-default';
   };
 
+  useEffect(() => {
+    fetchApplicants();
+  }, []);
+
+  const getStatusClass = (status) => {
+    if (status === 'Chờ duyệt') return 'status-applied';
+    if (status === 'APPROVED') return 'status-active';
+    if (status === 'REJECTED') return 'status-shortlisted';
+    return 'status-default';
+  };
+
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    s.program.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <div className="student-directory-page">
+    <div className="candidate-directory-page">
       <div className="directory-header">
         <div>
-          <h1 className="directory-title">Danh bạ Sinh viên</h1>
-          <p className="directory-subtitle">Duyệt và quản lý hồ sơ sinh viên</p>
+          <h1 className="directory-title">Hồ sơ Ứng viên</h1>
+          <p className="directory-subtitle">Duyệt và quản lý hồ sơ sinh viên ứng tuyển học bổng</p>
         </div>
         <div className="directory-actions">
+          <button className="btn btn-secondary" onClick={fetchApplicants}>
+            <RefreshCw size={15} style={{ marginRight: '8px' }} />
+            Làm mới
+          </button>
           <button className="btn btn-secondary">
             <Download size={18} />
             Xuất Dữ liệu
@@ -100,7 +75,7 @@ export default function StudentDirectory() {
             <Search size={20} className="search-icon" />
             <input
               type="text"
-              placeholder="Tìm kiếm sinh viên theo tên, chương trình hoặc ID..."
+              placeholder="Tìm kiếm ứng viên theo tên hoặc chương trình..."
               className="search-input-large"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -113,48 +88,56 @@ export default function StudentDirectory() {
         </div>
 
         <div className="table-container">
-          <table className="students-table">
-            <thead>
-              <tr>
-                <th>Sinh viên</th>
-                <th>Chương trình</th>
-                <th>Năm học</th>
-                <th>GPA</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student.id}>
-                  <td>
-                    <div className="student-info">
-                      <div className={`student-avatar ${student.gradient}`}>
-                        {student.initials}
-                      </div>
-                      <span className="student-name">{student.name}</span>
-                    </div>
-                  </td>
-                  <td className="text-secondary">{student.program}</td>
-                  <td className="text-secondary">{student.year}</td>
-                  <td className="gpa-cell">{student.gpa}</td>
-                  <td>
-                    <span className={`status-badge ${getStatusClass(student.status)}`}>
-                      {student.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button className="action-link">Xem Hồ sơ →</button>
-                  </td>
+          {loading ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>Đang tải dữ liệu...</div>
+          ) : error ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>{error}</div>
+          ) : (
+            <table className="students-table">
+              <thead>
+                <tr>
+                  <th>Sinh viên</th>
+                  <th>Chương trình</th>
+                  <th>Năm học</th>
+                  <th>GPA</th>
+                  <th>Trạng thái</th>
+                  <th>Hành động</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.length === 0 ? (
+                  <tr><td colSpan="6" style={{ textAlign: 'center', padding: '40px', color: '#94a3b8' }}>Chưa có ứng viên nào ứng tuyển.</td></tr>
+                ) : filtered.map((student) => (
+                  <tr key={student.id}>
+                    <td>
+                      <div className="candidate-info">
+                        <div className={`candidate-avatar ${student.gradient}`}>
+                          {student.initials}
+                        </div>
+                        <span className="candidate-name">{student.name}</span>
+                      </div>
+                    </td>
+                    <td className="text-secondary">{student.program}</td>
+                    <td className="text-secondary">{student.year}</td>
+                    <td className="gpa-cell">{student.gpa}</td>
+                    <td>
+                      <span className={`status-badge ${getStatusClass(student.status)}`}>
+                        {student.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button className="action-link">Xem Hồ sơ →</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className="table-pagination">
           <div className="pagination-info">
-            Đang hiển thị 1-6 trong 1,247 sinh viên
+            Đang hiển thị 1-6 trong 1,247 ứng viên
           </div>
           <div className="pagination-controls">
             <button className="pagination-btn">

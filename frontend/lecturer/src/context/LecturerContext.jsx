@@ -15,7 +15,7 @@ export function LecturerProvider({ children }) {
         // Initial auth check from URL
         const queryParams = new URLSearchParams(window.location.search);
         const token = queryParams.get('token');
-        
+
         if (token) {
             localStorage.setItem('access_token', token);
             window.history.replaceState({}, document.title, window.location.pathname);
@@ -27,13 +27,15 @@ export function LecturerProvider({ children }) {
         setLoading(false);
     }, []);
 
+    const [isOpen, setIsOpen] = useState(true);
+
     const logout = () => {
         localStorage.removeItem('access_token');
         window.location.href = import.meta.env.VITE_LOGIN_URL || 'http://localhost:3000';
     };
 
     return (
-        <LecturerContext.Provider value={{ isAuthenticated, loading, logout }}>
+        <LecturerContext.Provider value={{ isAuthenticated, loading, logout, isOpen, setIsOpen }}>
             {children}
         </LecturerContext.Provider>
     );

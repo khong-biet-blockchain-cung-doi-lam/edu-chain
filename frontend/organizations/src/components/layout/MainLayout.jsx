@@ -9,17 +9,20 @@ export default function MainLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="portal-wrapper">
-      <NEUHeader />
-      <div className="portal-layout organization-portal">
-        <OrgSidebar isOpen={sidebarOpen} />
-        <div className={`portal-main ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+    <div className="portal-layout organization-portal">
+      <OrgSidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+
+      <div className={`portal-main-wrapper ${sidebarOpen ? 'sidebar-open' : 'sidebar-closed'}`}>
+        <NEUHeader roleLabel="ĐỐI TÁC" />
+
+        <main className="portal-main">
           <div className="portal-content">
             <Outlet />
           </div>
-        </div>
+        </main>
+
+        <NEUFooter />
       </div>
-      <NEUFooter />
     </div>
   );
 }

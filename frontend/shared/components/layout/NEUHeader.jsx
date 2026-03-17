@@ -1,8 +1,7 @@
 import React from 'react';
-import { Search } from 'lucide-react';
 import './NEUHeader.css';
 
-export default function NEUHeader() {
+export default function NEUHeader({ roleLabel = "SINH VIÊN" }) {
     return (
         <header className="neu-header">
             <div className="header-top-bar">
@@ -17,22 +16,9 @@ export default function NEUHeader() {
                         </div>
                     </div>
 
-                    <nav className="header-nav">
-                        <ul className="nav-list">
-                            <li><a href="/" className="nav-link">Trang chủ</a></li>
-                            <li><a href="/about" className="nav-link">Giới thiệu</a></li>
-                            <li><a href="/admissions" className="nav-link">Tuyển sinh</a></li>
-                            <li><a href="/training" className="nav-link">Đào tạo</a></li>
-                            <li><a href="/research" className="nav-link">Nghiên cứu</a></li>
-                        </ul>
-                    </nav>
-
                     <div className="header-actions">
-                        <button className="btn-search">
-                            <Search size={20} color="var(--neu-azure)" />
-                        </button>
                         <button className="btn btn-neu-red btn-enroll">
-                            TUYỂN SINH
+                            {roleLabel}
                         </button>
                     </div>
                 </div>

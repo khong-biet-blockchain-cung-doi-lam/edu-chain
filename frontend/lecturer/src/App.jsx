@@ -6,6 +6,7 @@ import LectureDashboard from './pages/LectureDashboard';
 import ClassDetails from './pages/ClassDetails';
 import LecturerProfile from './pages/LecturerProfile';
 import ClassAssignment from './pages/ClassAssignment';
+import GradeManagement from './pages/GradeManagement';
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<LectureDashboard />} />
             <Route path="classes/:id" element={<ClassDetails />} />
+            <Route path="grade-management" element={<GradeManagement />} />
             <Route path="profile" element={<LecturerProfile />} />
             <Route path="class-assignment" element={<ClassAssignment />} />
           </Route>

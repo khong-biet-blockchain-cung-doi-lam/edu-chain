@@ -22,7 +22,7 @@ export default function AppRoutes() {
           <Route path="create" element={<PostScholarship />} />
           <Route path="edit/:id" element={<PostScholarship />} />
         </Route>
-        <Route path="students" element={<StudentDirectory />} />
+        <Route path="candidates" element={<StudentDirectory />} />
         <Route path="applications" element={<Applications />} />
         <Route path="analytics" element={<Analytics />} />
         <Route path="profile" element={<Profile />} />

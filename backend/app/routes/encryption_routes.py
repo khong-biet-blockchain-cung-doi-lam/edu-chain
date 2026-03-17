@@ -213,6 +213,99 @@ def encrypt_student_grades(student_id):
         "status": "ENCRYPTED"
     }), 201
 
+@bp_encrypt.route("/class-grades/<class_id>", methods=["POST"])
+@jwt_required()
+@require_roles(Role.KHAO_THI, Role.ADMIN)
+def encrypt_class_grades(class_id):
+    """
+    Mã hóa toàn bộ điểm số của một lớp học phần → lưu vào EncryptedCluster.
+    """
+    from app.models.course_models import CourseClass
+    try:
+        class_uuid = uuid.UUID(class_id)
+    except ValueError:
+        return jsonify({"msg": "ID không hợp lệ"}), 400
+
+    course_class = CourseClass.query.get(class_uuid)
+    if not course_class:
+        return jsonify({"msg": "Lớp học phần không tồn tại"}), 404
+
+    grades = course_class.grades
+    if not grades:
+        return jsonify({"msg": "Lớp chưa có dữ liệu điểm"}), 404
+
+    # Build grades data for the whole class
+    grades_list = []
+    for g in grades:
+        s = g.student
+        full_name = ""
+        if s and s.personal_info:
+            pi = s.personal_info
+            full_name = f"{pi.last_name} {pi.first_name}".strip()
+        grades_list.append({
+            "grade_id": str(g.id),
+            "student_id": s.student_id if s else None,
+            "full_name": full_name,
+            "class_code": course_class.class_code,
+            "class_name": course_class.name,
+            "subject": course_class.subject.name if course_class.subject else None,
+            "credits": course_class.subject.credits if course_class.subject else None,
+            "semester": course_class.semester.code if course_class.semester else None,
+            "regular_score": g.regular_score,
+            "midterm_score": g.midterm_score,
+            "final_score": g.final_score,
+            "total_score": g.total_score,
+            "status": g.status,
+        })
+
+    class_data = {
+        "cluster_type": "student_grades",
+        "class_id": str(course_class.id),
+        "class_code": course_class.class_code,
+        "class_name": course_class.name,
+        "subject": course_class.subject.name if course_class.subject else None,
+        "semester": course_class.semester.code if course_class.semester else None,
+        "total_students": len(grades_list),
+        "grades": grades_list,
+    }
+
+    try:
+        public_key = get_public_key(Role.KHAO_THI)
+    except EnvironmentError as e:
+        return jsonify({"msg": str(e), "hint": "Chạy /api/encrypt/init-keys để tạo key"}), 500
+
+    encrypted = hybrid_encrypt(class_data, public_key)
+
+    existing = EncryptedCluster.query.filter_by(
+        cluster_type="student_grades",
+        subject_id=class_uuid
+    ).order_by(EncryptedCluster.version.desc()).first()
+
+    version = (existing.version + 1) if existing else 1
+
+    cluster = EncryptedCluster(
+        cluster_type="student_grades",
+        subject_id=class_uuid,
+        subject_code=course_class.class_code,
+        ciphertext=encrypted["ciphertext"],
+        iv=encrypted["iv"],
+        encrypted_aes_key=encrypted["encrypted_aes_key"],
+        managed_by_role=Role.KHAO_THI,
+        status="ENCRYPTED",
+        version=version
+    )
+    db.session.add(cluster)
+    db.session.commit()
+
+    return jsonify({
+        "msg": f"Đã mã hóa {len(grades)} sinh viên trong lớp {course_class.class_code}",
+        "cluster_id": str(cluster.id),
+        "subject_code": course_class.class_code,
+        "total_students": len(grades_list),
+        "version": version,
+        "status": "ENCRYPTED"
+    }), 201
+
 @bp_decrypt.route("/cluster/<cluster_id>", methods=["POST"])
 @jwt_required()
 @require_roles(Role.QL_DAO_TAO, Role.KHAO_THI, Role.ADMIN)
@@ -273,8 +366,82 @@ def decrypt_cluster(cluster_id):
         "subject_code": cluster.subject_code,
         "status": "DECRYPTED",
         "decrypted_at": cluster.decrypted_at.isoformat(),
-        "data": decrypted_data                                    
+        "data": decrypted_data
     }), 200
+
+@bp_encrypt.route("/send-to-blockchain/<cluster_id>", methods=["POST"])
+@jwt_required()
+@require_roles(Role.QL_DAO_TAO, Role.KHAO_THI, Role.ADMIN)
+def send_to_blockchain(cluster_id):
+    account, role = get_current_account_role()
+    
+    try:
+        cluster_uuid = uuid.UUID(cluster_id)
+    except ValueError:
+        return jsonify({"msg": "Cluster ID không hợp lệ"}), 400
+
+    cluster = EncryptedCluster.query.get(cluster_uuid)
+    if not cluster:
+        return jsonify({"msg": "Cluster không tồn tại"}), 404
+
+    if role != Role.ADMIN and cluster.managed_by_role != role:
+        return jsonify({"msg": "Không có quyền gửi cluster này"}), 403
+
+    if cluster.status != "DECRYPTED":
+        return jsonify({"msg": "Chỉ có thể gửi cluster đã được giải mã cẩn thận"}), 400
+
+    data = request.get_json() or {}
+    decrypted_data = data.get("data")
+    if not decrypted_data:
+        return jsonify({"msg": "Vui lòng cung cấp dữ liệu đã giải mã để gửi"}), 400
+
+    from app.services.blockchain_service import BlockchainService
+    bc_service = BlockchainService()
+
+    # In a real system, you would fetch the proper keys and addresses for authorized parties.
+    # We use empty lists or admin key for demonstration to let the contract logic handle defaults.
+    system_pk = bc_service._system_pk
+    
+    try:
+        tx_info = {}
+        if cluster.cluster_type == "student_profile":
+            tx_info = bc_service.create_student_profile(
+                student_id=cluster.subject_code,
+                profile_data=decrypted_data,
+                authorized_public_keys_pem=[],
+                authorized_addresses=[],
+                private_key=system_pk
+            )
+        elif cluster.cluster_type == "student_grades":
+            tx_info = bc_service.submit_grade(
+                student_id=cluster.subject_code,
+                semester_id="HK1_2526", # Using default mock semester for now
+                grade_data=decrypted_data,
+                authorized_public_keys_pem=[],
+                authorized_addresses=[],
+                private_key=system_pk
+            )
+            
+            # Send email
+            from app.utils.email_utils import send_grades_email
+            student = Student.query.filter_by(student_id=cluster.subject_code).first()
+            if student and hasattr(student, 'contact') and student.contact and student.contact.personal_email:
+                send_grades_email(student.contact.personal_email, student.student_id, decrypted_data)
+        
+        cluster.status = "SENT"
+        # We would ideally have 'tx_hash' and 'ipfs_hash' columns in EncryptedCluster, 
+        # but since they might not be added in the DB schema, we return them in the response.
+        db.session.commit()
+        
+        return jsonify({
+            "msg": "Đã gửi dữ liệu lên Blockchain thành công",
+            "tx_hash": tx_info.get("tx_hash"),
+            "ipfs_hash": tx_info.get("ipfs_hash"),
+            "status": "SENT"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"msg": "Blockchain Error", "detail": str(e)}), 400
 
 @bp_encrypt.route("/init-keys", methods=["POST"])
 @jwt_required()

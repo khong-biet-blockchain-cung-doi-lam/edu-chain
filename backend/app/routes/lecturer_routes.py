@@ -4,6 +4,7 @@ from app.models.course_models import CourseClass, Grade
 from app.models.account_model import Account
 from app.services.grade_service import GradeService
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from app.services.grade_upload_service import process_grade_excel
 
 bp_lecturer = Blueprint("lecturer", __name__, url_prefix="/api/lecturer")
 
@@ -265,3 +266,33 @@ def release_class(class_id):
     course_class.lecturer_id = None
     db.session.commit()
     return jsonify({"msg": "Đã trả lại lớp học phần"}), 200
+
+@bp_lecturer.route("/classes/<class_id>/upload-grades", methods=["POST"])
+@jwt_required()
+def upload_grades(class_id):
+    """Giảng viên upload file excel điểm cho lớp học phần"""
+    lecturer = get_current_lecturer()
+    if not lecturer:
+         return jsonify({"msg": "Unauthorized"}), 401
+
+    if 'file' not in request.files:
+        return jsonify({"msg": "Không tìm thấy file trong request"}), 400
+    file = request.files['file']
+    if file.filename == "":
+        return jsonify({"msg": "Tên file rỗng"}), 400
+
+    course_class = CourseClass.query.get(class_id)
+    if not course_class:
+        return jsonify({"msg": "Lớp học phần không tồn tại"}), 404
+        
+    if course_class.lecturer_id != lecturer.id:
+        return jsonify({"msg": "Access denied"}), 403
+
+    try:
+        results = process_grade_excel(file, class_id)
+        if "errors" in results and "updated" not in results and "created" not in results:
+             return jsonify(results), 400
+        return jsonify(results), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"msg": "Lỗi hệ thống", "error": str(e)}), 500

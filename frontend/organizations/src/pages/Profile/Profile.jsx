@@ -1,8 +1,8 @@
 // frontend/organizations/src/pages/Profile/Profile.jsx
 import React, { useState } from 'react';
-import { 
-  Building2, MapPin, Mail, Phone, Globe, Users, 
-  Calendar, Award, CheckCircle, Edit, Save, X 
+import {
+  Building2, MapPin, Mail, Phone, Globe, Users,
+  Calendar, Award, CheckCircle, Edit, Save, X
 } from 'lucide-react';
 import './Profile.css';
 
@@ -53,7 +53,7 @@ export default function Profile() {
 
   const stats = [
     { label: 'Học bổng Đã Tạo', value: '23', icon: Award },
-    { label: 'Sinh viên Đã Hỗ trợ', value: '156', icon: Users },
+    { label: 'Ứng viên Đã Hỗ trợ', value: '156', icon: Users },
     { label: 'Số Năm Hoạt động', value: '9', icon: Calendar },
     { label: 'Tỷ lệ Thành công', value: '87%', icon: CheckCircle }
   ];

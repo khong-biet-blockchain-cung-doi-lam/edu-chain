@@ -1,18 +1,24 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
-export default function config() {
-    return defineConfig({
-        plugins: [react()],
-        server: {
-            port: 5003,
-            open: true
-        },
-        resolve: {
-            alias: {
-                '@': '/src',
-                '@shared': '../shared'
-            }
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+export default defineConfig({
+    plugins: [react()],
+    server: {
+        host: '127.0.0.1',
+        port: 5003,
+        open: true,
+        fs: {
+            allow: ['..']
         }
-    });
-}
+    },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, './src'),
+            '@shared': path.resolve(__dirname, '../shared')
+        }
+    }
+});

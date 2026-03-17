@@ -4,17 +4,19 @@ import classService from '../../services/classService';
 import userService from '../../services/userService';
 import courseService from '../../services/courseService';
 import axios from 'axios';
+import { useAdmin } from '../../context/AdminContext';
 import './ClassManagement.css';
 
 export default function ClassManagement() {
+  const { currentRole } = useAdmin();
   const [classes, setClasses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
-  const [semesters, setSemesters] = useState([{id: 1, name: "Học kỳ 1 2025-2026", code: "HK1_2526"}]); // Mock semester until semester route exists
+  const [semesters, setSemesters] = useState([{ id: 1, name: "Học kỳ 1 2025-2026", code: "HK1_2526" }]); // Mock semester until semester route exists
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [msg, setMsg] = useState({ text: '', type: '' });
-  
+
   // Modal state
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedClass, setSelectedClass] = useState(null);
@@ -41,20 +43,20 @@ export default function ClassManagement() {
       // Fetch classes
       const classData = await classService.getAllClasses();
       setClasses(classData);
-      
+
       // Fetch lecturers (GIANG_VIEN) for the dropdown
       const usersData = await userService.getAllUsers();
       const giangVien = usersData.filter(u => u.role === 'GIANG_VIEN');
       setLecturers(giangVien);
-      
+
       // Fetch courses (subjects) for Create Class dropdown
       try {
-          const coursesData = await courseService.getAllCourses();
-          setCourses(coursesData);
+        const coursesData = await courseService.getAllCourses();
+        setCourses(coursesData);
       } catch (err) {
-          console.error("Could not fetch courses", err);
+        console.error("Could not fetch courses", err);
       }
-      
+
     } catch (error) {
       console.error(error);
       setMsg({ text: 'Lỗi tải dữ liệu lớp học', type: 'error' });
@@ -69,34 +71,34 @@ export default function ClassManagement() {
   };
 
   const handleCreateClass = async (e) => {
-      e.preventDefault();
-      if (!formData.subject_id) {
-          alert("Vui lòng chọn học phần/môn học");
-          return;
-      }
-      
-      setCreating(true);
-      try {
-          // Since semester is mocked, let's bypass if the API requires UUID by creating it or using a hardcoded one the backend accepts,
-          // for now we'll send it but if it fails we show error. 
-          // Ideally we would fetch semesters from an API.
-          await classService.createClass({
-              class_code: formData.class_code,
-              name: formData.name,
-              subject_id: formData.subject_id,
-              semester_id: '123e4567-e89b-12d3-a456-426614174000' // Mock UUID for backend
-          });
-          setMsg({ text: 'Tạo lớp học thành công!', type: 'success' });
-          setShowCreateModal(false);
-          setFormData({ class_code: '', name: '', subject_id: '', semester_id: 1 });
-          fetchData();
-      } catch (error) {
-          console.error(error);
-          alert('Lỗi khi tạo lớp (Có thể do CSDL thiếu Học kỳ): ' + (error.response?.data?.msg || error.message));
-      } finally {
-          setCreating(false);
-          setTimeout(() => setMsg({ text: '', type: '' }), 4000);
-      }
+    e.preventDefault();
+    if (!formData.subject_id) {
+      alert("Vui lòng chọn học phần/môn học");
+      return;
+    }
+
+    setCreating(true);
+    try {
+      // Since semester is mocked, let's bypass if the API requires UUID by creating it or using a hardcoded one the backend accepts,
+      // for now we'll send it but if it fails we show error. 
+      // Ideally we would fetch semesters from an API.
+      await classService.createClass({
+        class_code: formData.class_code,
+        name: formData.name,
+        subject_id: formData.subject_id,
+        semester_id: '123e4567-e89b-12d3-a456-426614174000' // Mock UUID for backend
+      });
+      setMsg({ text: 'Tạo lớp học thành công!', type: 'success' });
+      setShowCreateModal(false);
+      setFormData({ class_code: '', name: '', subject_id: '', semester_id: 1 });
+      fetchData();
+    } catch (error) {
+      console.error(error);
+      alert('Lỗi khi tạo lớp (Có thể do CSDL thiếu Học kỳ): ' + (error.response?.data?.msg || error.message));
+    } finally {
+      setCreating(false);
+      setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+    }
   };
 
   const handleOpenAssignModal = (cls) => {
@@ -116,7 +118,7 @@ export default function ClassManagement() {
       alert("Vui lòng chọn giảng viên");
       return;
     }
-    
+
     setAssigning(true);
     try {
       // Note: we might need account.id to lecturer.id mapping
@@ -135,7 +137,7 @@ export default function ClassManagement() {
   };
 
   const filteredClasses = classes.filter(cls => {
-    const matchesSearch = 
+    const matchesSearch =
       cls.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cls.class_code.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesSearch;
@@ -148,10 +150,12 @@ export default function ClassManagement() {
           <h1 className="page-title">Quản lý Lớp học phần</h1>
           <p className="page-subtitle">Quản lý lớp học và phân công giảng viên</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
-          <Plus size={18} />
-          Tạo Lớp Mới
-        </button>
+        {currentRole === 'QL_DAO_TAO' && (
+          <button className="btn btn-primary" onClick={() => setShowCreateModal(true)}>
+            <Plus size={18} />
+            Tạo Lớp Mới
+          </button>
+        )}
       </div>
 
       {msg.text && (
@@ -239,20 +243,22 @@ export default function ClassManagement() {
                     )}
                   </td>
                   <td>
-                    <button 
-                      onClick={() => handleOpenAssignModal(cls)}
-                      className="btn-action primary"
-                    >
-                      <UserPlus size={16} />
-                      Phân công
-                    </button>
+                    {currentRole !== 'QL_DAO_TAO' && (
+                      <button
+                        onClick={() => handleOpenAssignModal(cls)}
+                        className="btn-action primary"
+                      >
+                        <UserPlus size={16} />
+                        Phân công
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
-        
+
         {!loading && filteredClasses.length === 0 && (
           <div className="empty-state">
             <h3 className="empty-title">Không tìm thấy lớp học nào</h3>
@@ -270,7 +276,7 @@ export default function ClassManagement() {
             </div>
             <div className="modal-body">
               <label className="form-label">Chọn giảng viên:</label>
-              <select 
+              <select
                 className="form-select"
                 value={selectedLecturerId}
                 onChange={(e) => setSelectedLecturerId(e.target.value)}
@@ -284,15 +290,15 @@ export default function ClassManagement() {
               </select>
             </div>
             <div className="modal-footer">
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 onClick={handleCloseModal}
                 disabled={assigning}
               >
                 Hủy
               </button>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={handleAssignLecturer}
                 disabled={assigning || !selectedLecturerId}
               >
@@ -313,8 +319,8 @@ export default function ClassManagement() {
             <form onSubmit={handleCreateClass} className="modal-body">
               <div style={{ marginBottom: '15px' }}>
                 <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Mã Lớp (VD: L01, IT4501-1):</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="form-control"
                   style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                   name="class_code"
@@ -325,8 +331,8 @@ export default function ClassManagement() {
               </div>
               <div style={{ marginBottom: '15px' }}>
                 <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Tên Lớp (Mô tả):</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   className="form-control"
                   style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                   name="name"
@@ -337,7 +343,7 @@ export default function ClassManagement() {
               </div>
               <div style={{ marginBottom: '15px' }}>
                 <label className="form-label" style={{ display: 'block', marginBottom: '5px' }}>Môn học / Học phần:</label>
-                <select 
+                <select
                   className="form-select"
                   style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}
                   name="subject_id"
@@ -354,17 +360,17 @@ export default function ClassManagement() {
                 </select>
               </div>
               <div className="modal-footer" style={{ marginTop: '20px' }}>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   onClick={() => setShowCreateModal(false)}
                   disabled={creating}
                 >
                   Hủy
                 </button>
-                <button 
+                <button
                   type="submit"
-                  className="btn btn-primary" 
+                  className="btn btn-primary"
                   disabled={creating}
                 >
                   {creating ? 'Đang tạo...' : 'Lưu Thay đổi'}

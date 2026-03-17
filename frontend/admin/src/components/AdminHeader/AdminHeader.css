@@ -1,16 +1,16 @@
 .admin-header {
   height: 70px;
-  background: var(--neu-white);
-  border-bottom: 1px solid var(--neu-azure-light);
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem;
+  padding: 0 2.5rem;
   position: sticky;
   top: 0;
   z-index: 50;
   margin-bottom: 1rem;
-  border-radius: var(--radius-md);
+  box-shadow: 0 1px 4px rgba(0, 33, 71, 0.06);
 }
 
 .header-left {
@@ -46,15 +46,15 @@
 }
 
 .breadcrumb-text {
-  color: var(--text-secondary);
+  color: #64748b;
 }
 
 .breadcrumb-separator {
-  color: var(--text-muted);
+  color: #cbd5e1;
 }
 
 .breadcrumb-current {
-  color: var(--neu-navy-deep);
+  color: #0f172a;
   font-weight: 700;
 }
 
@@ -80,18 +80,19 @@
 .search-input {
   width: 100%;
   padding: 0.6rem 1rem 0.6rem 2.5rem;
-  border: 1px solid var(--neu-azure-light);
-  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
   font-size: 0.875rem;
   transition: all 0.3s;
-  background: var(--gray-50);
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .search-input:focus {
   outline: none;
   border-color: var(--neu-azure);
   background: white;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 0 3px rgba(0, 82, 140, 0.1);
 }
 
 .notification-btn {
@@ -99,8 +100,8 @@
   width: 40px;
   height: 40px;
   border: none;
-  background: var(--gray-50);
-  color: var(--text-secondary);
+  background: #f8fafc;
+  color: #64748b;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -110,7 +111,7 @@
 }
 
 .notification-btn:hover {
-  background: var(--neu-azure-light);
+  background: #eff6ff;
   color: var(--neu-azure);
 }
 
@@ -164,7 +165,7 @@
 .user-name {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--neu-navy-deep);
+  color: #0f172a;
   line-height: 1.2;
 }
 

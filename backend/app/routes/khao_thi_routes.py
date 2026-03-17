@@ -105,6 +105,49 @@ def get_classes():
         
     return jsonify(classes_list), 200
 
+@bp_khao_thi.route("/classes/<class_id>/grades", methods=["GET"])
+@jwt_required()
+@role_required(Role.KHAO_THI, Role.ADMIN)
+def get_class_grades(class_id):
+    """Lấy danh sách sinh viên và điểm của một lớp học phần"""
+    try:
+        class_uuid = uuid.UUID(class_id)
+    except:
+        return jsonify({"msg": "ID không hợp lệ"}), 400
+
+    course_class = CourseClass.query.get(class_uuid)
+    if not course_class:
+        return jsonify({"msg": "Lớp không tồn tại"}), 404
+
+    grades_list = []
+    for g in course_class.grades:
+        s = g.student
+        full_name = ""
+        if s and s.personal_info:
+            pi = s.personal_info
+            full_name = f"{pi.last_name} {pi.first_name}".strip()
+        grades_list.append({
+            "grade_id": str(g.id),
+            "student_id": str(s.id) if s else None,
+            "student_code": s.student_id if s else "—",
+            "full_name": full_name,
+            "regular_score": g.regular_score,
+            "midterm_score": g.midterm_score,
+            "final_score": g.final_score,
+            "total_score": g.total_score,
+            "status": g.status,
+            "is_finalized": g.is_finalized,
+            "is_pending_review": g.is_pending_review,
+        })
+
+    return jsonify({
+        "class_id": str(course_class.id),
+        "class_code": course_class.class_code,
+        "name": course_class.name,
+        "grades": grades_list,
+        "total": len(grades_list)
+    }), 200
+
 @bp_khao_thi.route("/grades/<grade_id>/notes", methods=["PATCH"])
 @jwt_required()
 @role_required(Role.KHAO_THI, Role.ADMIN)
