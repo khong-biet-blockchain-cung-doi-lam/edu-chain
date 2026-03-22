@@ -187,4 +187,23 @@ Invoke-RestMethod -Uri "http://127.0.0.1:5001/api/management/accounts" `
 
 ---
 
-*Cập nhật: 2026-03-05*
+## 7. Hướng Dẫn Test Chống Rò Rỉ Dữ Liệu Nội Bộ (DLP)
+
+Hệ thống đã được bổ sung giải pháp Bảo Mật Chống rò rỉ dữ liệu (Insider Threats):
+
+1. **Lưới Bản Quyền (Watermark Động)**
+   - Đăng nhập `gv_an` (Pass: `Gv@123`) -> Vào **Lớp của tôi** -> Chọn một lớp.
+   - Bạn sẽ thấy lưới chữ "BẢO MẬT: GIẢNG VIÊN - EDU-CHAIN" được nhúng đè lên các trang nhạy cảm nhằm ngăn chặn việc chụp lén màn hình tuồn thông tin ra ngoài. (Cơ chế tương tự tại màn Tổ chức/Danh sách ứng viên).
+
+2. **Khóa Copy và In (Global Restrictions)**
+   - Hệ thống trên toàn bộ các Portal hiện đã **Khóa Bôi đen** copy dữ liệu.
+   - Thử nhấn **Ctrl + P** để in thử màn hình danh sách, trình duyệt sẽ tự che giấu tất cả thành trang giấy trắng.
+
+3. **Chế Độ Che Giấu Dữ Liệu (Data Masking) & Ghi Log (Audit Log)** 
+   - Tên Sinh viên, Mã sinh viên bị che mờ một phần (VD: `Nguyễn *** A`, `CQ59****`).
+   - Click vào biểu tượng con mắt (👁️) cạnh tên sinh viên để mở khóa xem dữ liệu đầy đủ.
+   - Mỗi lần click hiển thị, hệ thống tự động gọi API `POST /api/audit/log` vào Backend để lưu vết "Ai đã xem dữ liệu của ai vào lúc nào", sẵn sàng truy cứu trách nhiệm định kỳ.
+
+---
+
+*Cập nhật: 2026-03-*

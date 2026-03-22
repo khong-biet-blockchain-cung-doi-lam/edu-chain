@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api from '../api/axiosClient';
-import { ArrowLeft, Save, Loader2, CheckCircle2, UserCircle, FileSpreadsheet, Upload, X, SendHorizontal } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, CheckCircle2, UserCircle, FileSpreadsheet, Upload, X, SendHorizontal, Eye, EyeOff } from 'lucide-react';
+import { useDLP } from '../../../shared/hooks/useDLP';
 
 export default function ClassDetails() {
     const { id } = useParams();
@@ -10,9 +11,47 @@ export default function ClassDetails() {
     const [loading, setLoading] = useState(true);
     const [errorMsg, setErrorMsg] = useState("");
 
-    // State for tracking inline edits
+    // Kích hoạt các tính năng bảo mật vô hình
+    useDLP(true, 'EDU-CHAIN | Bảng Điểm');
+
     const [editingGrades, setEditingGrades] = useState({});
     const [savingId, setSavingId] = useState(null);
+
+    // Data Masking State
+    const [unmaskedRows, setUnmaskedRows] = useState(new Set());
+
+    const toggleMask = (id) => {
+        setUnmaskedRows(prev => {
+            const newSet = new Set(prev);
+            const isUnmasking = !newSet.has(id);
+            if (isUnmasking) {
+                newSet.add(id);
+                // Ghi nhận log truy cập dữ liệu cá nhân sinh viên
+                api.post('/audit/log', { 
+                    action: 'UNMASK_STUDENT_INFO', 
+                    target_id: id, 
+                    details: 'Lecturer viewed protected student identity' 
+                }).catch(e => console.error("Audit log failed", e));
+            } else {
+                newSet.delete(id);
+            }
+            return newSet;
+        });
+    };
+
+    const maskText = (text, isName) => {
+        if (!text) return '';
+        if (isName) {
+            const parts = text.split(' ');
+            if (parts.length <= 1) return text;
+            return `${parts[0]} *** ${parts[parts.length - 1]}`;
+        }
+        // Mask ID (e.g. CQ591234 -> CQ59****)
+        if (text.length > 4) {
+            return text.substring(0, 4) + '****';
+        }
+        return '****';
+    };
 
     // Review request
     const [requestingReview, setRequestingReview] = useState(false);
@@ -156,7 +195,8 @@ export default function ClassDetails() {
     if (!classInfo) return <div className="p-8 text-center text-gray-500">Không tìm thấy lớp học</div>;
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 dlp-protect">
+
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center space-x-4">
                     <Link to="/" className="p-2 bg-white rounded-full text-gray-500 hover:text-[#C41212] hover:bg-red-50 transition shadow-sm border border-gray-200">
@@ -240,9 +280,22 @@ export default function ClassDetails() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center space-x-3">
                                                 <UserCircle className="text-gray-400" size={24} />
-                                                <div>
-                                                    <p className="font-bold text-gray-800">{s.full_name}</p>
-                                                    <p className="text-xs text-gray-500 font-mono mt-0.5">{s.student_id}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <div>
+                                                        <p className="font-bold text-gray-800">
+                                                            {unmaskedRows.has(s.grade_id) ? s.full_name : maskText(s.full_name, true)}
+                                                        </p>
+                                                        <p className="text-xs text-gray-500 font-mono mt-0.5">
+                                                            {unmaskedRows.has(s.grade_id) ? s.student_id : maskText(s.student_id, false)}
+                                                        </p>
+                                                    </div>
+                                                    <button 
+                                                        onClick={() => toggleMask(s.grade_id)} 
+                                                        className="text-gray-400 hover:text-gray-600 transition p-1"
+                                                        title={unmaskedRows.has(s.grade_id) ? "Ẩn đi" : "Hiển thị đầy đủ"}
+                                                    >
+                                                        {unmaskedRows.has(s.grade_id) ? <EyeOff size={14} /> : <Eye size={14} />}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </td>

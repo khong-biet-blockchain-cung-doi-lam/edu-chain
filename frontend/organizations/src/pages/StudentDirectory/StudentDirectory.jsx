@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Download, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { Search, Filter, Download, ChevronLeft, ChevronRight, RefreshCw, Eye, EyeOff } from 'lucide-react';
 import applicationService from '../../services/applicationService';
+import { useDLP } from '../../../../shared/hooks/useDLP';
 import './StudentDirectory.css';
 
 export default function StudentDirectory() {
@@ -8,6 +9,35 @@ export default function StudentDirectory() {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unmaskedRows, setUnmaskedRows] = useState(new Set());
+
+  // Kích hoạt các tính năng bảo mật vô hình
+  useDLP(true, 'EDU-CHAIN | Hồ sơ Ứng viên');
+
+  const toggleMask = (id) => {
+    setUnmaskedRows(prev => {
+      const newSet = new Set(prev);
+      const isUnmasking = !newSet.has(id);
+      
+      if (isUnmasking) {
+        newSet.add(id);
+        // Đẩy log lên Backend
+        applicationService.logAudit('UNMASK_APPLICANT_INFO', id, 'Viewed protected applicant name');
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+
+  const maskName = (name) => {
+    if (!name) return '';
+    const parts = name.split(' ');
+    if (parts.length <= 1) return name;
+    const first = parts[0];
+    const last = parts[parts.length - 1];
+    return `${first} *** ${last}`;
+  };
 
   const fetchApplicants = async () => {
     try {
@@ -51,7 +81,8 @@ export default function StudentDirectory() {
   );
 
   return (
-    <div className="candidate-directory-page">
+    <div className="candidate-directory-page dlp-protect">
+
       <div className="directory-header">
         <div>
           <h1 className="directory-title">Hồ sơ Ứng viên</h1>
@@ -114,7 +145,16 @@ export default function StudentDirectory() {
                         <div className={`candidate-avatar ${student.gradient}`}>
                           {student.initials}
                         </div>
-                        <span className="candidate-name">{student.name}</span>
+                        <span className="candidate-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {unmaskedRows.has(student.id) ? student.name : maskName(student.name)}
+                          <button 
+                            onClick={() => toggleMask(student.id)} 
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+                            title={unmaskedRows.has(student.id) ? "Ẩn đi" : "Hiển thị đầy đủ (Sẽ ghi log hệ thống)"}
+                          >
+                            {unmaskedRows.has(student.id) ? <EyeOff size={14} /> : <Eye size={14} />}
+                          </button>
+                        </span>
                       </div>
                     </td>
                     <td className="text-secondary">{student.program}</td>

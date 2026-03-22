@@ -96,3 +96,22 @@ h6 {
   background: var(--neu-navy-deep);
   color: white;
 }
+
+/* ==============================================================
+   DATA LEAK PREVENTION (DLP) UTILITIES
+   ============================================================== */
+
+/* Khóa bôi đen văn bản */
+.dlp-protect {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Khóa in ấn toàn trang */
+@media print {
+  body {
+    display: none !important;
+  }
+}

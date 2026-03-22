@@ -4,6 +4,7 @@ import {
     CheckCircle, XCircle, Info, Edit3, Save, X, Lock, Send, Bell
 } from 'lucide-react';
 import axios from 'axios';
+import { useDLP } from '../../../../shared/hooks/useDLP';
 import './GradeManagement.css';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5001/api';
@@ -24,6 +25,7 @@ const STATUS_COLOR = {
 };
 
 export default function GradeManagement() {
+    useDLP(true, 'EDU-CHAIN | Quản lý Điểm - Khảo Thí');
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -172,7 +174,7 @@ export default function GradeManagement() {
     };
 
     return (
-        <div className="grade-mgmt-page">
+        <div className="grade-mgmt-page dlp-protect">
             {toast && (
                 <div className={`grade-toast ${toast.type}`}>
                     {toast.type === 'success' && <CheckCircle size={16} />}

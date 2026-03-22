@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Shield, CheckCircle, XCircle, Building2, FileSpreadsheet, Upload, X, Unlock } from 'lucide-react';
 import userService from '../../services/userService';
 import { useAdmin } from '../../context/AdminContext';
+import { useDLP } from '../../../../shared/hooks/useDLP';
 import './UserManagement.css';
 
 // =============================================
@@ -55,6 +56,7 @@ const ROLE_NAME = {
 
 export default function UserManagement() {
   const { currentRole } = useAdmin();
+  useDLP(true, 'EDU-CHAIN | Quản lý Người dùng');
   const creatableRoles = CREATABLE_ROLES[currentRole] || [];
   const pageConfig = PAGE_CONFIG[currentRole] || { title: 'Quản lý Người dùng', subtitle: '' };
   const defaultNewRole = creatableRoles[0]?.value || '';
@@ -243,7 +245,7 @@ export default function UserManagement() {
   };
 
   return (
-    <div className="user-management-page">
+    <div className="user-management-page dlp-protect">
       <div className="page-header">
         <div>
           <h1 className="page-title">{pageConfig.title}</h1>

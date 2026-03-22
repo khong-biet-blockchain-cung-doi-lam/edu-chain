@@ -1,0 +1,35 @@
+/* Watermark.css - Data Leak Prevention System */
+.dlp-watermark-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none; /* Đảm bảo không block các click, hover của người dùng */
+    z-index: 9999; /* Luôn nổi trên cùng để chống chụp ảnh */
+    overflow: hidden;
+    user-select: none; /* Không thể bôi đen */
+    -webkit-user-select: none;
+    pointer-events: none;
+}
+
+.dlp-watermark-layer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    width: 250vw;
+    height: 250vh;
+    transform: rotate(-35deg) translate(-25%, -25%); /* Nghiêng để khó xóa bằng pts */
+}
+
+.dlp-watermark-item {
+    color: rgba(15, 23, 42, 0.05); /* Rất nhạt để răn đe mà không che text */
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-family: 'Inter', monospace;
+    padding: 2.5rem 3.5rem;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
