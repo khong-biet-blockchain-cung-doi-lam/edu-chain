@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen,
   Settings, Shield, ClipboardList, Lock,
-  ClipboardCheck, UserCheck
+  ClipboardCheck, UserCheck, Activity
 } from 'lucide-react';
 
 const AdminContext = createContext();
@@ -33,7 +33,8 @@ export const MENU_BY_ROLE = {
     {
       section: 'HỆ THỐNG',
       items: [
-        { path: '/settings', icon: Settings, label: 'Cài đặt' }
+        { path: '/settings', icon: Settings, label: 'Cài đặt' },
+        { path: '/audit-logs', icon: Activity, label: 'Lưu vết hệ thống' }
       ]
     }
   ],

@@ -11,6 +11,7 @@ import ClassManagement from '../pages/ClassManagement/ClassManagement';
 import ProfileClusters from '../pages/EncryptionManagement/ProfileClusters';
 import GradeClusters from '../pages/EncryptionManagement/GradeClusters';
 import GradeManagement from '../pages/GradeManagement/GradeManagement';
+import AuditLogs from '../pages/AuditLogs/AuditLogs';
 
 export default function AppRoutes() {
   return (
@@ -29,6 +30,8 @@ export default function AppRoutes() {
         {/* Phòng Khảo thí */}
         <Route path="grade-clusters"   element={<GradeClusters />} />
         <Route path="grade-mgmt"       element={<GradeManagement />} />
+        {/* Hệ thống / Audit */}
+        <Route path="audit-logs"       element={<AuditLogs />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
     </Routes>
