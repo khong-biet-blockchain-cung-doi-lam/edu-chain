@@ -111,6 +111,21 @@ const applicationService = {
       console.error('Error downloading document:', error);
       throw error;
     }
+  },
+
+  // Log audit event for Data Leak Prevention (DLP)
+  logAudit: async (action, targetId, details = '') => {
+    try {
+      const response = await axios.post(
+        `${API_URL}/audit/log`,
+        { action, target_id: targetId, details },
+        getAuthHeader()
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Error logging audit:', error);
+      // Non-blocking error
+    }
   }
 };
 

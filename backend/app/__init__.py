@@ -6,6 +6,7 @@ from app.routes.academic_routes import bp_academic
 from app.routes.lecturer_routes import bp_lecturer
 from app.routes.encryption_routes import bp_encrypt, bp_decrypt
 from app.routes.khao_thi_routes import bp_khao_thi
+from app.routes.audit_routes import bp_audit
 from app.models import (
     organization_model,
     partner_model,
@@ -51,5 +52,6 @@ def create_app(config_object=None):
     app.register_blueprint(bp_encrypt)
     app.register_blueprint(bp_decrypt)
     app.register_blueprint(bp_khao_thi)
+    app.register_blueprint(bp_audit)
 
     return app

@@ -5,10 +5,12 @@ import userService from '../../services/userService';
 import courseService from '../../services/courseService';
 import axios from 'axios';
 import { useAdmin } from '../../context/AdminContext';
+import { useDLP } from '../../../../shared/hooks/useDLP';
 import './ClassManagement.css';
 
 export default function ClassManagement() {
   const { currentRole } = useAdmin();
+  useDLP(true, 'EDU-CHAIN | Quản lý Lớp học Phần');
   const [classes, setClasses] = useState([]);
   const [lecturers, setLecturers] = useState([]);
   const [courses, setCourses] = useState([]);
@@ -144,7 +146,7 @@ export default function ClassManagement() {
   });
 
   return (
-    <div className="class-management-page">
+    <div className="class-management-page dlp-protect">
       <div className="page-header">
         <div>
           <h1 className="page-title">Quản lý Lớp học phần</h1>

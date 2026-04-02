@@ -7,3 +7,4 @@ from .academic_models import Major, Cohort, Curriculum
 from .enums import AcademicStatus
 from .course_models import Subject, Semester, CourseClass, Grade
 from .staff_models import Lecturer, Staff, LecturerSubject
+from .audit_log_model import AuditLog
